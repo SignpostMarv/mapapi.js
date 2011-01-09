@@ -99,8 +99,10 @@ var slDebugMap = false;
 //  of bandwidth but possible browser limits on number of open files
 //
 
-var slTileHost1 = "http://map.secondlife.com.s3.amazonaws.com";
-var slTileHost2 = "http://map.secondlife.com";
+var slTileHost = [
+	"http://map.secondlife.com.s3.amazonaws.com",
+	"http://map.secondlife.com"
+];
 
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
@@ -241,11 +243,7 @@ function landCustomGetTileUrl(pos, zoom)
     y -= y % regions_per_tile_edge; 
 
     //  Pick a server
-    
-    if (((x / regions_per_tile_edge) % 2) == 1)
-       var host_name = slTileHost1;
-    else
-       var host_name = slTileHost2; 
+	var host_name = slTileHost[((x / regions_per_tile_edge) % 2)];
 
     //  Get image tiles from Amazon S3
     f = host_name + "/map-" + sl_zoom + "-" + x + "-" + y + "-objects.jpg";
