@@ -1250,8 +1250,7 @@ function gotoSLURL(x,y,slMap)
 
 		// Add a dynamic script to get this region name, and then trigger a URL change
 		// based on the results
-		var scriptURL = "http://slurl.com/get-region-name-by-coords"
-                + "?var=slRegionName&grid_x=" + int_x + "&grid_y="+ int_y;
+		var scriptURL = "http://slurl.com/get-region-name-by-coords?var=slRegionName&grid_x=" + int_x + "&grid_y=" + int_y;
 
 		// Once the script has loaded, we use the result to teleport the user into SL    
 		var onLoadHandler = function () 
