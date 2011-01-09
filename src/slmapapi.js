@@ -82,6 +82,23 @@ Object.extend = function(destination, source)
 // ...end of prototype.js functions
 //
 
+// SLURL namespace
+var SLURL = {
+	getRegionCoordsByNameQueue : 0,
+	getRegionCoordsByNameVar   : function(){
+		return 'slurlGetRegionCoordsByName_' + (++SLURL.getRegionCoordsByNameQueue);
+	},
+	getRegionCoordsByName      : function(region, onLoadHandler, variable){
+		variable = variable || 'slRegionPos_result';
+		slAddDynamicScript(
+			'http://slurl.com/get-region-coords-by-name?var=' + encodeURIComponent(variable) + '&sim_name=' + encodeURIComponent(region),
+			function(){
+				onLoadHandler(window[variable]);
+			}
+		);
+	}
+}
+
 // Utility functions
 
 function getRandomNumber(maxNumber)
@@ -324,15 +341,30 @@ Bounds.prototype._SetFromGLatLngBounds = function(gbounds)
 
 // ------------------------------------
 //
-//       SLPoint - UNIMPLEMENTED!
+//       SLPoint - Finally implemented by SignpostMarv
 //
 // ------------------------------------
 
-function SLPoint(regionName, localX, localY)
-{
-		this.x = 0;
-		this.y = 0;
+function SLPoint(regionName, localX, localY){
+	var obj = this;
+	SLURL.getRegionCoordsByName(regionName, function(result){
+		if(slDebugMap){
+			if(result == undefined){
+				alert('API query for region co-ordinates failed');
+			}else if(result.error){
+				alert('API query returned an error');
+			}
+		}else if(typeof result == 'object'){
+			if(result.x && result.y){
+				obj.x = result.x + (Math.min(Math.max(localX, 0), 256) / 256);
+				obj.y = result.y + (Math.min(Math.max(localY, 0), 256) / 256);
+				obj.found = true;
+			}
+		}
+	}, SLURL.getRegionCoordsByNameVar());
 }
+
+SLPoint.prototype = new XYPoint;
 
 
 // ------------------------------------
