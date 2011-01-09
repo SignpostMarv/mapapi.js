@@ -242,12 +242,10 @@ function landCustomGetTileUrl(pos, zoom)
     x -= x % regions_per_tile_edge;
     y -= y % regions_per_tile_edge; 
 
-    //  Pick a server
-	var host_name = slTileHost[((x / regions_per_tile_edge) % 2)];
-
-    //  Get image tiles from Amazon S3
-    f = host_name + "/map-" + sl_zoom + "-" + x + "-" + y + "-objects.jpg";
-    return f;
+    return (
+		slTileHost[((x / regions_per_tile_edge) % 2)] //  Pick a server
+		+ ["/map", sl_zoom, x, y, "objects.jpg"].join("-") //  Get image tiles from Amazon S3
+	);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
