@@ -703,7 +703,7 @@ SLMap.prototype.CreateMapTypes = function()
 	var mapTypes = [];
 	
 		var copyCollection = new GCopyrightCollection('SecondLife');
-		var copyright = new GCopyright(1, new GLatLngBounds(new GLatLng(0, 0), new GLatLng(-90, 90)), 0, "(C) 2007 Linden Lab");
+		var copyright = new GCopyright(1, new GLatLngBounds(new GLatLng(0, 0), new GLatLng(-90, 90)), 0, "(C) 2007 - " + (new Date).getFullYear() + " Linden Lab");
 		copyCollection.addCopyright(copyright);
 
 		// Create the 'Land' type of map
