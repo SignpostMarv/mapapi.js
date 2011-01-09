@@ -162,7 +162,7 @@ EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
     var RawPixelY = RawMapY * slTileSize;
     
     // Now account for the fact that the map may be zoomed out
-    zoom = slConvertGMapZoomToSLZoom(zoom);
+    zoom = slConvertZoom(zoom);
     var ZoomFactor = Math.pow(2, zoom - 1);
 
     var PixelX = RawPixelX / ZoomFactor;
@@ -176,7 +176,7 @@ EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
 EuclideanProjection.prototype.fromPixelToLatLng=function(pos,zoom,c)
 {
     // First, account for the fact that the map may be zoomed out
-    zoom = slConvertGMapZoomToSLZoom(zoom);
+    zoom = slConvertZoom(zoom);
     var ZoomFactor = Math.pow(2, zoom - 1);
 
     var RawPixelX = pos.x * ZoomFactor;
@@ -212,7 +212,7 @@ EuclideanProjection.prototype.getWrapWidth=function(zoom)
 //  input location and zoom level on the google map.
 function landCustomGetTileUrl(pos, zoom) 
 {
-    var sl_zoom = slConvertGMapZoomToSLZoom(zoom);
+    var sl_zoom = slConvertZoom(zoom);
 
     var regions_per_tile_edge = Math.pow(2, sl_zoom - 1);
     
@@ -245,20 +245,11 @@ function landCustomGetTileUrl(pos, zoom)
 // SL Map API ///////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-function slConvertGMapZoomToSLZoom(zoom)
-{
-		// We map SL zoom levels to farthest out zoom levels for GMaps, as the Zoom control will then
-		// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
-		// do the same for zoom levels lower than we allow).
-		return 8 - zoom;
-}
-
-function slConvertSLZoomToGMapZoom(zoom)
-{
-		// We map SL zoom levels to farthest out zoom levels for GMaps, as the Zoom control will then
-		// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
-		// do the same for zoom levels lower than we allow).
-		return 8 - zoom;
+function slConvertZoom(zoom){
+	// We map SL zoom levels to farthest out zoom levels for GMaps, as the Zoom control will then
+	// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
+	// do the same for zoom levels lower than we allow).
+	return 8 - zoom;
 }
 
 // ------------------------------------
@@ -721,8 +712,8 @@ SLMap.prototype.CreateMapTypes = function()
 		
 		//var landMap = new GMapType(landTilelayers, this.mapProjection, "Land", {errorMessage:"No SL data available"});
 		var landMap = new GMapType(landTilelayers, this.mapProjection, "Land" );
-		landMap.getMinimumResolution = function() { return slConvertGMapZoomToSLZoom(slMinZoomLevel); };
-		landMap.getMaximumResolution = function() { return slConvertGMapZoomToSLZoom(slMaxZoomLevel); };
+		landMap.getMinimumResolution = function() { return slConvertZoom(slMinZoomLevel); };
+		landMap.getMaximumResolution = function() { return slConvertZoom(slMaxZoomLevel); };
 
 		mapTypes.push(landMap);
 		
@@ -839,7 +830,7 @@ SLMap.prototype.centerAndZoomAtSLCoord = function(pos, zoom)
         // Enforce zoom limits specified by client
         zoom = this._forceZoomToLimits(zoom);
 
-        this.GMap.setCenter(pos.GetGLatLng(), slConvertSLZoomToGMapZoom(zoom));
+        this.GMap.setCenter(pos.GetGLatLng(), slConvertZoom(zoom));
     }
 }
 
@@ -1143,7 +1134,7 @@ SLMap.prototype.getCurrentZoomLevel = function()
 {
 		if (this.GMap != null)
 		{                           
-				return slConvertGMapZoomToSLZoom(this.GMap.getZoom());
+				return slConvertZoom(this.GMap.getZoom());
 		}
 }
 
@@ -1172,7 +1163,7 @@ SLMap.prototype.setCurrentZoomLevel = function(zoom)
 				// Enforce zoom limits specified by client
 				zoom = this._forceZoomToLimits(zoom);
 				
-				this.GMap.setZoom(slConvertSLZoomToGMapZoom(zoom));
+				this.GMap.setZoom(slConvertZoom(zoom));
 		}
 }
 
