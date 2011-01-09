@@ -86,11 +86,7 @@ Object.extend = function(destination, source)
 
 function getRandomNumber(maxNumber)
 {
-	if (Math.random && Math.floor)
-	{
-		var randomNumber = Math.floor(Math.random() * maxNumber);
-		return randomNumber;
-	}
+	return Math.floor(Math.random() * maxNumber);
 }
 
 var slDebugMap = false;
@@ -1296,5 +1292,3 @@ function gotoSLURL(x,y,slMap)
 
 		slAddDynamicScript(scriptURL, onLoadHandler);
 }
-
-
