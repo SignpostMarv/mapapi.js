@@ -103,10 +103,6 @@ var slTileHost = [
 
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
-// Map tiles are found in directories of format s3server/00055/00066
-// the directories are all of the same length.  
-// Of course, we will someday exceed even this limit.  Bill Gates would be proud.  :)
-var slTileDirectoryNameLength = 5;
 
 var slTileSize = 256.0;
 
