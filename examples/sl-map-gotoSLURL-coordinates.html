@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SL Map - SLURL.gotoSLURL</title>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA_7eLK3UI1MLX_NkCb5B9ChR_3tPE69LMEQxQ2vuQ-hnyTC7mmBSoDhER_y6z_P14WZxbqcwFcYpKJg"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script src="../src/slmapapi.js"></script>
+<link rel="stylesheet" type="text/css" href="http://slurl.com/_styles/MAIN.css" />
+<style>
+html, body{
+	width: 100% ;
+	height: 100% ;
+	margin: 0 ;
+	padding: 0 ;
+}
+#map-container{
+	width: 100% ;
+	height: 100% ;
+}
+</style>
+<script>
+function loadmap(){
+	var
+		mapInstance = new SLMap(document.getElementById('map-container'), {'overviewMapControl':true})
+	;
+	SLURL.gotoSLURL(mapInstance, 1000.5, 1000.5);
+}
+$(document).ready(loadmap);
+</script>
+</head>
+<body>
+<div id=map-container></div>
+</body>
+</html>
