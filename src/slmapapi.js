@@ -213,10 +213,7 @@ EuclideanProjection.prototype.fromPixelToLatLng=function(pos,zoom,c)
 // == a method that checks if the x/y value is in range ==
 EuclideanProjection.prototype.tileCheckRange=function(pos, zoom, tileSize)
 {
-    if ((pos.x < 0) || (pos.y < 0)) 
-            return false;
-            
-    return true
+	return ((pos.x < 0) || (pos.y < 0)) ? false : true;
 }
 
 // == a method that returns the width of the tilespace (the bounding box of the map) ==      
