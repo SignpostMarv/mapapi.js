@@ -96,6 +96,58 @@ var SLURL = {
 				onLoadHandler(window[variable]);
 			}
 		);
+	},
+	getRegionNameByCoordsQueue : 0,
+	getRegionNameByCoordsVar   : function(){
+		return 'slurlGetRegionNameByCoords_' + (++SLURL.getRegionNameByCoordsQueue);
+	},
+	getRegionNameByCoords      : function(x, y, onLoadHandler, variable){
+		variable = variable || 'slRegionName';
+		slAddDynamicScript(
+			'http://slurl.com/get-region-name-by-coords?var=' + encodeURIComponent(variable) + '&grid_x=' + encodeURIComponent(x) + '&grid_y=' + encodeURIComponent(y),
+			function(){
+				onLoadHandler(window[variable]);
+			}
+		);
+	},
+	gotoSLURL                  : function(slMap, region, x, y){
+		if(typeof region == 'number'){
+			y = x;
+			x = region;
+			region = undefined;
+		}
+		function mapWindow(regionName, gridX, gridY){
+			var
+				url       = ['secondlife://' + encodeURIComponent(regionName), (gridX % 1) * 256, (gridY % 1) * 256].join('/'),
+				debugInfo = slDebugMap ? ' x: ' + Math.floor(gridX) + ' y: ' + Math.floor(gridY) : '';
+			;
+			slMap.addMapWindow( new window.MapWindow('<b>' + regionName + '</b><br>' + debugInfo + '<a href="' + url + '" class="teleport-button">Teleport Now</a>'), new XYPoint(gridX, gridY));
+		}
+		if(region == undefined){
+			SLURL.getRegionNameByCoords(Math.floor(x), Math.floor(y), function(result){
+				if(typeof result == 'string'){
+					mapWindow(result, x, y);
+				}else if((result == null || result.error) && slDebugMap){
+					alert('The co-ordinates of the SLURL (' + x + ', ' + y + ') were not recognised as being in a SecondLife region.');
+				}
+			}, SLURL.getRegionCoordsByNameVar());
+		}else{
+			x = x || 128;
+			y = y || 128;
+			SLURL.getRegionCoordsByName(region, function(result){
+				if(result.x && result.y){
+					x = result.x + (x / 256);
+					y = result.y + (y / 256);
+					if(slParanoidMap){
+						SLURL.gotoSLURL(slMap, x, y);
+					}else{
+						mapWindow(region, x, y);
+					}
+				}else if(result.error && slDebugMap){
+					alert('No co-ordinates could be found for region "' + region + '"');
+				}
+			}, SLURL.getRegionNameByCoordsVar());
+		}
 	}
 }
 
@@ -107,6 +159,7 @@ function getRandomNumber(maxNumber)
 }
 
 var slDebugMap = false;
+var slParanoidMap = false; // this is to be used if we want to be paranoid about case-sensitivity in region names
 
 //
 //  Add 2 hosts so that we get faster performance on clients with lots
@@ -1265,45 +1318,4 @@ function slAddDynamicScript(scriptURL, onLoadHandler)
 	}
 			
 	document.body.appendChild(script);
-}
-
-// Open a map info window with a link to teleport to the region
-function gotoSLURL(x,y,slMap) 
-{
-		// Work out region co-ords, and local co-ords within region
-		var int_x = Math.floor(x);
-		var int_y = Math.floor(y);
-
-		var local_x = Math.round((x - int_x) * 256);
-		var local_y = Math.round((y - int_y) * 256);
-
-		// Add a dynamic script to get this region name, and then trigger a URL change
-		// based on the results
-		var scriptURL = "http://slurl.com/get-region-name-by-coords?var=slRegionName&grid_x=" + int_x + "&grid_y=" + int_y;
-
-		// Once the script has loaded, we use the result to teleport the user into SL    
-		var onLoadHandler = function () 
-		{
-			if (slRegionName == null || slRegionName.error)
-			{
-				//alert("The co-ordinates of the SLURL (" + x + ", " + y + ") were not recognised as being in a SecondLife region.");
-            }
-            else
-            {
-                var url = "secondlife://" + encodeURIComponent(slRegionName)
-                        + "/" + local_x + "/" + local_y;
-				var debugInfo = '';
-				if (slDebugMap)
-				{
-					debugInfo = ' x: ' + int_x + ' y: ' + int_y;
-				}
-                
-                var mapWindow = new MapWindow('<b>'+ slRegionName + '</b><br>'
-						+ debugInfo
-                        + '<a href="'+ url +'" class="teleport-button">Teleport Now</a>');
-                slMap.addMapWindow(mapWindow, new XYPoint(x,y));                    
-            }
-		};
-
-		slAddDynamicScript(scriptURL, onLoadHandler);
 }
