@@ -205,6 +205,12 @@ var SLURL = {
 	XYPoint                    : function(x,y){
 		this.x = x;
 		this.y = y;
+	},
+	Bounds                     : function(xMin, xMax, yMin, yMax){
+		this.xMin = xMin || 0;
+		this.xMax = xMax || 0;
+		this.yMin = yMin || 0;
+		this.yMax = yMax || 0;
 	}
 }
 
@@ -365,29 +371,11 @@ SLURL.XYPoint.prototype._SetFromGLatLng = function(gpos)
 
 // ------------------------------------
 //
-//               Bounds
+//               SLURL.Bounds
 //
 // ------------------------------------
 
-function Bounds(xMin, xMax, yMin, yMax)
-{
-    if (arguments.length == 4)
-    {
-            this.xMin = xMin;
-            this.xMax = xMax;
-            this.yMin = yMin;
-            this.yMax = yMax;
-    }
-    else
-    {
-            this.xMin = 0;
-            this.xMax = 0;
-            this.yMin = 0;
-            this.yMax = 0;
-    }
-}
-
-Bounds.prototype._SetFromGLatLngBounds = function(gbounds)
+SLURL.Bounds.prototype._SetFromGLatLngBounds = function(gbounds)
 {
 		var SW = new SLURL.XYPoint();
 		var NE = new SLURL.XYPoint();
@@ -951,7 +939,7 @@ SLMap.prototype.getViewportBounds = function()
 		{
 				gLatLngBounds = this.GMap.getBounds();
 				
-				viewBounds = new Bounds();
+				viewBounds = new SLURL.Bounds();
 				viewBounds._SetFromGLatLngBounds(gLatLngBounds);
 				return viewBounds;
 		}
