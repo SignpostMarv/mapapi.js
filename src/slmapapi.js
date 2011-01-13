@@ -90,7 +90,7 @@ var SLURL = {
 	},
 	getRegionCoordsByName      : function(region, onLoadHandler, variable){
 		variable = variable || 'slRegionPos_result';
-		slAddDynamicScript(
+		SLURL.loadScript(
 			'http://slurl.com/get-region-coords-by-name?var=' + encodeURIComponent(variable) + '&sim_name=' + encodeURIComponent(region),
 			function(){
 				onLoadHandler(window[variable]);
@@ -103,7 +103,7 @@ var SLURL = {
 	},
 	getRegionNameByCoords      : function(x, y, onLoadHandler, variable){
 		variable = variable || 'slRegionName';
-		slAddDynamicScript(
+		SLURL.loadScript(
 			'http://slurl.com/get-region-name-by-coords?var=' + encodeURIComponent(variable) + '&grid_x=' + encodeURIComponent(x) + '&grid_y=' + encodeURIComponent(y),
 			function(){
 				onLoadHandler(window[variable]);
@@ -148,6 +148,22 @@ var SLURL = {
 				}
 			}, SLURL.getRegionNameByCoordsVar());
 		}
+	},
+	loadScript : function(scriptURL, onLoadHandler){
+		var script  = document.createElement('script');
+		script.src  = scriptURL;
+		script.type = 'text/javascript';
+
+		if(onLoadHandler){ // Install the specified onload handler
+			script.onload = onLoadHandler;  // Standard onload for Firefox/Safari/Opera etc
+			script.onreadystatechange = function(){ // Need to use ready state change for IE as it doesn't support onload for scripts
+				if(script.readyState == 'complete' || script.readyState == 'loaded'){
+					onLoadHandler();
+				}
+			}
+		}
+
+		document.body.appendChild(script);
 	}
 }
 
@@ -902,7 +918,7 @@ SLMap.prototype.gotoRegion = function(regionName)
             }
 		};
 						
-		slAddDynamicScript(scriptURL, onLoadHandler);
+		SLURL.loadScript(scriptURL, onLoadHandler);
 }
 
 SLMap.prototype.centerAndZoomAtSLCoord = function(pos, zoom)
@@ -1290,32 +1306,4 @@ SLMap.prototype.panOrRecenterToSLCoord = function(pos, forceCenter)
 		{
 				this.GMap.panTo(pos.GetGLatLng());
 		}
-}
-
-function slAddDynamicScript(scriptURL, onLoadHandler)
-{
-	var script = document.createElement('script');
-	script.src = scriptURL;
-	script.type = "text/javascript";
-
-	if (onLoadHandler)
-	{
-		// Install the specified onload handler
-
-		// Need to use ready state change for IE as it doesn't support onload for scripts
-		script.onreadystatechange = function () 
-		{
-//			alert(script.src + ": " + script.readyState);
-		
-			if ((script.readyState == 'complete')  || (script.readyState == 'loaded'))
-			{
-				onLoadHandler();
-			}
-		}
-
-		// Standard onload for Firefox/Safari/Opera etc
-		script.onload = onLoadHandler;
-	}
-			
-	document.body.appendChild(script);
 }
