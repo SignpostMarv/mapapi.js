@@ -168,7 +168,7 @@ var SLURL = {
 //  This Function returns the appropriate image tile from the S3 storage site corresponding to the
 //  input location and zoom level on the google map.
 	getTileUrl : function(pos, zoom){
-		var sl_zoom = slConvertZoom(zoom);
+		var sl_zoom = SLURL.convertZoom(zoom);
 
 		var regions_per_tile_edge = Math.pow(2, sl_zoom - 1);
 		
@@ -195,6 +195,12 @@ var SLURL = {
 			slTileHost[((x / regions_per_tile_edge) % 2)] //  Pick a server
 			+ ["/map", sl_zoom, x, y, "objects.jpg"].join("-") //  Get image tiles from Amazon S3
 		);
+	},
+	convertZoom : function(zoom){
+		// We map SL zoom levels to farthest out zoom levels for GMaps, as the Zoom control will then
+		// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
+		// do the same for zoom levels lower than we allow).
+		return 8 - zoom;
 	}
 }
 
@@ -279,7 +285,7 @@ EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
     var RawPixelY = RawMapY * slTileSize;
     
     // Now account for the fact that the map may be zoomed out
-    zoom = slConvertZoom(zoom);
+    zoom = SLURL.convertZoom(zoom);
     var ZoomFactor = Math.pow(2, zoom - 1);
 
     var PixelX = RawPixelX / ZoomFactor;
@@ -293,7 +299,7 @@ EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
 EuclideanProjection.prototype.fromPixelToLatLng=function(pos,zoom,c)
 {
     // First, account for the fact that the map may be zoomed out
-    zoom = slConvertZoom(zoom);
+    zoom = SLURL.convertZoom(zoom);
     var ZoomFactor = Math.pow(2, zoom - 1);
 
     var RawPixelX = pos.x * ZoomFactor;
@@ -327,12 +333,6 @@ EuclideanProjection.prototype.getWrapWidth=function(zoom)
 // SL Map API ///////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-function slConvertZoom(zoom){
-	// We map SL zoom levels to farthest out zoom levels for GMaps, as the Zoom control will then
-	// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
-	// do the same for zoom levels lower than we allow).
-	return 8 - zoom;
-}
 
 // ------------------------------------
 //
@@ -809,8 +809,8 @@ SLMap.prototype.CreateMapTypes = function()
 		
 		//var landMap = new GMapType(landTilelayers, this.mapProjection, "Land", {errorMessage:"No SL data available"});
 		var landMap = new GMapType(landTilelayers, this.mapProjection, "Land" );
-		landMap.getMinimumResolution = function() { return slConvertZoom(slMinZoomLevel); };
-		landMap.getMaximumResolution = function() { return slConvertZoom(slMaxZoomLevel); };
+		landMap.getMinimumResolution = function() { return SLURL.convertZoom(slMinZoomLevel); };
+		landMap.getMaximumResolution = function() { return SLURL.convertZoom(slMaxZoomLevel); };
 
 		mapTypes.push(landMap);
 		
@@ -927,7 +927,7 @@ SLMap.prototype.centerAndZoomAtSLCoord = function(pos, zoom)
         // Enforce zoom limits specified by client
         zoom = this._forceZoomToLimits(zoom);
 
-        this.GMap.setCenter(pos.GetGLatLng(), slConvertZoom(zoom));
+        this.GMap.setCenter(pos.GetGLatLng(), SLURL.convertZoom(zoom));
     }
 }
 
@@ -1231,7 +1231,7 @@ SLMap.prototype.getCurrentZoomLevel = function()
 {
 		if (this.GMap != null)
 		{                           
-				return slConvertZoom(this.GMap.getZoom());
+				return SLURL.convertZoom(this.GMap.getZoom());
 		}
 }
 
@@ -1260,7 +1260,7 @@ SLMap.prototype.setCurrentZoomLevel = function(zoom)
 				// Enforce zoom limits specified by client
 				zoom = this._forceZoomToLimits(zoom);
 				
-				this.GMap.setZoom(slConvertZoom(zoom));
+				this.GMap.setZoom(SLURL.convertZoom(zoom));
 		}
 }
 
