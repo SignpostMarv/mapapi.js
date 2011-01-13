@@ -121,7 +121,7 @@ var SLURL = {
 				url       = ['secondlife://' + encodeURIComponent(regionName), (gridX % 1) * 256, (gridY % 1) * 256].join('/'),
 				debugInfo = slDebugMap ? ' x: ' + Math.floor(gridX) + ' y: ' + Math.floor(gridY) : '';
 			;
-			slMap.addMapWindow( new window.MapWindow('<b>' + regionName + '</b><br>' + debugInfo + '<a href="' + url + '" class="teleport-button">Teleport Now</a>'), new XYPoint(gridX, gridY));
+			slMap.addMapWindow( new window.MapWindow('<b>' + regionName + '</b><br>' + debugInfo + '<a href="' + url + '" class="teleport-button">Teleport Now</a>'), new SLURL.XYPoint(gridX, gridY));
 		}
 		if(region == undefined){
 			SLURL.getRegionNameByCoords(Math.floor(x), Math.floor(y), function(result){
@@ -201,6 +201,10 @@ var SLURL = {
 		// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
 		// do the same for zoom levels lower than we allow).
 		return 8 - zoom;
+	},
+	XYPoint                    : function(x,y){
+		this.x = x;
+		this.y = y;
 	}
 }
 
@@ -336,18 +340,12 @@ EuclideanProjection.prototype.getWrapWidth=function(zoom)
 
 // ------------------------------------
 //
-//              XYPoint
+//              SLURL.XYPoint
 //
 //
 // ------------------------------------
 
-function XYPoint(x,y)
-{
-		this.x = x;
-		this.y = y;
-}
-
-XYPoint.prototype.GetGLatLng = function()
+SLURL.XYPoint.prototype.GetGLatLng = function()
 {
     // Invert Y axis
 	var corrected_y = slGridEdgeSizeInRegions - this.y;
@@ -357,7 +355,7 @@ XYPoint.prototype.GetGLatLng = function()
 }
  
 
-XYPoint.prototype._SetFromGLatLng = function(gpos)
+SLURL.XYPoint.prototype._SetFromGLatLng = function(gpos)
 {
     this.x = gpos.lng() / slMapFactor;
     this.y = -gpos.lat() / slMapFactor;
@@ -391,8 +389,8 @@ function Bounds(xMin, xMax, yMin, yMax)
 
 Bounds.prototype._SetFromGLatLngBounds = function(gbounds)
 {
-		var SW = new XYPoint();
-		var NE = new XYPoint();
+		var SW = new SLURL.XYPoint();
+		var NE = new SLURL.XYPoint();
 		
 		SW._SetFromGLatLng(gbounds.getSouthWest());
 		NE._SetFromGLatLng(gbounds.getNorthEast());
@@ -429,7 +427,7 @@ function SLPoint(regionName, localX, localY){
 	}, SLURL.getRegionCoordsByNameVar());
 }
 
-SLPoint.prototype = new XYPoint;
+SLPoint.prototype = new SLURL.XYPoint;
 
 
 // ------------------------------------
@@ -757,7 +755,7 @@ SLMap.prototype.resetHoverTimeout = function(forceTimerSet)
 SLMap.prototype.mousehoverHandler = function()
 {
 	// Get tile co-ordinate
-	tilePos = new XYPoint;
+	tilePos = new SLURL.XYPoint;
 	tilePos._SetFromGLatLng(this.hoverPos);
 	
 	var tileX = Math.floor(tilePos.x);
@@ -912,7 +910,7 @@ SLMap.prototype.gotoRegion = function(regionName)
 				var y = slRegionPos_result.y;
             //  alert("Going to " + x + "," + y);
 				
-				var pos = new XYPoint(x, y);
+				var pos = new SLURL.XYPoint(x, y);
 				SLMap.panOrRecenterToSLCoord(pos);
             }
 		};
@@ -965,7 +963,7 @@ SLMap.prototype.getMapCenter = function()
 		{
 				gCenter = this.GMap.getCenter();
 				
-				center = new XYPoint();
+				center = new SLURL.XYPoint();
 				center._SetFromGLatLng(gCenter);
 				return center;
 		}
@@ -1005,7 +1003,7 @@ function slMapClickHandler(slMap, gmarker, point)
 	if (gmarker == null)
 	{
 		// Generic click on map teleports directly to the location
-        slCoord = new XYPoint;
+        slCoord = new SLURL.XYPoint;
 		slCoord._SetFromGLatLng(point);
         gotoSLURL(slCoord.x, slCoord.y, slMap);
 	}
@@ -1036,7 +1034,7 @@ function slMapDoubleClickHandler(slMap, gmarker, point)
 		if (gmarker == null)
 		{
 				// on a double-click on land, simply teleport directly to the location!
-                slCoord = new XYPoint;
+                slCoord = new SLURL.XYPoint;
 				slCoord._SetFromGLatLng(point);
                 gotoSLURL(slCoord.x, slCoord.y, slMap);
 		}
@@ -1270,7 +1268,7 @@ SLMap.prototype.panBy = function(x, y)
 		{
 				var pos = this.GMap.getCenter();
 				
-				var tileSize = new XYPoint(x, y);
+				var tileSize = new SLURL.XYPoint(x, y);
 				
 				var offset = this.mapProjection.fromPixelToLatLng(tileSize, this.GMap.getZoom());
 				
