@@ -206,6 +206,24 @@ var SLURL = {
 		this.x = x;
 		this.y = y;
 	},
+	RegionPoint                : function(regionName, localX, localY){
+		var obj = this;
+		SLURL.getRegionCoordsByName(regionName, function(result){
+			if(slDebugMap){
+				if(result == undefined){
+					alert('API query for region co-ordinates failed');
+				}else if(result.error){
+					alert('API query returned an error');
+				}
+			}else if(typeof result == 'object'){
+				if(result.x && result.y){
+					obj.x = result.x + (Math.min(Math.max(localX, 0), 256) / 256);
+					obj.y = result.y + (Math.min(Math.max(localY, 0), 256) / 256);
+					obj.found = true;
+				}
+			}
+		}, SLURL.getRegionCoordsByNameVar());
+	},
 	Bounds                     : function(xMin, xMax, yMin, yMax){
 		this.xMin = xMin || 0;
 		this.xMax = xMax || 0;
@@ -213,6 +231,8 @@ var SLURL = {
 		this.yMax = yMax || 0;
 	}
 }
+
+SLURL.RegionPoint.prototype = new SLURL.XYPoint;
 
 // Utility functions
 
@@ -389,33 +409,6 @@ SLURL.Bounds.prototype._SetFromGLatLngBounds = function(gbounds)
 		this.xMax = NE.x;
 		this.yMax = NE.y;
 }
-
-// ------------------------------------
-//
-//       SLPoint - Finally implemented by SignpostMarv
-//
-// ------------------------------------
-
-function SLPoint(regionName, localX, localY){
-	var obj = this;
-	SLURL.getRegionCoordsByName(regionName, function(result){
-		if(slDebugMap){
-			if(result == undefined){
-				alert('API query for region co-ordinates failed');
-			}else if(result.error){
-				alert('API query returned an error');
-			}
-		}else if(typeof result == 'object'){
-			if(result.x && result.y){
-				obj.x = result.x + (Math.min(Math.max(localX, 0), 256) / 256);
-				obj.y = result.y + (Math.min(Math.max(localY, 0), 256) / 256);
-				obj.found = true;
-			}
-		}
-	}, SLURL.getRegionCoordsByNameVar());
-}
-
-SLPoint.prototype = new SLURL.XYPoint;
 
 
 // ------------------------------------
