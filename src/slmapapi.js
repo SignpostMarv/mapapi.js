@@ -164,6 +164,37 @@ var SLURL = {
 		}
 
 		document.body.appendChild(script);
+	},
+//  This Function returns the appropriate image tile from the S3 storage site corresponding to the
+//  input location and zoom level on the google map.
+	getTileUrl : function(pos, zoom){
+		var sl_zoom = slConvertZoom(zoom);
+
+		var regions_per_tile_edge = Math.pow(2, sl_zoom - 1);
+		
+		var x = pos.x * regions_per_tile_edge;
+		var y = pos.y * regions_per_tile_edge;
+
+		// Adjust Y axis flip location by zoom value, in case the size of the whole
+		// world is not divisible by powers-of-two.
+		var offset = slGridEdgeSizeInRegions;
+		offset -= offset % regions_per_tile_edge;
+		y = offset - y;
+
+		// Google tiles are named (numbered) based on top-left corner, but ours
+		// are named by lower-left corner.  Since we flipped in Y, correct the
+		// name.  JC
+		y -= regions_per_tile_edge;
+		
+		// We name our tiles based on the grid_x, grid_y of the region in the
+		// lower-left corner.
+		x -= x % regions_per_tile_edge;
+		y -= y % regions_per_tile_edge; 
+
+		return (
+			slTileHost[((x / regions_per_tile_edge) % 2)] //  Pick a server
+			+ ["/map", sl_zoom, x, y, "objects.jpg"].join("-") //  Get image tiles from Amazon S3
+		);
 	}
 }
 
@@ -291,38 +322,6 @@ EuclideanProjection.prototype.getWrapWidth=function(zoom)
 	return this.tileBounds[zoom] * slGridEdgeSizeInRegions;		
 }
 
-//  This Function returns the appropriate image tile from the S3 storage site corresponding to the
-//  input location and zoom level on the google map.
-function landCustomGetTileUrl(pos, zoom) 
-{
-    var sl_zoom = slConvertZoom(zoom);
-
-    var regions_per_tile_edge = Math.pow(2, sl_zoom - 1);
-    
-    var x = pos.x * regions_per_tile_edge;
-    var y = pos.y * regions_per_tile_edge;
-
-    // Adjust Y axis flip location by zoom value, in case the size of the whole
-    // world is not divisible by powers-of-two.
-    var offset = slGridEdgeSizeInRegions;
-    offset -= offset % regions_per_tile_edge;
-    y = offset - y;
-
-    // Google tiles are named (numbered) based on top-left corner, but ours
-    // are named by lower-left corner.  Since we flipped in Y, correct the
-    // name.  JC
-    y -= regions_per_tile_edge;
-    
-    // We name our tiles based on the grid_x, grid_y of the region in the
-    // lower-left corner.
-    x -= x % regions_per_tile_edge;
-    y -= y % regions_per_tile_edge; 
-
-    return (
-		slTileHost[((x / regions_per_tile_edge) % 2)] //  Pick a server
-		+ ["/map", sl_zoom, x, y, "objects.jpg"].join("-") //  Get image tiles from Amazon S3
-	);
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // SL Map API ///////////////////////////////////////////////////////////////////////////////////
@@ -806,7 +805,7 @@ SLMap.prototype.CreateMapTypes = function()
 
 		// Create the 'Land' type of map
 		var landTilelayers = [new GTileLayer(copyCollection, 10, 16)];
-		landTilelayers[0].getTileUrl = landCustomGetTileUrl;
+		landTilelayers[0].getTileUrl = SLURL.getTileUrl;
 		
 		//var landMap = new GMapType(landTilelayers, this.mapProjection, "Land", {errorMessage:"No SL data available"});
 		var landMap = new GMapType(landTilelayers, this.mapProjection, "Land" );
