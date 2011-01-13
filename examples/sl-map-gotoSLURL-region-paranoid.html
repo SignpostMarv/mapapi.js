@@ -21,11 +21,11 @@ html, body{
 </style>
 <script>
 function loadmap(){
-	slParanoidMap = true;
+	slParanoidMap = true; // turning paranoid mode on
 	var
 		mapInstance   = new SLMap(document.getElementById('map-container'), {'overviewMapControl':true})
 	;
-	SLURL.gotoSLURL(mapInstance, 'da boom', 128, 128);
+	SLURL.gotoSLURL(mapInstance, 'da boom', 128, 128); // note that the method argument is lower-case, but the map window displays the correct letter casing of "Da Boom"
 }
 $(document).ready(loadmap);
 </script>
