@@ -25,7 +25,7 @@ function loadmap(){
 		coords = {'x' : 1000, 'y' : 1000},
 		mapInstance = new SLMap(document.getElementById('map-container'), {'overviewMapControl':true})
 	;
-	mapInstance.centerAndZoomAtSLCoord(new XYPoint(coords.x, coords.y), 4);
+	mapInstance.centerAndZoomAtSLCoord(new SLURL.XYPoint(coords.x, coords.y), 4);
 }
 $(document).ready(loadmap);
 </script>
