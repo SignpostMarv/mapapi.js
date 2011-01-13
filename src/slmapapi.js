@@ -149,7 +149,7 @@ var SLURL = {
 			}, SLURL.getRegionNameByCoordsVar());
 		}
 	},
-	loadScript : function(scriptURL, onLoadHandler){
+	loadScript                 : function(scriptURL, onLoadHandler){
 		var script  = document.createElement('script');
 		script.src  = scriptURL;
 		script.type = 'text/javascript';
@@ -167,7 +167,7 @@ var SLURL = {
 	},
 //  This Function returns the appropriate image tile from the S3 storage site corresponding to the
 //  input location and zoom level on the google map.
-	getTileUrl : function(pos, zoom){
+	getTileUrl                 : function(pos, zoom){
 		var sl_zoom = SLURL.convertZoom(zoom);
 
 		var regions_per_tile_edge = Math.pow(2, sl_zoom - 1);
@@ -196,7 +196,7 @@ var SLURL = {
 			+ ["/map", sl_zoom, x, y, "objects.jpg"].join("-") //  Get image tiles from Amazon S3
 		);
 	},
-	convertZoom : function(zoom){
+	convertZoom                : function(zoom){
 		// We map SL zoom levels to farthest out zoom levels for GMaps, as the Zoom control will then
 		// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
 		// do the same for zoom levels lower than we allow).
