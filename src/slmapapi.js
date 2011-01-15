@@ -204,7 +204,14 @@ var SLURL = {
 		y -= y % regions_per_tile_edge; 
 
 		return (
-			slTileHost[((x / regions_per_tile_edge) % 2)] //  Pick a server
+			[ // this used to be a variable, but it wasn't used anywhere else in the JS, so it was moved here
+//
+//  Add 2 hosts so that we get faster performance on clients with lots
+//  of bandwidth but possible browser limits on number of open files
+//
+				"http://map.secondlife.com.s3.amazonaws.com",
+				"http://map.secondlife.com"
+			][((x / regions_per_tile_edge) % 2)] //  Pick a server
 			+ ["/map", sl_zoom, x, y, "objects.jpg"].join("-") //  Get image tiles from Amazon S3
 		);
 	},
@@ -263,15 +270,6 @@ function getRandomNumber(maxNumber)
 var slDebugMap = false;
 var slParanoidMap = false; // this is to be used if we want to be paranoid about case-sensitivity in region names
 
-//
-//  Add 2 hosts so that we get faster performance on clients with lots
-//  of bandwidth but possible browser limits on number of open files
-//
-
-var slTileHost = [
-	"http://map.secondlife.com.s3.amazonaws.com",
-	"http://map.secondlife.com"
-];
 
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
