@@ -61,9 +61,6 @@
 //
 //
 
-// === Constants ===
-var SL_OCEAN_COLOR = "#1D475F";   // color when no region tile available
-
 //
 // Taken from prototype.js...
 //
@@ -104,6 +101,9 @@ var SLURL = {
 
 // Do we want to display hover information for the map?
 	showHoverTips              : false,
+
+// color when no region tile available
+	backgroundColor            : '#1D475F',
 
 // To allow for asynchronous access to the slurl.com APIs, we need to have a work around that allows us to assign variables in the global window scope
 	getRegionCoordsByNameQueue : 0, // simple increment, rather than using randomly generated numbers
@@ -578,7 +578,7 @@ function SLMap(map_element, map_options)
 				var mapTypes = this.CreateMapTypes();
 				var mapDiv = this.CreateMapDiv(map_element);
                 var mapOpts = {"mapTypes": mapTypes,
-                               "backgroundColor": SL_OCEAN_COLOR };
+                               "backgroundColor": SLURL.backgroundColor };
 				this.GMap = new GMap2(mapDiv, mapOpts);
 
 				// Link GMap back to us
