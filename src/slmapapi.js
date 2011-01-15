@@ -302,6 +302,14 @@ var SLURL = {
 		this.width  = imgWidth;
 		this.height = imgHeight;
 		this.alpha  = !!hasAlpha; // double inversion converts to boolean regardless of input
+	},
+
+// Icon
+	Icon                       : function(imageMain, imageShadow){
+		this.mainImg=imageMain;
+		if(imageShadow){
+			this.shadowImg = imageShadow;
+		}
 	}
 }
 
@@ -438,18 +446,7 @@ SLURL.Img.prototype.isAlpha = function(){
 //               Icon
 //
 // ------------------------------------
-
-function Icon(imageMain, imageShadow)
-{
-		this.mainImg=imageMain;
-		
-		if (imageShadow)
-		{
-				this.shadowImg = imageShadow;
-		}
-}
-
-Icon.prototype.hasShadow = function(){
+SLURL.Icon.prototype.hasShadow = function(){
 	return !!this.shadowImg;
 };
 
