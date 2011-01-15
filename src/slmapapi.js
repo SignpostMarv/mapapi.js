@@ -105,6 +105,12 @@ var SLURL = {
 // color when no region tile available
 	backgroundColor            : '#1D475F',
 
+// Provides debugging information if enabled
+	debugMode                  : false,
+
+// this is to be used if we want to be paranoid about case-sensitivity in region names
+	paranoidMode               : false,
+
 // To allow for asynchronous access to the slurl.com APIs, we need to have a work around that allows us to assign variables in the global window scope
 	getRegionCoordsByNameQueue : 0, // simple increment, rather than using randomly generated numbers
 	getRegionCoordsByNameVar   : function(){ // returns a variable name more-or-less guaranteed to be unoccupied by any other API call
@@ -142,7 +148,7 @@ var SLURL = {
 		function mapWindow(regionName, gridX, gridY){
 			var
 				url       = ['secondlife://' + encodeURIComponent(regionName), (gridX % 1) * 256, (gridY % 1) * 256].join('/'),
-				debugInfo = slDebugMap ? ' x: ' + Math.floor(gridX) + ' y: ' + Math.floor(gridY) : '';
+				debugInfo = SLURL.debugMode ? ' x: ' + Math.floor(gridX) + ' y: ' + Math.floor(gridY) : '';
 			;
 			slMap.addMapWindow( new window.MapWindow('<b>' + regionName + '</b><br>' + debugInfo + '<a href="' + url + '" class="teleport-button">Teleport Now</a>'), new SLURL.XYPoint(gridX, gridY));
 		}
@@ -150,7 +156,7 @@ var SLURL = {
 			SLURL.getRegionNameByCoords(Math.floor(x), Math.floor(y), function(result){
 				if(typeof result == 'string'){
 					mapWindow(result, x, y);
-				}else if((result == null || result.error) && slDebugMap){
+				}else if((result == null || result.error) && SLURL.debugMode){
 					alert('The coordinates of the SLURL (' + x + ', ' + y + ') were not recognised as being in a SecondLife region.');
 				}
 			}, SLURL.getRegionCoordsByNameVar());
@@ -161,12 +167,12 @@ var SLURL = {
 				if(result.x && result.y){
 					x = result.x + (x / 256);
 					y = result.y + (y / 256);
-					if(slParanoidMap){
+					if(SLURL.paranoidMode){
 						SLURL.gotoSLURL(slMap, x, y);
 					}else{
 						mapWindow(region, x, y);
 					}
-				}else if(result.error && slDebugMap){
+				}else if(result.error && SLURL.debugMode){
 					alert('No coordinates could be found for region "' + region + '"');
 				}
 			}, SLURL.getRegionNameByCoordsVar());
@@ -246,7 +252,7 @@ var SLURL = {
 	RegionPoint                : function(regionName, localX, localY){
 		var obj = this;
 		SLURL.getRegionCoordsByName(regionName, function(result){
-			if(slDebugMap){
+			if(SLURL.debugMode){
 				if(result == undefined){
 					alert('API query for region coordinates failed');
 				}else if(result.error){
@@ -272,9 +278,6 @@ var SLURL = {
 }
 
 SLURL.RegionPoint.prototype = new SLURL.XYPoint;
-
-var slDebugMap = false;
-var slParanoidMap = false; // this is to be used if we want to be paranoid about case-sensitivity in region names
 
 
 // ====== Create the Euclidean Projection for the flat map ======
