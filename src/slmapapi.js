@@ -808,68 +808,60 @@ SLMap.prototype.CreateMapTypes = function()
 
 SLMap.prototype.CreateMapDiv = function(mainDiv)
 {
-	var SLMap = this;
-
-	// Create a unique ID for the region name field
-	var inputFieldID = "slRegionNameField_" + getRandomNumber(10000);
-	
-	// Create a click handler
-	var clickHandler = function() 
-	{ 
-		var textField = document.getElementById(inputFieldID);
-		
-		if (textField)
-		{
-			SLMap.gotoRegion(textField.value); 
-		}
-		else
-		{
-			alert("Can't find textField!");
-		}
-		
-		return false;
-	};
-	
-	// Create a div to be the main map container as a child of the main div
-	var mapDiv = document.createElement("div");
+	var
+		SLMap = this,
+		clickHandler = function(){ // Create a click handler
+			if(formText){
+				SLMap.gotoRegion(formText.value); 
+			}else{
+				alert("Can't find textField!");
+			}
+			return false;
+		},
+		mapDiv = document.createElement("div") // Create a div to be the main map container as a child of the main div
+	;
 	
 	// Match parent height
 	mapDiv.style.height = "100%";
-	
-//	// Now create the div for the text input form
-//	var form = document.createElement("form");
-//	form.name = "slregionname";
-//	form.style.textAlign = "center";
-//	form.style.padding = "4px";
-//	form.onsubmit = clickHandler;
-//	
-//	// Label for the text field
-//	var formLabel = document.createTextNode("Enter region name:");
-//	var formLabelSpan = document.createElement("span");
-//	formLabelSpan.style.fontSize = "80%";
-//	formLabelSpan.appendChild(formLabel);
-//
-//	// Text field for the region name
-//	var formText = document.createElement("input");
-//	
-//	formText.type = "text";
-//	formText.name = "regionname";
-//	formText.id = inputFieldID;
-//	formText.value = "Ahern";
-//	formText.size = 15;
-//
-//	// Button to activate 'go to region'
-//	var formButton = document.createElement("input");
-//	formButton.type = "submit";
-//	formButton.value = "Go!";
-//	formButton.onsubmit = clickHandler;
-//	
-//	// Put form on the page
-//	form.appendChild(formLabelSpan);	
-//	form.appendChild(formText);
-//	form.appendChild(formButton);
-//
-//	mainDiv.appendChild(form);
+
+	if(SLMap.options.showRegionSearchForm){ // create the div for the text input form
+		var
+			form          = document.createElement("form"),
+			formLabel     = document.createTextNode("Enter region name:"),
+			formLabelSpan = document.createElement("span"),
+			formText      = document.createElement("input"),
+			formButton    = document.createElement("input")
+		;
+		form.setAttribute('style',[
+			'text-align:center',
+			'padding:4px',
+			'width:270px',
+			'margin-left:auto',
+			'margin-right:auto',
+			'background-color:#fff'
+		].join(';'));
+		form.onsubmit = clickHandler;
+
+		// Label for the text field
+		formLabelSpan.style.fontSize = "80%";
+		formLabelSpan.appendChild(formLabel);
+
+		// Text field for the region name
+		formText.value = "Ahern";
+		formText.size = 15;
+
+		// Button to activate 'go to region'
+		formButton.type = "submit";
+		formButton.value = "Go!";
+		formButton.onsubmit = clickHandler;
+
+		// Put form on the page
+		form.appendChild(formLabelSpan);
+		form.appendChild(formText);
+		form.appendChild(formButton);
+
+		mainDiv.appendChild(form);
+	}
 	
 	mainDiv.appendChild(mapDiv);
 
