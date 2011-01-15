@@ -99,6 +99,9 @@ var SLURL = {
 	minZoomLevel               : 8, // Zoomed out as much as possible
 	maxZoomLevel               : 1, // Zoomed in as much as possible
 
+// Delay for mouse hover action (mouse has to be still for this many milliseconds)
+	mouseHoverDelay            : 1000,
+
 // To allow for asynchronous access to the slurl.com APIs, we need to have a work around that allows us to assign variables in the global window scope
 	getRegionCoordsByNameQueue : 0, // simple increment, rather than using randomly generated numbers
 	getRegionCoordsByNameVar   : function(){ // returns a variable name more-or-less guaranteed to be unoccupied by any other API call
@@ -280,9 +283,6 @@ var slParanoidMap = false; // this is to be used if we want to be paranoid about
 
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
-
-// Delay for mouse hover action (mouse has to be still for this many milliseconds)
-var slMouseHoverDelay = 1000;
 
 // Do we want to display hover information for the map?
 var slShowHoverTips = false;
@@ -739,7 +739,7 @@ SLMap.prototype.resetHoverTimeout = function(forceTimerSet)
 	if (timerWasSet || forceTimerSet)
 	{		
 		var map = this;
-		this.ID = window.setTimeout(function() { map.mousehoverHandler(); }, slMouseHoverDelay);
+		this.ID = window.setTimeout(function() { map.mousehoverHandler(); }, SLURL.mouseHoverDelay);
 	}
 }
 
