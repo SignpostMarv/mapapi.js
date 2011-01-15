@@ -84,17 +84,21 @@ Object.extend = function(destination, source)
 
 // SLURL namespace
 var SLURL = {
+// SL map tile widths and heights are equal, so there's only one constant for tile size
 	tileSize                   : 256.0,
+
 // The maximum width/height of the SL grid in regions:
 // 2^20 regions on a side = 1,048,786  ("This should be enough for anyone")
 // *NOTE: This must be a power of 2 and divisible by 2^(max zoom) = 256
 	gridEdgeSizeInRegions      : 1048576,
-	getRegionCoordsByNameQueue : 0,
-	getRegionCoordsByNameVar   : function(){
+
+// To allow for asynchronous access to the slurl.com APIs, we need to have a work around that allows us to assign variables in the global window scope
+	getRegionCoordsByNameQueue : 0, // simple increment, rather than using randomly generated numbers
+	getRegionCoordsByNameVar   : function(){ // returns a variable name more-or-less guaranteed to be unoccupied by any other API call
 		return 'slurlGetRegionCoordsByName_' + (++SLURL.getRegionCoordsByNameQueue);
 	},
 	getRegionCoordsByName      : function(region, onLoadHandler, variable){
-		variable = variable || 'slRegionPos_result';
+		variable = variable || 'slRegionPos_result'; // if no variable is specified, assign a default
 		SLURL.loadScript(
 			'http://slurl.com/get-region-coords-by-name?var=' + encodeURIComponent(variable) + '&sim_name=' + encodeURIComponent(region),
 			function(){
@@ -115,8 +119,9 @@ var SLURL = {
 			}
 		);
 	},
-	gotoSLURL                  : function(slMap, region, x, y){
-		if(typeof region == 'number'){
+
+	gotoSLURL                  : function(slMap, region, x, y){ // two modes of use: SLURL.gotoSLURL(map instance, region name, local x coordinate, local y coordinate) and SLURL.gotoSLURL(map instance, grid x coordinate, grid y coordinate)
+		if(typeof region == 'number'){ // if region is a number, then we're operating in the second mode so we reassign the variables appropriately
 			y = x;
 			x = region;
 			region = undefined;
@@ -133,7 +138,7 @@ var SLURL = {
 				if(typeof result == 'string'){
 					mapWindow(result, x, y);
 				}else if((result == null || result.error) && slDebugMap){
-					alert('The co-ordinates of the SLURL (' + x + ', ' + y + ') were not recognised as being in a SecondLife region.');
+					alert('The coordinates of the SLURL (' + x + ', ' + y + ') were not recognised as being in a SecondLife region.');
 				}
 			}, SLURL.getRegionCoordsByNameVar());
 		}else{
@@ -149,11 +154,12 @@ var SLURL = {
 						mapWindow(region, x, y);
 					}
 				}else if(result.error && slDebugMap){
-					alert('No co-ordinates could be found for region "' + region + '"');
+					alert('No coordinates could be found for region "' + region + '"');
 				}
 			}, SLURL.getRegionNameByCoordsVar());
 		}
 	},
+
 	loadScript                 : function(scriptURL, onLoadHandler){
 		var script  = document.createElement('script');
 		script.src  = scriptURL;
@@ -170,6 +176,7 @@ var SLURL = {
 
 		document.body.appendChild(script);
 	},
+
 //  This Function returns the appropriate image tile from the S3 storage site corresponding to the
 //  input location and zoom level on the google map.
 	getTileUrl                 : function(pos, zoom){
@@ -201,22 +208,27 @@ var SLURL = {
 			+ ["/map", sl_zoom, x, y, "objects.jpg"].join("-") //  Get image tiles from Amazon S3
 		);
 	},
+
+// We map SL zoom levels to farthest out zoom levels for GMaps, as the Zoom control will then
+// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
+// do the same for zoom levels lower than we allow).
 	convertZoom                : function(zoom){
-		// We map SL zoom levels to farthest out zoom levels for GMaps, as the Zoom control will then
-		// remove ticks for any zoom levels higher than we allow. (We map it in this way because it doesn't
-		// do the same for zoom levels lower than we allow).
 		return 8 - zoom;
 	},
+
+// Represents grid coordinates, equivalent LSL: integer pos = (llGetRegionCorner() / 256);
 	XYPoint                    : function(x,y){
 		this.x = x;
 		this.y = y;
 	},
+
+// Represents named region coordinate with local region coordinate offset
 	RegionPoint                : function(regionName, localX, localY){
 		var obj = this;
 		SLURL.getRegionCoordsByName(regionName, function(result){
 			if(slDebugMap){
 				if(result == undefined){
-					alert('API query for region co-ordinates failed');
+					alert('API query for region coordinates failed');
 				}else if(result.error){
 					alert('API query returned an error');
 				}
@@ -229,6 +241,8 @@ var SLURL = {
 			}
 		}, SLURL.getRegionCoordsByNameVar());
 	},
+
+// Represents an area of the grid
 	Bounds                     : function(xMin, xMax, yMin, yMax){
 		this.xMin = xMin || 0;
 		this.xMax = xMax || 0;
@@ -734,7 +748,7 @@ SLMap.prototype.resetHoverTimeout = function(forceTimerSet)
 
 SLMap.prototype.mousehoverHandler = function()
 {
-	// Get tile co-ordinate
+	// Get tile coordinate
 	tilePos = new SLURL.XYPoint;
 	tilePos._SetFromGLatLng(this.hoverPos);
 	
