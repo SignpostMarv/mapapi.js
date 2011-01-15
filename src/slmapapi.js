@@ -273,13 +273,6 @@ var SLURL = {
 
 SLURL.RegionPoint.prototype = new SLURL.XYPoint;
 
-// Utility functions
-
-function getRandomNumber(maxNumber)
-{
-	return Math.floor(Math.random() * maxNumber);
-}
-
 var slDebugMap = false;
 var slParanoidMap = false; // this is to be used if we want to be paranoid about case-sensitivity in region names
 
