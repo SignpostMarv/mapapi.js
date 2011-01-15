@@ -150,7 +150,7 @@ var SLURL = {
 				url       = ['secondlife://' + encodeURIComponent(regionName), (gridX % 1) * 256, (gridY % 1) * 256].join('/'),
 				debugInfo = SLURL.debugMode ? ' x: ' + Math.floor(gridX) + ' y: ' + Math.floor(gridY) : '';
 			;
-			slMap.addMapWindow( new window.MapWindow('<b>' + regionName + '</b><br>' + debugInfo + '<a href="' + url + '" class="teleport-button">Teleport Now</a>'), new SLURL.XYPoint(gridX, gridY));
+			slMap.addMapWindow( new SLURL.MapWindow('<b>' + regionName + '</b><br>' + debugInfo + '<a href="' + url + '" class="teleport-button">Teleport Now</a>'), new SLURL.XYPoint(gridX, gridY));
 		}
 		if(region == undefined){
 			SLURL.getRegionNameByCoords(Math.floor(x), Math.floor(y), function(result){
@@ -335,6 +335,12 @@ var SLURL = {
 		if(options){
 			Object.extend(this, options);
 		}
+	},
+
+// MapWindow
+	MapWindow                  : function(text, options){
+		this.text    = text;
+		this.options = options;
 	}
 }
 
@@ -482,13 +488,7 @@ SLURL.Icon.prototype.hasShadow = function(){
 //
 // ------------------------------------
 
-function MapWindow(text, options)
-{
-		this.text = text;
-		this.options = options;
-}
-
-MapWindow.prototype.getGMapOptions = function()
+SLURL.MapWindow.prototype.getGMapOptions = function()
 {
 		var width = 252;
 		if (this.options && this.options.width)
