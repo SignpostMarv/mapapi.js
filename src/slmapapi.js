@@ -310,6 +310,31 @@ var SLURL = {
 		if(imageShadow){
 			this.shadowImg = imageShadow;
 		}
+	},
+
+// ------------------------------------
+//
+//              Marker
+//
+// ------------------------------------
+	Marker                     : function(icons, pos, options){
+		this.icons   = icons;
+		this.slCoord = pos;
+		this.options = new MarkerOptions(options);
+	},
+	MarkerOptions              : function(options){
+		this.clickHandler       = false;
+		this.onMouseOverHandler = false;
+		this.onMouseOutHandler  = false;
+		this.centerOnClick      = false;
+		this.autopanOnClick     = true;
+		this.autopanPadding     = 45;
+		this.verticalAlign      = "middle";
+		this.horizontalAlign    = "center";
+		this.zLayer             = 0;
+		if(options){
+			Object.extend(this, options);
+		}
 	}
 }
 
@@ -448,38 +473,6 @@ SLURL.Img.prototype.isAlpha = function(){
 // ------------------------------------
 SLURL.Icon.prototype.hasShadow = function(){
 	return !!this.shadowImg;
-};
-
-
-// ------------------------------------
-//
-//              Marker
-//
-// ------------------------------------
-
-function Marker(icons, pos, options)
-{
-		this.icons = icons;
-		this.slCoord = pos;
-		this.options= new MarkerOptions(options);
-		
-};
-
-function MarkerOptions(options)
-{
-		this.clickHandler=false;
-		this.onMouseOverHandler=false;
-		this.onMouseOutHandler=false;
-		this.centerOnClick=false;
-		this.autopanOnClick=true;
-		this.autopanPadding=45;
-		this.verticalAlign="middle";
-		this.horizontalAlign="center";
-		this.zLayer=0;
-		
-		if (options)
-				Object.extend(this, options);
-		
 };
 
 
