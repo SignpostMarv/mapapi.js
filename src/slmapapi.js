@@ -367,6 +367,22 @@ var SLURL = {
 			slMap.GMap.closeInfoWindow();
 			delete slMap.currentMapWindow;
 		}
+	},
+
+	clickHandler               : function(slMap, gmarker, point){
+		if(!gmarker){
+			var slCoord = new SLURL.XYPoint;
+			slCoord._SetFromGLatLng(point);
+			SLURL.gotoSLURL(slMap, slCoord.x, slCoord.y);
+		}else if(gmarker.slMarker){
+			var slMarker = gmarker.slMarker;
+			if(slMarker.options.centerOnClick){
+				slMap.panOrRecenterToSLCoord(slMarker.slCoord);
+			}
+			if(slMarker.options.clickHandler){
+				slMarker.options.clickHandler(slMarker);
+			}
+		}
 	}
 }
 
@@ -607,7 +623,7 @@ function SLMap(map_element, map_options)
 						"click", 
 						function(marker, point) 
 						{
-								slMapClickHandler(slMap, marker, point);
+								SLURL.clickHandler(slMap, marker, point);
 						});
 						
 				/*
@@ -918,49 +934,6 @@ SLMap.prototype.getMapCenter = function()
 		}
 }
 
-function slMapClickHandler(slMap, gmarker, point)
-{
-	// DEBUG:  Show various data about the region clicked
-                 
-
-    /*
-	alert("GLatLng: " + point.toString()
-                      //+"\n Gpoint: " + slMap.GMap.mapProjection.fromLatLngToPixel(point)
-                      //+"\n SLCoord: " + slCoord.x.toString() + "," + slCoord.y.toString()
-                      +"\n slZoom: " + slZoom.toString()
-                      +"\n GZoom: " + gZoom.toString()
-                      +"\n SL Region: " + slCoord.x.toString() + "," + slCoord.y.toString()
-                      //+"\n URL: " + tileURL
-                      );
-                */
-                                
-	if (gmarker == null)
-	{
-		// Generic click on map teleports directly to the location
-        var slCoord = new SLURL.XYPoint;
-		slCoord._SetFromGLatLng(point);
-        SLURL.gotoSLURL(slMap, slCoord.x, slCoord.y);
-	}
-	else
-	{
-            // Handle clicking on a marker
-           	var slMarker = gmarker.slMarker;
-
-            if (slMarker)
-            {        
-				if (slMarker.options.centerOnClick)
-				{
-					slMap.panOrRecenterToSLCoord(slMarker.slCoord);
-				}
-					
-				if (slMarker.options.clickHandler)
-				{
-					slMarker.options.clickHandler(slMarker);
-				}
-            }
-	}
-}
-
 
 /*
 function slMapDoubleClickHandler(slMap, gmarker, point)
@@ -988,7 +961,7 @@ function slMapDoubleClickHandler(slMap, gmarker, point)
 SLMap.prototype.clickMarker = function(marker)
 {
 		// Simulate a GMap click event on the centre of this marker
-		slMapClickHandler(this, marker.gmarker, marker.gmarker.getPoint());
+		SLURL.clickHandler(this, marker.gmarker, marker.gmarker.getPoint());
 }
 
 SLMap.prototype.addMarker = function(marker, mapWindow)
