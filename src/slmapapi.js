@@ -341,6 +341,32 @@ var SLURL = {
 	MapWindow                  : function(text, options){
 		this.text    = text;
 		this.options = options;
+	},
+
+// ------------------------------------
+//
+//            SLMapOptions
+//
+// ------------------------------------
+	MapOptions                 : function(options){
+		this.hasZoomControls            = true;
+		this.hasPanningControls         = true;
+		this.hasOverviewMapControl      = true;
+		this.onStateChangedClickHandler = null;
+		
+		if(options){
+			Object.extend(this, options);
+		}
+
+		this.zoomMin = Math.min(this.zoomMin, SLURL.minZoomLevel);
+		this.zoomMax = Math.max(this.zoomMax, SLURL.maxZoomLevel);
+	},
+
+	dragHandler                : function(slMap){
+		if(slMap.currentMapWindow && slMap.currentMapWindow.options && slMap.currentMapWindow.options.closeOnMove){
+			slMap.GMap.closeInfoWindow();
+			delete slMap.currentMapWindow;
+		}
 	}
 }
 
@@ -499,32 +525,6 @@ SLURL.MapWindow.prototype.getGMapOptions = function()
 
 // ------------------------------------
 //
-//            SLMapOptions
-//
-// ------------------------------------
-
-function SLMapOptions(options)
-{
-		this.hasZoomControls=true;
-		this.hasPanningControls=true;
-		this.hasOverviewMapControl=true;
-		this.onStateChangedClickHandler=null;
-		this.zoomMin = SLURL.minZoomLevel;
-		this.zoomMax = SLURL.maxZoomLevel;
-		
-		if (options)
-				Object.extend(this, options);
-				
-		if (this.zoomMin > SLURL.minZoomLevel)
-				this.zoomMin = SLURL.minZoomLevel;
-				
-		if (this.zoomMax < SLURL.maxZoomLevel)
-				this.zoomMax = SLURL.maxZoomLevel;
-				
-};
-
-// ------------------------------------
-//
 //               SLMap
 //
 // ------------------------------------
@@ -537,7 +537,7 @@ function SLMap(map_element, map_options)
 	
 		if (GBrowserIsCompatible()) 
 		{
-				this.options = new SLMapOptions(map_options);
+				this.options = new SLURL.MapOptions(map_options);
 				this.mapProjection = new SLURL.EuclideanProjection(18);
 
 				// Create our custom map types and initialise map with them
@@ -645,7 +645,7 @@ function SLMap(map_element, map_options)
 						"dragstart", 
 						function() 
 						{
-								slMapDragHandler(slMap);
+								SLURL.dragHandler(slMap);
 						});        
 						
 				// Moved this to the end as GMaps seemed to fail if I did it right
@@ -916,21 +916,6 @@ SLMap.prototype.getMapCenter = function()
 				center._SetFromGLatLng(gCenter);
 				return center;
 		}
-}
-
-function slMapDragHandler(slMap)
-{
-		if (slMap.currentMapWindow != null)
-		{
-				if (slMap.currentMapWindow.options)
-				{
-						if (slMap.currentMapWindow.options.closeOnMove)
-						{
-								slMap.GMap.closeInfoWindow();
-								slMap.currentMapWindow = null;
-						}
-				}
-		}    
 }
 
 function slMapClickHandler(slMap, gmarker, point)
