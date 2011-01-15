@@ -95,6 +95,10 @@ var SLURL = {
 // We map a 1,048,576 (2^20) regions-per-side square positioned at the origin onto Lat/Long (0, 0) to (-90, 90)
 	mapFactor                  : 90.0 / 1048576,
 
+// Max/min zoom levels for SL maps (they are mapped to GMap zoom levels in a centralised place)
+	minZoomLevel               : 8, // Zoomed out as much as possible
+	maxZoomLevel               : 1, // Zoomed in as much as possible
+
 // To allow for asynchronous access to the slurl.com APIs, we need to have a work around that allows us to assign variables in the global window scope
 	getRegionCoordsByNameQueue : 0, // simple increment, rather than using randomly generated numbers
 	getRegionCoordsByNameVar   : function(){ // returns a variable name more-or-less guaranteed to be unoccupied by any other API call
@@ -276,10 +280,6 @@ var slParanoidMap = false; // this is to be used if we want to be paranoid about
 
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
-
-// Max/min zoom levels for SL maps (they are mapped to GMap zoom levels in a centralised place)
-var slMinZoomLevel = 8; // Zoomed out as much as possible
-var slMaxZoomLevel = 1; // Zoomed in as much as possible
 
 // Delay for mouse hover action (mouse has to be still for this many milliseconds)
 var slMouseHoverDelay = 1000;
@@ -543,17 +543,17 @@ function SLMapOptions(options)
 		this.hasPanningControls=true;
 		this.hasOverviewMapControl=true;
 		this.onStateChangedClickHandler=null;
-		this.zoomMin = slMinZoomLevel;
-		this.zoomMax = slMaxZoomLevel;
+		this.zoomMin = SLURL.minZoomLevel;
+		this.zoomMax = SLURL.maxZoomLevel;
 		
 		if (options)
 				Object.extend(this, options);
 				
-		if (this.zoomMin > slMinZoomLevel)
-				this.zoomMin = slMinZoomLevel;
+		if (this.zoomMin > SLURL.minZoomLevel)
+				this.zoomMin = SLURL.minZoomLevel;
 				
-		if (this.zoomMax < slMaxZoomLevel)
-				this.zoomMax = slMaxZoomLevel;
+		if (this.zoomMax < SLURL.maxZoomLevel)
+				this.zoomMax = SLURL.maxZoomLevel;
 				
 };
 
@@ -798,8 +798,8 @@ SLMap.prototype.CreateMapTypes = function()
 		
 		//var landMap = new GMapType(landTilelayers, this.mapProjection, "Land", {errorMessage:"No SL data available"});
 		var landMap = new GMapType(landTilelayers, this.mapProjection, "Land" );
-		landMap.getMinimumResolution = function() { return SLURL.convertZoom(slMinZoomLevel); };
-		landMap.getMaximumResolution = function() { return SLURL.convertZoom(slMaxZoomLevel); };
+		landMap.getMinimumResolution = function() { return SLURL.convertZoom(SLURL.minZoomLevel); };
+		landMap.getMaximumResolution = function() { return SLURL.convertZoom(SLURL.maxZoomLevel); };
 
 		mapTypes.push(landMap);
 		
