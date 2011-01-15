@@ -431,15 +431,7 @@ function Img(imgURL, imgWidth, imgHeight, hasAlpha)
 		this.URL = imgURL;
 		this.width = imgWidth;
 		this.height = imgHeight;
-		
-		if (hasAlpha)
-		{
-				this.alpha = true;
-		}
-		else
-		{
-				this.alpha = false;
-		}
+		this.alpha  = !!hasAlpha; // double inversion converts to boolean regardless of input
 }
 
 
