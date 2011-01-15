@@ -84,6 +84,7 @@ Object.extend = function(destination, source)
 
 // SLURL namespace
 var SLURL = {
+	tileSize                   : 256.0,
 	getRegionCoordsByNameQueue : 0,
 	getRegionCoordsByNameVar   : function(){
 		return 'slurlGetRegionCoordsByName_' + (++SLURL.getRegionCoordsByNameQueue);
@@ -257,8 +258,6 @@ var slTileHost = [
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
 
-var slTileSize = 256.0;
-
 // The maximum width/height of the SL grid in regions:
 // 2^20 regions on a side = 1,048,786  ("This should be enough for anyone")
 // *NOTE: This must be a power of 2 and divisible by 2^(max zoom) = 256
@@ -311,8 +310,8 @@ EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
     
     // Now map this square onto a 1:1 bitmap of the entire SL map, based
     // on the size of SL map tiles (at zoom level 1, the closest)
-    var RawPixelX = RawMapX * slTileSize;
-    var RawPixelY = RawMapY * slTileSize;
+    var RawPixelX = RawMapX * SLURL.tileSize;
+    var RawPixelY = RawMapY * SLURL.tileSize;
     
     // Now account for the fact that the map may be zoomed out
     zoom = SLURL.convertZoom(zoom);
@@ -336,8 +335,8 @@ EuclideanProjection.prototype.fromPixelToLatLng=function(pos,zoom,c)
     var RawPixelY = pos.y * ZoomFactor;
     
     // Now map this 1:1 bitmap position onto a 10k square of SL tiles, located at the origin
-    var RawMapX = RawPixelX / slTileSize;
-    var RawMapY = RawPixelY / slTileSize;
+    var RawMapX = RawPixelX / SLURL.tileSize;
+    var RawMapY = RawPixelY / SLURL.tileSize;
     
     // Now map this 10k SL square onto a 90 LatLng square
     var Lng = RawMapX * slMapFactor;
@@ -1260,22 +1259,22 @@ SLMap.prototype.panBy = function(x, y)
 
 SLMap.prototype.panLeft = function()
 {
-		this.panBy(-slTileSize, 0);
+		this.panBy(-SLURL.tileSize, 0);
 }
 
 SLMap.prototype.panRight = function()
 {
-		this.panBy(slTileSize, 0);
+		this.panBy(SLURL.tileSize, 0);
 }
 
 SLMap.prototype.panUp = function()
 {
-		this.panBy(0, -slTileSize);
+		this.panBy(0, -SLURL.tileSize);
 }
 
 SLMap.prototype.panDown = function()
 {
-		this.panBy(0, slTileSize);
+		this.panBy(0, SLURL.tileSize);
 }
 
 SLMap.prototype.panOrRecenterToSLCoord = function(pos, forceCenter)
