@@ -102,6 +102,9 @@ var SLURL = {
 // Delay for mouse hover action (mouse has to be still for this many milliseconds)
 	mouseHoverDelay            : 1000,
 
+// Do we want to display hover information for the map?
+	showHoverTips              : false,
+
 // To allow for asynchronous access to the slurl.com APIs, we need to have a work around that allows us to assign variables in the global window scope
 	getRegionCoordsByNameQueue : 0, // simple increment, rather than using randomly generated numbers
 	getRegionCoordsByNameVar   : function(){ // returns a variable name more-or-less guaranteed to be unoccupied by any other API call
@@ -283,9 +286,6 @@ var slParanoidMap = false; // this is to be used if we want to be paranoid about
 
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
-
-// Do we want to display hover information for the map?
-var slShowHoverTips = false;
 
 function EuclideanProjection(NumZoomLevels)
 {
@@ -659,7 +659,7 @@ function SLMap(map_element, map_options)
 						"moveend", 
 						function() { slMap.onStateChangedHandler(); });
 
-		if (slShowHoverTips)
+		if (SLURL.showHoverTips)
 		{
 			// Enable, If we want mouse move handlers 
                                 GEvent.addListener(
