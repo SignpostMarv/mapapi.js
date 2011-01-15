@@ -274,43 +274,41 @@ var SLURL = {
 		this.xMax = xMax || 0;
 		this.yMin = yMin || 0;
 		this.yMax = yMax || 0;
+	},
+
+// Create the Euclidean Projection for the flat map
+	EuclideanProjection        : function(NumZoomLevels){
+		this.pixelsPerLonDegree=[];
+		this.pixelsPerLonRadian=[];
+		this.pixelOrigo=[];
+		this.tileBounds=[];
+		var BitmapSize = 512;
+		var c=1;
+		
+		for(var d=0; d < NumZoomLevels; d++){
+			var e= BitmapSize / 2;
+			this.pixelsPerLonDegree.push(BitmapSize / 360);
+			this.pixelsPerLonRadian.push(BitmapSize / (2*Math.PI));
+			this.pixelOrigo.push(new GPoint(e,e));
+			this.tileBounds.push(c);
+			BitmapSize *= 2;
+			c*=2
+		}
 	}
 }
 
+// Attach SLURL.RegionPoint to the SLURL.XYPoint class
 SLURL.RegionPoint.prototype = new SLURL.XYPoint;
 
 
-// ====== Create the Euclidean Projection for the flat map ======
-// == Constructor ==
-
-function EuclideanProjection(NumZoomLevels)
-{
-    this.pixelsPerLonDegree=[];
-    this.pixelsPerLonRadian=[];
-    this.pixelOrigo=[];
-    this.tileBounds=[];
-    var BitmapSize = 512;
-    var c=1;
-    
-    for(var d=0; d < NumZoomLevels; d++)
-    {
-        var e= BitmapSize / 2;
-        this.pixelsPerLonDegree.push(BitmapSize / 360);
-        this.pixelsPerLonRadian.push(BitmapSize / (2*Math.PI));
-        this.pixelOrigo.push(new GPoint(e,e));
-        this.tileBounds.push(c);
-        BitmapSize *= 2;
-        c*=2
-    }
-}
-
+// SLURL.EuclideanProjection
 
 // == Attach it to the GProjection() class ==
-EuclideanProjection.prototype=new GProjection();
+SLURL.EuclideanProjection.prototype=new GProjection();
 
 
 // == A method for converting latitudes and longitudes to pixel coordinates == 
-EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
+SLURL.EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
 {
     var RawMapX = LatLng.lng() / SLURL.mapFactor;
     var RawMapY = -LatLng.lat() / SLURL.mapFactor;
@@ -332,7 +330,7 @@ EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
 
 // == a method for converting pixel coordinates to latitudes and longitudes ==
 
-EuclideanProjection.prototype.fromPixelToLatLng=function(pos,zoom,c)
+SLURL.EuclideanProjection.prototype.fromPixelToLatLng=function(pos,zoom,c)
 {
     // First, account for the fact that the map may be zoomed out
     zoom = SLURL.convertZoom(zoom);
@@ -353,13 +351,13 @@ EuclideanProjection.prototype.fromPixelToLatLng=function(pos,zoom,c)
 };
  
 // == a method that checks if the x/y value is in range ==
-EuclideanProjection.prototype.tileCheckRange=function(pos, zoom, tileSize)
+SLURL.EuclideanProjection.prototype.tileCheckRange=function(pos, zoom, tileSize)
 {
 	return ((pos.x < 0) || (pos.y < 0)) ? false : true;
 }
 
 // == a method that returns the width of the tilespace (the bounding box of the map) ==      
-EuclideanProjection.prototype.getWrapWidth=function(zoom) 
+SLURL.EuclideanProjection.prototype.getWrapWidth=function(zoom) 
 {
 	return this.tileBounds[zoom] * SLURL.gridEdgeSizeInRegions;		
 }
@@ -568,7 +566,7 @@ function SLMap(map_element, map_options)
 		if (GBrowserIsCompatible()) 
 		{
 				this.options = new SLMapOptions(map_options);
-				this.mapProjection = new EuclideanProjection(18);
+				this.mapProjection = new SLURL.EuclideanProjection(18);
 
 				// Create our custom map types and initialise map with them
 				var mapTypes = this.CreateMapTypes();
