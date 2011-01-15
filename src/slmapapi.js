@@ -92,6 +92,9 @@ var SLURL = {
 // *NOTE: This must be a power of 2 and divisible by 2^(max zoom) = 256
 	gridEdgeSizeInRegions      : 1048576,
 
+// We map a 1,048,576 (2^20) regions-per-side square positioned at the origin onto Lat/Long (0, 0) to (-90, 90)
+	mapFactor                  : 90.0 / 1048576,
+
 // To allow for asynchronous access to the slurl.com APIs, we need to have a work around that allows us to assign variables in the global window scope
 	getRegionCoordsByNameQueue : 0, // simple increment, rather than using randomly generated numbers
 	getRegionCoordsByNameVar   : function(){ // returns a variable name more-or-less guaranteed to be unoccupied by any other API call
@@ -274,10 +277,6 @@ var slParanoidMap = false; // this is to be used if we want to be paranoid about
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
 
-
-// We map a 1,048,576 (2^20) regions-per-side square positioned at the origin onto Lat/Long (0, 0) to (-90, 90)
-var slMapFactor = 90.0 / SLURL.gridEdgeSizeInRegions;
-
 // Max/min zoom levels for SL maps (they are mapped to GMap zoom levels in a centralised place)
 var slMinZoomLevel = 8; // Zoomed out as much as possible
 var slMaxZoomLevel = 1; // Zoomed in as much as possible
@@ -317,8 +316,8 @@ EuclideanProjection.prototype=new GProjection();
 // == A method for converting latitudes and longitudes to pixel coordinates == 
 EuclideanProjection.prototype.fromLatLngToPixel=function(LatLng,zoom)
 {
-    var RawMapX = LatLng.lng() / slMapFactor;
-    var RawMapY = -LatLng.lat() / slMapFactor;
+    var RawMapX = LatLng.lng() / SLURL.mapFactor;
+    var RawMapY = -LatLng.lat() / SLURL.mapFactor;
     
     // Now map this square onto a 1:1 bitmap of the entire SL map, based
     // on the size of SL map tiles (at zoom level 1, the closest)
@@ -351,8 +350,8 @@ EuclideanProjection.prototype.fromPixelToLatLng=function(pos,zoom,c)
     var RawMapY = RawPixelY / SLURL.tileSize;
     
     // Now map this 10k SL square onto a 90 LatLng square
-    var Lng = RawMapX * slMapFactor;
-    var Lat = RawMapY * slMapFactor;
+    var Lng = RawMapX * SLURL.mapFactor;
+    var Lat = RawMapY * SLURL.mapFactor;
     
     return new GLatLng(-Lat,Lng,c)
 };
@@ -386,16 +385,16 @@ SLURL.XYPoint.prototype.GetGLatLng = function()
 {
     // Invert Y axis
 	var corrected_y = SLURL.gridEdgeSizeInRegions - this.y;
-    var lat = -corrected_y * slMapFactor;
-    var lng = this.x * slMapFactor;
+    var lat = -corrected_y * SLURL.mapFactor;
+    var lng = this.x * SLURL.mapFactor;
 	return new GLatLng(lat, lng);
 }
  
 
 SLURL.XYPoint.prototype._SetFromGLatLng = function(gpos)
 {
-    this.x = gpos.lng() / slMapFactor;
-    this.y = -gpos.lat() / slMapFactor;
+    this.x = gpos.lng() / SLURL.mapFactor;
+    this.y = -gpos.lat() / SLURL.mapFactor;
     // Invert Y axis back
     this.y = SLURL.gridEdgeSizeInRegions - this.y;
 }
