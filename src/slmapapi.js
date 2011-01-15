@@ -1101,43 +1101,27 @@ SLMap.prototype.addMapWindow = function(mapWindow, pos)
 		}
 }
 
-SLMap.prototype.zoomIn = function()
-{
-		if (this.GMap != null)
-		{
-				if (this.options && this.options.zoomMax)
-				{
-						// Client specified zoom limit, so enforce it
-						if (this.getCurrentZoomLevel() <= this.options.zoomMax)
-								return;
-				}
-				
-				// Ok to zoom in
-				this.GMap.zoomIn();
-		}
+SLMap.prototype.zoomIn = function(){
+	return this.zoom(this.zoom() - 1);
 }
 
-SLMap.prototype.zoomOut = function()
-{
-		if (this.GMap != null)
-		{                           
-				if (this.options && this.options.zoomMin)
-				{
-						// Client specified zoom limit, so enforce it
-						if (this.getCurrentZoomLevel() >= this.options.zoomMin)
-								return;
-				}
-				
-				this.GMap.zoomOut();
-		}
+SLMap.prototype.zoomOut = function(){
+	return this.zoom(this.zoom() + 1);
 }
 
-SLMap.prototype.getCurrentZoomLevel = function()
-{
-		if (this.GMap != null)
-		{                           
-				return SLURL.convertZoom(this.GMap.getZoom());
+SLMap.prototype.zoom = function(level){
+	if(this.GMap){
+		if(level){ // if a level was specified, we need to set the level before returning it
+			this.GMap.setZoom(
+				SLURL.convertZoom( // zoom needs to be converted first
+					this._forceZoomToLimits( // Enforce zoom limits specified by client
+						level
+					)
+				)
+			);
 		}
+		return SLURL.convertZoom(this.GMap.getZoom());
+	}
 }
 
 SLMap.prototype._forceZoomToLimits = function(zoom)
@@ -1156,17 +1140,6 @@ SLMap.prototype._forceZoomToLimits = function(zoom)
 		}
 		
 		return zoom;
-}
-
-SLMap.prototype.setCurrentZoomLevel = function(zoom)
-{
-		if (this.GMap != null)
-		{                           
-				// Enforce zoom limits specified by client
-				zoom = this._forceZoomToLimits(zoom);
-				
-				this.GMap.setZoom(SLURL.convertZoom(zoom));
-		}
 }
 
 SLMap.prototype.panBy = function(x, y)
