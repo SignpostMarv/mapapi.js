@@ -294,6 +294,14 @@ var SLURL = {
 			BitmapSize *= 2;
 			c*=2
 		}
+	},
+
+// Img
+	Img                        : function(imgURL, imgWidth, imgHeight, hasAlpha){		
+		this.URL    = imgURL;
+		this.width  = imgWidth;
+		this.height = imgHeight;
+		this.alpha  = !!hasAlpha; // double inversion converts to boolean regardless of input
 	}
 }
 
@@ -420,16 +428,7 @@ SLURL.Bounds.prototype._SetFromGLatLngBounds = function(gbounds)
 //               Img
 //
 // ------------------------------------
-
-function Img(imgURL, imgWidth, imgHeight, hasAlpha)
-{		
-		this.URL = imgURL;
-		this.width = imgWidth;
-		this.height = imgHeight;
-		this.alpha  = !!hasAlpha; // double inversion converts to boolean regardless of input
-}
-
-Img.prototype.isAlpha = function(){
+SLURL.Img.prototype.isAlpha = function(){
 	return this.alpha;
 }
 
