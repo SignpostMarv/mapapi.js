@@ -35,7 +35,7 @@
 //
 //  ( 0, 0) Google map pixels
 //  (90, 0) lat, long
-//  (0, slGridEdgeSizeInRegions) grid_x, grid_y
+//  (0, SLURL.gridEdgeSizeInRegions) grid_x, grid_y
 //  /\
 //   |------------------------------------+
 //   |                                    |
@@ -49,11 +49,11 @@
 //   | xxx                                |
 //   | xxx                                |       (big, big) Google map pixels
 //   ------------------------------------------>  (0,90) lat, long
-//                                                (slGridEdgeSizeInRegions, 0) grid_x, grid_y
+//                                                (SLURL.gridEdgeSizeInRegions, 0) grid_x, grid_y
 //
 //  As this map shows, SL is mapped to the upper right quadrant of the
 //  'world' map as used by Google lat/long coordinates.  A large scaling value
-//  called slGridEdgeSizeInRegions is used to set the largest region coordinate
+//  called SLURL.gridEdgeSizeInRegions is used to set the largest region coordinate
 //  at the top and far right edge of the displayed area.  At the current
 //  value of 2^20 = 1M, this creates a map area with room for 1 trillion sims.
 //  The little xxx's in the diagram shows where the populated sims are in SL
@@ -85,6 +85,10 @@ Object.extend = function(destination, source)
 // SLURL namespace
 var SLURL = {
 	tileSize                   : 256.0,
+// The maximum width/height of the SL grid in regions:
+// 2^20 regions on a side = 1,048,786  ("This should be enough for anyone")
+// *NOTE: This must be a power of 2 and divisible by 2^(max zoom) = 256
+	gridEdgeSizeInRegions      : 1048576,
 	getRegionCoordsByNameQueue : 0,
 	getRegionCoordsByNameVar   : function(){
 		return 'slurlGetRegionCoordsByName_' + (++SLURL.getRegionCoordsByNameQueue);
@@ -178,7 +182,7 @@ var SLURL = {
 
 		// Adjust Y axis flip location by zoom value, in case the size of the whole
 		// world is not divisible by powers-of-two.
-		var offset = slGridEdgeSizeInRegions;
+		var offset = SLURL.gridEdgeSizeInRegions;
 		offset -= offset % regions_per_tile_edge;
 		y = offset - y;
 
@@ -258,13 +262,9 @@ var slTileHost = [
 // ====== Create the Euclidean Projection for the flat map ======
 // == Constructor ==
 
-// The maximum width/height of the SL grid in regions:
-// 2^20 regions on a side = 1,048,786  ("This should be enough for anyone")
-// *NOTE: This must be a power of 2 and divisible by 2^(max zoom) = 256
-var slGridEdgeSizeInRegions = 1048576;
 
 // We map a 1,048,576 (2^20) regions-per-side square positioned at the origin onto Lat/Long (0, 0) to (-90, 90)
-var slMapFactor = 90.0 / slGridEdgeSizeInRegions;
+var slMapFactor = 90.0 / SLURL.gridEdgeSizeInRegions;
 
 // Max/min zoom levels for SL maps (they are mapped to GMap zoom levels in a centralised place)
 var slMinZoomLevel = 8; // Zoomed out as much as possible
@@ -354,7 +354,7 @@ EuclideanProjection.prototype.tileCheckRange=function(pos, zoom, tileSize)
 // == a method that returns the width of the tilespace (the bounding box of the map) ==      
 EuclideanProjection.prototype.getWrapWidth=function(zoom) 
 {
-	return this.tileBounds[zoom] * slGridEdgeSizeInRegions;		
+	return this.tileBounds[zoom] * SLURL.gridEdgeSizeInRegions;		
 }
 
 
@@ -373,7 +373,7 @@ EuclideanProjection.prototype.getWrapWidth=function(zoom)
 SLURL.XYPoint.prototype.GetGLatLng = function()
 {
     // Invert Y axis
-	var corrected_y = slGridEdgeSizeInRegions - this.y;
+	var corrected_y = SLURL.gridEdgeSizeInRegions - this.y;
     var lat = -corrected_y * slMapFactor;
     var lng = this.x * slMapFactor;
 	return new GLatLng(lat, lng);
@@ -385,7 +385,7 @@ SLURL.XYPoint.prototype._SetFromGLatLng = function(gpos)
     this.x = gpos.lng() / slMapFactor;
     this.y = -gpos.lat() / slMapFactor;
     // Invert Y axis back
-    this.y = slGridEdgeSizeInRegions - this.y;
+    this.y = SLURL.gridEdgeSizeInRegions - this.y;
 }
 
 // ------------------------------------
