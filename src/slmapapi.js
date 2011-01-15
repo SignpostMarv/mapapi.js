@@ -441,18 +441,6 @@ SLURL.Img.prototype.isAlpha = function(){
 
 function Icon(imageMain, imageShadow)
 {
-		this.hasShadow=function()
-		{
-				if (this.shadowImg)
-				{
-						return true;
-				}
-				else
-				{
-						return false;
-				}
-		};
-		
 		this.mainImg=imageMain;
 		
 		if (imageShadow)
@@ -460,6 +448,10 @@ function Icon(imageMain, imageShadow)
 				this.shadowImg = imageShadow;
 		}
 }
+
+Icon.prototype.hasShadow = function(){
+	return !!this.shadowImg;
+};
 
 
 // ------------------------------------
