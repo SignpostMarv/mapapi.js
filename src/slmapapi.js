@@ -952,7 +952,7 @@ function slMapClickHandler(slMap, gmarker, point)
 	if (gmarker == null)
 	{
 		// Generic click on map teleports directly to the location
-        slCoord = new SLURL.XYPoint;
+        var slCoord = new SLURL.XYPoint;
 		slCoord._SetFromGLatLng(point);
         SLURL.gotoSLURL(slMap, slCoord.x, slCoord.y);
 	}
