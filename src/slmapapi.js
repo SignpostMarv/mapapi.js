@@ -810,14 +810,6 @@ SLMap.prototype.CreateMapDiv = function(mainDiv)
 {
 	var
 		SLMap = this,
-		clickHandler = function(){ // Create a click handler
-			if(formText){
-				SLMap.gotoRegion(formText.value); 
-			}else{
-				alert("Can't find textField!");
-			}
-			return false;
-		},
 		mapDiv = document.createElement("div") // Create a div to be the main map container as a child of the main div
 	;
 	
@@ -830,7 +822,15 @@ SLMap.prototype.CreateMapDiv = function(mainDiv)
 			formLabel     = document.createTextNode("Enter region name:"),
 			formLabelSpan = document.createElement("span"),
 			formText      = document.createElement("input"),
-			formButton    = document.createElement("input")
+			formButton    = document.createElement("input"),
+			clickHandler  = function(){
+				if(formText){
+					SLMap.gotoRegion(formText.value); 
+				}else{
+					alert("Can't find textField!");
+				}
+				return false;
+			}
 		;
 		form.setAttribute('style',[
 			'text-align:center',
