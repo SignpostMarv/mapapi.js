@@ -996,7 +996,7 @@ function slMapClickHandler(slMap, gmarker, point)
 		// Generic click on map teleports directly to the location
         slCoord = new SLURL.XYPoint;
 		slCoord._SetFromGLatLng(point);
-        gotoSLURL(slCoord.x, slCoord.y, slMap);
+        SLURL.gotoSLURL(slMap, slCoord.x, slCoord.y);
 	}
 	else
 	{
@@ -1027,7 +1027,7 @@ function slMapDoubleClickHandler(slMap, gmarker, point)
 				// on a double-click on land, simply teleport directly to the location!
                 slCoord = new SLURL.XYPoint;
 				slCoord._SetFromGLatLng(point);
-                gotoSLURL(slCoord.x, slCoord.y, slMap);
+                SLURL.gotoSLURL(slMap, slCoord.x, slCoord.y);
 		}
 		else
 		{
