@@ -546,134 +546,111 @@ SLURL.MapWindow.prototype.getGMapOptions = function()
 // ------------------------------------
 
 
-function SLMap(map_element, map_options)
-{
-	this.ID = null;
-	this.showingHoverWindow = false;
-	
-		if (GBrowserIsCompatible()) 
-		{
-				this.options = new SLURL.MapOptions(map_options);
-				this.mapProjection = new SLURL.EuclideanProjection(18);
+function SLMap(map_element, map_options){
+	var slMap = this;
+	if (GBrowserIsCompatible()){
+		slMap.ID                 = null;
+		slMap.showingHoverWindow = false;
+		slMap.options            = new SLURL.MapOptions(map_options);
+		slMap.mapProjection      = new SLURL.EuclideanProjection(18);
 
-				// Create our custom map types and initialise map with them
-				var mapTypes = this.CreateMapTypes();
-				var mapDiv = this.CreateMapDiv(map_element);
-                var mapOpts = {"mapTypes": mapTypes,
-                               "backgroundColor": SLURL.backgroundColor };
-				this.GMap = new GMap2(mapDiv, mapOpts);
+		// Create our custom map types and initialise map with them
+		var
+			mapTypes           = slMap.CreateMapTypes(),
+			mapDiv             = slMap.CreateMapDiv(map_element),
+			mapOpts            = {
+				"mapTypes"        : mapTypes,
+				"backgroundColor" : SLURL.backgroundColor
+			},
+			addZoomControls    = true,
+			addPanControls     = true,
+			overviewMapControl = true
+		;
 
-				// Link GMap back to us
-				this.GMap.slMap = this;
-				
-				// No GMap info windows open yet
-				this.currentMapWindow = null;
+		slMap.GMap             = new GMap2(mapDiv, mapOpts);
+		slMap.GMap.slMap       = slMap; // Link GMap back to us
+		slMap.currentMapWindow = null; // No GMap info windows open yet
+		slMap.voiceMarkers     = []; // No voice markers yet
 
-		// No voice markers yet
-		this.voiceMarkers = [];
-						
-				var addZoomControls = true;
-				var addPanControls = true;
-				var overviewMapControl = true;
-				
-				if (this.options != undefined)
-				{
-						if (this.options.hasPanningControls == false)
-						{
-								addPanControls = false;
-						}
-						
-						if (this.options.hasZoomControls == false)
-						{
-								addZoomControls = false;
-						}
-						
-						if (this.options.hasOverviewMapControl == false)
-						{
-								overviewMapControl = false;
-						}
-
-				}
-				
-				// Use GMaps native controls
-				if (addZoomControls || addPanControls)
-				{
-					this.GMap.addControl(new GSmallMapControl());
-				}
-				
-				if (overviewMapControl)
-				{
-					this.GMap.addControl(new GOverviewMapControl());
-				}
-				
-				// Use GMaps xtra control methods
-				this.GMap.enableContinuousZoom();
-				this.GMap.enableScrollWheelZoom();
-				
-				this.GMap.setCenter(new GLatLng(0, 0), 16);
-	
-				// Allow user to switch map types
-				this.GMap.addControl(new GMapTypeControl());
-
-				// Install our various event handlers
-				var slMap = this;
-				
-				GEvent.addListener(
-						this.GMap, 
-						"click", 
-						function(marker, point) 
-						{
-								SLURL.clickHandler(slMap, marker, point);
-						});
-						
-				/*
-				GEvent.addListener(
-								this.GMap, 
-								"dblclick", 
-								function(marker, point) 
-								{
-                                                                                slMapDoubleClickHandler(slMap, marker, point);
-								});
-				*/
-				
-				GEvent.addListener(
-						this.GMap, 
-						"moveend", 
-						function() { slMap.onStateChangedHandler(); });
-
-		if (SLURL.showHoverTips)
-		{
-			// Enable, If we want mouse move handlers 
-                                GEvent.addListener(
-                                                this.GMap, 
-						"mousemove", 
-						function(pos) { slMap.onMouseMoveHandler(pos); });
-			
-				GEvent.addListener(
-						this.GMap, 
-						"mouseout", 
-						function(pos) { slMap.onMouseOutHandler(pos); });
+		if (slMap.options){
+			addPanControls     = !!slMap.options.hasPanningControls;
+			addZoomControls    = !!slMap.options.hasZoomControls;
+			overviewMapControl = !!slMap.options.hasOverviewMapControl;
 		}
 
-				
-				GEvent.addListener(
-						this.GMap, 
-						"dragstart", 
-						function() 
-						{
-								SLURL.dragHandler(slMap);
-						});        
-						
-				// Moved this to the end as GMaps seemed to fail if I did it right
-				// after map creation, and I don't have time to debug other people's code.
-			this.GMarkerManager = new GMarkerManager(this.GMap);
-						
+		if (addZoomControls || addPanControls){ // Use GMaps native controls
+			slMap.GMap.addControl(new GSmallMapControl());
 		}
-		else
-		{
-				// Browser does not support Google Maps
-				this.GMap = null;
+
+		if (overviewMapControl){
+			slMap.GMap.addControl(new GOverviewMapControl());
 		}
+
+		// Use GMaps xtra control methods
+		slMap.GMap.enableContinuousZoom();
+		slMap.GMap.enableScrollWheelZoom();
+
+		slMap.GMap.setCenter(new GLatLng(0, 0), 16);
+
+		// Allow user to switch map types
+		slMap.GMap.addControl(new GMapTypeControl());
+
+		// Install our various event handlers
+		GEvent.addListener( // clicking on the map
+			slMap.GMap, 
+			"click", 
+			function(marker, point){
+				SLURL.clickHandler(slMap, marker, point);
+			}
+		);
+//		GEvent.addListener( // double-clicking on the map
+//			slMap.GMap, 
+//			"dblclick", 
+//			function(marker, point){
+//				slMapDoubleClickHandler(slMap, marker, point);
+//			}
+//		);
+		GEvent.addListener( // map stops moving
+				slMap.GMap, 
+				"moveend", 
+				function(){
+					slMap.onStateChangedHandler();
+				}
+		);
+
+		if (SLURL.showHoverTips){ // Enable, If we want mouse move handlers
+			GEvent.addListener(
+				slMap.GMap,
+				"mousemove",
+				function(pos){
+					slMap.onMouseMoveHandler(pos);
+				}
+			);
+			GEvent.addListener(
+				this.GMap,
+				"mouseout", 
+				function(pos){
+					slMap.onMouseOutHandler(pos);
+				}
+			);
+		}
+		GEvent.addListener(
+			slMap.GMap, 
+			"dragstart", 
+			function(){
+				SLURL.dragHandler(slMap);
+			}
+		);        
+
+		// Moved this to the end as GMaps seemed to fail if I did it right
+		// after map creation, and I don't have time to debug other people's code.
+		// --Would be nice to know who wrote the above comment. ~ SignpostMarv
+		this.GMarkerManager = new GMarkerManager(this.GMap);
+	}else{
+		// Browser does not support Google Maps
+		this.GMap = null;
+		throw 'Your browser is not supported';
+	}
 }
 
 SLMap.prototype.onStateChangedHandler = function()
