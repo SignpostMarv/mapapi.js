@@ -1119,19 +1119,15 @@ SLMap.prototype._forceZoomToLimits = function(zoom)
 		return zoom;
 }
 
-SLMap.prototype.panBy = function(x, y)
-{
-		if (this.GMap != null)
-		{
-				var pos = this.GMap.getCenter();
-				
-				var tileSize = new SLURL.XYPoint(x, y);
-				
-				var offset = this.mapProjection.fromPixelToLatLng(tileSize, this.GMap.getZoom());
-				
-				var newPos = new GLatLng(pos.lat() + offset.lat(), pos.lng() + offset.lng());
-				this.GMap.panTo(newPos);
-		}
+SLMap.prototype.panBy = function(x, y){
+	if (this.GMap){
+		var
+			pos    = this.GMap.getCenter(),
+			offset = this.mapProjection.fromPixelToLatLng(new SLURL.XYPoint(x, y), this.GMap.getZoom()),
+			newPos = new GLatLng(pos.lat() + offset.lat(), pos.lng() + offset.lng())
+		;
+		this.GMap.panTo(newPos);
+	}
 }
 
 SLMap.prototype.panLeft = function()
