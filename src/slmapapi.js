@@ -1049,16 +1049,11 @@ SLMap.prototype.addMarker = function(marker, mapWindow)
 		}
 }
 
-SLMap.prototype.removeMarker = function(marker)
-{
-		if (this.GMap != null)
-		{
-				if (marker.gmarker)
-				{
-						this.GMap.removeOverlay(marker.gmarker);
-						marker.gmarker = null;
-				}
-		}
+SLMap.prototype.removeMarker = function(marker){
+	if (this.GMap != null && marker.gmarker){
+		this.GMap.removeOverlay(marker.gmarker);
+		marker.gmarker = null;
+	}
 }
 
 SLMap.prototype.removeAllMarkers = function()
