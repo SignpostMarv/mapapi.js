@@ -530,13 +530,8 @@ SLURL.Icon.prototype.hasShadow = function(){
 //
 // ------------------------------------
 
-SLURL.MapWindow.prototype.getGMapOptions = function()
-{
-		var width = 252;
-		if (this.options && this.options.width)
-				width = this.options.width;
-				
-		return {maxWidth: width};
+SLURL.MapWindow.prototype.getGMapOptions = function(){
+	return {maxWidth: ((this.options && this.options.width) ? this.options.width : 252)};
 }
 
 // ------------------------------------
