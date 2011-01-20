@@ -1,1 +1,0 @@
-java -jar ..\..\compiler.jar --js ..\src\slmapapi.js --js_output_file ..\build\slmapapi.js
