@@ -649,98 +649,78 @@ function SLMap(map_element, map_options){
 	}
 }
 
-SLMap.prototype.onStateChangedHandler = function()
-{
+SLMap.prototype.onStateChangedHandler = function(){
 	// Service user supplied handler if it exists
-	if (this.options && this.options.onStateChangedHandler)
-	{
-				this.options.onStateChangedHandler();
+	if (this.options && this.options.onStateChangedHandler){
+		this.options.onStateChangedHandler();
 	}
 }
 
-SLMap.prototype.onMouseMoveHandler = function(pos)
-{
+SLMap.prototype.onMouseMoveHandler = function(pos){
 	// We just got a mouse move, so the user isn't 'hovering' right now
 	this.resetHoverTimeout(true);
 	this.hoverPos = pos;
 	
 	// If we're showing a tooltip, close it
-	if (this.showingHoverWindow)
-	{
+	if (this.showingHoverWindow){
 		this.GMap.closeInfoWindow();
 	}
 }
 
-SLMap.prototype.onMouseOutHandler = function(pos)
-{
+SLMap.prototype.onMouseOutHandler = function(pos){
 	// Mouse is leaving map - clear tooltip timers
 	this.clearHoverTimeout(true);
 }
 
-SLMap.prototype.clearHoverTimeout = function()
-{
-	if (this.ID != null)
-	{
+SLMap.prototype.clearHoverTimeout = function(){
+	if (this.ID != null){
 		window.clearTimeout(this.ID);
 		this.ID = null;
 	}
 }
 
-SLMap.prototype.resetHoverTimeout = function(forceTimerSet)
-{
-	var timerWasSet = (this.ID != null);
+SLMap.prototype.resetHoverTimeout = function(forceTimerSet){
 	this.clearHoverTimeout();
-	
-	if (timerWasSet || forceTimerSet)
-	{		
+	if ((this.ID != null) || forceTimerSet){
 		var map = this;
 		this.ID = window.setTimeout(function() { map.mousehoverHandler(); }, SLURL.mouseHoverDelay);
 	}
 }
 
-SLMap.prototype.mousehoverHandler = function()
-{
+SLMap.prototype.mousehoverHandler = function(){
 	// Get tile coordinate
-	tilePos = new SLURL.XYPoint;
+	var tilePos = new SLURL.XYPoint;
 	tilePos._SetFromGLatLng(this.hoverPos);
-	
+
 	var tileX = Math.floor(tilePos.x);
 	var tileY = Math.floor(tilePos.y);
 
-        this.showTileToolTip();
+	this.showTileToolTip();
 }
 
-SLMap.prototype.getRegionName = function()
-{
-                var text = "Test Region Name";
-                return text;
+SLMap.prototype.getRegionName = function(){
+	var text = "Test Region Name";
+	return text;
 }
 
-SLMap.prototype.showTileToolTip = function()
-{
-	var map = this;
-	this.ID = null;
+SLMap.prototype.showTileToolTip = function(){
+	var
+		map       = this,
+		HoverText = this.getRegionName()
+	;
 
-	var HoverText = "";
-	
-	if (true)
-		//HoverText = "<b>" + this.getRegionName() + "</b><br/>";
-                HoverText = this.getRegionName();
-		
-	this.GMap.openInfoWindowHtml(this.hoverPos, HoverText, { onCloseFn: function() { map.hoverWindowCloseHandler(); }});
-	this.showingHoverWindow = true;
+	map.ID = null;
+	map.GMap.openInfoWindowHtml(map.hoverPos, HoverText, { onCloseFn: function() { map.hoverWindowCloseHandler(); }});
+	map.showingHoverWindow = true;
 }
 
-SLMap.prototype.hoverWindowCloseHandler = function()
-{
+SLMap.prototype.hoverWindowCloseHandler = function(){
 	// Window has just closed, so reset any hover timer, so a window doesn't appear immediately
 	this.showingHoverWindow = false;
-
 	this.resetHoverTimeout(false);	
 }
 
-SLMap.prototype.CreateMapTypes = function()
-{
+SLMap.prototype.CreateMapTypes = function(){
 	var mapTypes = [];
 	
 		var copyCollection = new GCopyrightCollection('SecondLife');
@@ -761,8 +741,7 @@ SLMap.prototype.CreateMapTypes = function()
 	return mapTypes;
 }
 
-SLMap.prototype.CreateMapDiv = function(mainDiv)
-{
+SLMap.prototype.CreateMapDiv = function(mainDiv){
 	var
 		SLMap = this,
 		mapDiv = document.createElement("div") // Create a div to be the main map container as a child of the main div
@@ -780,6 +759,13 @@ SLMap.prototype.CreateMapDiv = function(mainDiv)
 			formButton    = document.createElement("input"),
 			clickHandler  = function(){
 				if(formText){
+					SLURL.getRegionCoordsByName(formText.value, function(pos){
+						if(pos.x && pos.y){
+							SLMap.panOrRecenterToSLCoord(
+								new SLURL.XYPoint(pos.x, pos.y)
+							);
+						}
+					});
 					SLMap.gotoRegion(formText.value); 
 				}else{
 					alert("Can't find textField!");
@@ -817,94 +803,57 @@ SLMap.prototype.CreateMapDiv = function(mainDiv)
 
 		mainDiv.appendChild(form);
 	}
-	
+
 	mainDiv.appendChild(mapDiv);
 
 	return mapDiv;
 }
 
-SLMap.prototype.gotoRegion = function(regionName)
-{
+SLMap.prototype.gotoRegion = function(regionName){
 	var SLMap = this;
-	
-	// Add a dynamic script to get this region position, and then trigger a map center
-	// change based on the results
-	var varName = "slRegionPos_result";
-	
-	var scriptURL = "http://slurl.com/get-region-coords-by-name"
-                + "?var=" + varName
-                + "&sim_name=" + encodeURIComponent(regionName);
-
-		// Once the script has loaded, we use the result to center the map on the position
-		var onLoadHandler = function () 
-		{
-			if (slRegionPos_result.error)
-			{
-                alert("The region name '" + regionName + "' was not recognised.");
-            }
-            else
-            {
-				var x = slRegionPos_result.x;
-				var y = slRegionPos_result.y;
-            //  alert("Going to " + x + "," + y);
-				
-				var pos = new SLURL.XYPoint(x, y);
-				SLMap.panOrRecenterToSLCoord(pos);
-            }
-		};
-						
-		SLURL.loadScript(scriptURL, onLoadHandler);
+	SLURL.getRegionCoordsByName(regionName, function(pos){
+		if(pos.x && pos.y){
+			SLMap.panOrRecenterToSLCoord(
+				new SLURL.XYPoint(pos.x, pos.y)
+			);
+		}
+	});
 }
 
-SLMap.prototype.centerAndZoomAtSLCoord = function(pos, zoom)
-{
-    if (this.GMap != null)
-    {
-        // Enforce zoom limits specified by client
-        zoom = this._forceZoomToLimits(zoom);
-
-        this.GMap.setCenter(pos.GetGLatLng(), SLURL.convertZoom(zoom));
+SLMap.prototype.centerAndZoomAtSLCoord = function(pos, zoom){
+    if (this.GMap){
+        this.GMap.setCenter(pos.GetGLatLng(), SLURL.convertZoom(
+			this._forceZoomToLimits(zoom) // Enforce zoom limits specified by client
+		));
     }
 }
 
-SLMap.prototype.disableDragging = function()
-{
-    if (this.GMap != null)
-    {
+SLMap.prototype.disableDragging = function(){
+    if(this.GMap){
         this.GMap.disableDragging();
     }
 }
 
-SLMap.prototype.enableDragging = function()
-{
-    if (this.GMap != null)
-    {
-            this.GMap.enableDragging();
+SLMap.prototype.enableDragging = function(){
+    if(this.GMap){
+		this.GMap.enableDragging();
     }
 }
 
-SLMap.prototype.getViewportBounds = function()
-{
-		if (this.GMap != null)
-		{
-				gLatLngBounds = this.GMap.getBounds();
-				
-				viewBounds = new SLURL.Bounds();
-				viewBounds._SetFromGLatLngBounds(gLatLngBounds);
-				return viewBounds;
-		}
+SLMap.prototype.getViewportBounds = function(){
+	if (this.GMap){
+		var viewBounds = new SLURL.Bounds();
+		viewBounds._SetFromGLatLngBounds(this.GMap.getBounds());
+		return viewBounds;
+	}
 }
 
-SLMap.prototype.getMapCenter = function()
-{
-		if (this.GMap != null)
-		{
-				gCenter = this.GMap.getCenter();
-				
-				center = new SLURL.XYPoint();
-				center._SetFromGLatLng(gCenter);
-				return center;
-		}
+SLMap.prototype.getMapCenter = function(){
+	if(this.GMap){
+		var center  = new SLURL.XYPoint();
+		center._SetFromGLatLng(this.GMap.getCenter());
+		return center;
+	}
 }
 
 
@@ -931,142 +880,101 @@ function slMapDoubleClickHandler(slMap, gmarker, point)
 }
 */
 
-SLMap.prototype.clickMarker = function(marker)
-{
-		// Simulate a GMap click event on the centre of this marker
-		SLURL.clickHandler(this, marker.gmarker, marker.gmarker.getPoint());
+// Simulate a GMap click event on the centre of this marker
+SLMap.prototype.clickMarker = function(marker){
+	SLURL.clickHandler(this, marker.gmarker, marker.gmarker.getPoint());
 }
 
-SLMap.prototype.addMarker = function(marker, mapWindow)
-{
-		if (this.GMap != null)
-		{
-				// Create the GMarker
-				var markerImg = marker.icons[0];
-				
-				var gicon = new GIcon();
-				gicon.image = markerImg.mainImg.URL;
+SLMap.prototype.addMarker = function(marker, mapWindow){
+	if (this.GMap){
+		var
+			markerImg    = marker.icons[0],
+			gicon        = new GIcon(),
+			width        = markerImg.mainImg.width,
+			height       = markerImg.mainImg.height,
+			hotspotX     = width / 2,
+			hotspotY     = height / 2,
+			point        = marker.slCoord.GetGLatLng(),
+			isClickable  = (mapWindow || marker.options.centerOnClick || marker.options.clickHandler || marker.options.onMouseOverHandler || marker.options.onMouseOutHandler), // Mouse over/out events are not clicks, but if we're not clickable or draggable, then GMaps doesn't send us any events.
+			markerZIndex = (marker.options.zLayer) ? marker.options.zLayer : 0
+		;
 
-				gicon.iconSize = new GSize(markerImg.mainImg.width, markerImg.mainImg.height);
-				
-				if (markerImg.shadowImg)
-				{
-						gicon.shadow = markerImg.shadowImg.URL;
-						gicon.shadowSize = new GSize(markerImg.shadowImg.width, markerImg.shadowImg.height);
-				}
-				else
-				{
-						gicon.shadowSize = gicon.iconSize;
-				}
-						
-				// Work out hotspot of marker
-				var hotspotX = gicon.iconSize.width / 2;
-				
-				if (marker.options.horizontalAlign == "left")
-						hotspotX = 0;
-				else if (marker.options.horizontalAlign == "right")
-						hotspotX = gicon.iconSize.width;
-						
-				var hotspotY = gicon.iconSize.height/ 2;
-				
-				if (marker.options.verticalAlign == "top")
-						hotspotY = 0;
-				else if (marker.options.verticalAlign == "bottom")
-						hotspotY = gicon.iconSize.height;
-						
-				gicon.iconAnchor = new GPoint(hotspotX, hotspotY);
-				
-				// TODO: need to change this? It's probably ok for most cases
-				gicon.infoWindowAnchor = gicon.iconAnchor;
-
-				// Add the GMarker to the map
-				var point = marker.slCoord.GetGLatLng();
-				
-				// The SL marker 'owns' the GMarker, and we insert a link from GMarker
-				// back to SL marker to assist callback/event processing
-				var isClickable = false;
-				if (mapWindow ||
-						marker.options.centerOnClick || 
-						marker.options.clickHandler ||
-						marker.options.onMouseOverHandler ||
-						marker.options.onMouseOutHandler)
-				{
-						// Mouse over/out events are not clicks, but if we're not clickable or draggable, then
-						// GMaps doesn't send us any events.
-						isClickable = true;
-				}
-						
-				var markerZIndex = 0;
-				
-				if (marker.options.zLayer)
-						markerZIndex = marker.options.zLayer;
-						
-				var gmarkeroptions = 
-						{
-								icon: gicon, 
-								clickable: isClickable, 
-								draggable: false,
-								zIndexProcess: function() { return markerZIndex; }
-						};
-				
-				marker.gmarker = new GMarker(point, gmarkeroptions);
-				
-				marker.gmarker.slMarker = marker;
-				
-				if (mapWindow)
-				{
-						GEvent.addListener(marker.gmarker, "click", 
-								function() 
-								{
-										marker.gmarker.openInfoWindowHtml(mapWindow.text, mapWindow.getGMapOptions());
-										this.currentMapWindow = mapWindow;
-								});
-				}
-				
-				if (marker.options.onMouseOverHandler)
-				{
-						GEvent.addListener(marker.gmarker, "mouseover",
-								function()
-								{
-										marker.options.onMouseOverHandler(marker);
-								});
-				}
-				
-				if (marker.options.onMouseOutHandler)
-				{
-						GEvent.addListener(marker.gmarker, "mouseout",
-								function()
-								{
-										marker.options.onMouseOutHandler(marker);
-								});
-				}
-				
-				this.GMap.addOverlay(marker.gmarker);
+		gicon.image          = markerImg.mainImg.URL;
+		gicon.iconSize       = new GSize(width, height);
+		gicon.shadowSize     = gicon.iconSize;
+		if(markerImg.shadowImg){
+			gicon.shadow     = markerImg.shadowImg.URL;
+			gicon.shadowSize = new GSize(markerImg.shadowImg.width, markerImg.shadowImg.height);
 		}
+
+		// Work out hotspot of marker
+		if(marker.options.horizontalAlign == "left"){
+			hotspotX = 0;
+		}else if(marker.options.horizontalAlign == "right"){
+			hotspotX = gicon.iconSize.width;
+		}
+		if(marker.options.verticalAlign == "top"){
+			hotspotY = 0;
+		}else if(marker.options.verticalAlign == "bottom"){
+			hotspotY = gicon.iconSize.height;
+		}
+
+		gicon.iconAnchor       = new GPoint(hotspotX, hotspotY);
+		gicon.infoWindowAnchor = gicon.iconAnchor; // TODO: need to change this? It's probably ok for most cases
+
+		var gmarkeroptions = {
+				icon: gicon, 
+				clickable: isClickable, 
+				draggable: false,
+				zIndexProcess: function() { return markerZIndex; }
+		};
+
+		// The SL marker 'owns' the GMarker, and we insert a link from GMarker
+		// back to SL marker to assist callback/event processing
+		marker.gmarker          = new GMarker(point, gmarkeroptions);
+		marker.gmarker.slMarker = marker;
+
+		if (mapWindow){
+			GEvent.addListener(marker.gmarker, "click", function(){
+				marker.gmarker.openInfoWindowHtml(mapWindow.text, mapWindow.getGMapOptions());
+				this.currentMapWindow = mapWindow;
+			});
+		}
+
+		if (marker.options.onMouseOverHandler){
+			GEvent.addListener(marker.gmarker, "mouseover",function(){
+				marker.options.onMouseOverHandler(marker);
+			});
+		}
+
+		if (marker.options.onMouseOutHandler){
+			GEvent.addListener(marker.gmarker, "mouseout",function(){
+				marker.options.onMouseOutHandler(marker);
+			});
+		}
+
+		this.GMap.addOverlay(marker.gmarker); // Add the GMarker to the map
+	}
 }
 
 SLMap.prototype.removeMarker = function(marker){
-	if (this.GMap != null && marker.gmarker){
+	if (this.GMap && marker.gmarker){
 		this.GMap.removeOverlay(marker.gmarker);
 		marker.gmarker = null;
 	}
 }
 
-SLMap.prototype.removeAllMarkers = function()
-{
-		if (this.GMap != null)
-		{
-				this.GMap.clearOverlays();
-		}
+SLMap.prototype.removeAllMarkers = function(){
+	if (this.GMap){
+		this.GMap.clearOverlays();
+	}
 }
 
-SLMap.prototype.addMapWindow = function(mapWindow, pos)
-{
-		if (this.GMap != null)
-		{                           
-				this.GMap.openInfoWindowHtml(pos.GetGLatLng(), mapWindow.text, mapWindow.getGMapOptions());
-				this.currentMapWindow = mapWindow;
-		}
+SLMap.prototype.addMapWindow = function(mapWindow, pos){
+	if (this.GMap){
+		this.GMap.openInfoWindowHtml(pos.GetGLatLng(), mapWindow.text, mapWindow.getGMapOptions());
+		this.currentMapWindow = mapWindow;
+	}
 }
 
 SLMap.prototype.zoomIn = function(){
@@ -1113,30 +1021,24 @@ SLMap.prototype.panBy = function(x, y){
 	}
 }
 
-SLMap.prototype.panLeft = function()
-{
-		this.panBy(-SLURL.tileSize, 0);
+SLMap.prototype.panLeft = function(){
+	this.panBy(-SLURL.tileSize, 0);
 }
 
-SLMap.prototype.panRight = function()
-{
-		this.panBy(SLURL.tileSize, 0);
+SLMap.prototype.panRight = function(){
+	this.panBy(SLURL.tileSize, 0);
 }
 
-SLMap.prototype.panUp = function()
-{
-		this.panBy(0, -SLURL.tileSize);
+SLMap.prototype.panUp = function(){
+	this.panBy(0, -SLURL.tileSize);
 }
 
-SLMap.prototype.panDown = function()
-{
-		this.panBy(0, SLURL.tileSize);
+SLMap.prototype.panDown = function(){
+	this.panBy(0, SLURL.tileSize);
 }
 
-SLMap.prototype.panOrRecenterToSLCoord = function(pos, forceCenter)
-{
-		if (this.GMap != null)
-		{
-				this.GMap.panTo(pos.GetGLatLng());
-		}
+SLMap.prototype.panOrRecenterToSLCoord = function(pos, forceCenter){
+	if (this.GMap){
+		this.GMap.panTo(pos.GetGLatLng());
+	}
 }
