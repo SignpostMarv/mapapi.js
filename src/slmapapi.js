@@ -599,13 +599,6 @@ function SLMap(map_element, map_options){
 				SLURL.clickHandler(slMap, marker, point);
 			}
 		);
-//		GEvent.addListener( // double-clicking on the map
-//			slMap.GMap, 
-//			"dblclick", 
-//			function(marker, point){
-//				slMapDoubleClickHandler(slMap, marker, point);
-//			}
-//		);
 		GEvent.addListener( // map stops moving
 				slMap.GMap, 
 				"moveend", 
@@ -855,30 +848,6 @@ SLMap.prototype.getMapCenter = function(){
 		return center;
 	}
 }
-
-
-/*
-function slMapDoubleClickHandler(slMap, gmarker, point)
-{
-		if (gmarker == null)
-		{
-				// on a double-click on land, simply teleport directly to the location!
-                slCoord = new SLURL.XYPoint;
-				slCoord._SetFromGLatLng(point);
-                SLURL.gotoSLURL(slMap, slCoord.x, slCoord.y);
-		}
-		else
-		{
-				// Handle clicking on a marker
-				var slMarker = gmarker.slMarker;
-				
-				if (slMarker.options.clickHandler)
-				{
-						slMarker.options.clickHandler(slMarker);
-				}
-		}
-}
-*/
 
 // Simulate a GMap click event on the centre of this marker
 SLMap.prototype.clickMarker = function(marker){
