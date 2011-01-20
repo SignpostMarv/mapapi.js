@@ -1092,22 +1092,14 @@ SLMap.prototype.zoom = function(level){
 	}
 }
 
-SLMap.prototype._forceZoomToLimits = function(zoom)
-{
-		// Enforce zoom limits specified by client
-		if (this.options && this.options.zoomMax)
-		{
-				if (zoom < this.options.zoomMax)
-						zoom = this.options.zoomMax;
-		}
-		
-		if (this.options && this.options.zoomMin)
-		{
-				if (zoom > this.options.zoomMin)
-						zoom = this.options.zoomMin;
-		}
-		
-		return zoom;
+SLMap.prototype._forceZoomToLimits = function(zoom){ // Enforce zoom limits specified by client
+	if (this.options && this.options.zoomMax){
+		zoom = Math.max(zoom, this.options.zoomMax);
+	}
+	if (this.options && this.options.zoomMin){
+		zoom = Math.min(zoom, this.options.zoomMin);
+	}	
+	return zoom;
 }
 
 SLMap.prototype.panBy = function(x, y){
