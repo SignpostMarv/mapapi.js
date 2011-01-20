@@ -262,7 +262,7 @@ body#slurl-builder{
 
 #sl-logo h1 a {
 	display: block;
-	background: #fff url('/_img/logo.png') no-repeat scroll top left;
+	background: #fff url('http://slurl.com/_img/logo.png') no-repeat scroll top left;
 	width: 286px;
 	height: 63px;
 }
