@@ -23,7 +23,7 @@ html, body{
 function loadmap(){
 	var
 		coords = {'x' : 1000, 'y' : 1000},
-		mapInstance = new SLMap(document.getElementById('map-container'), {'overviewMapControl':true,'showRegionSearchForm':true})
+		mapInstance = new SLURL.Map(document.getElementById('map-container'), {'overviewMapControl':true,'showRegionSearchForm':true})
 	;
 	mapInstance.centerAndZoomAtSLCoord(new SLURL.XYPoint(coords.x, coords.y), 4);
 }

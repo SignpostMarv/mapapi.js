@@ -23,7 +23,7 @@ html, body{
 function loadmap(){
 	var
 		location = new SLURL.RegionPoint('Da Boom', 128, 128),
-		mapInstance = new SLMap(document.getElementById('map-container'), {'overviewMapControl':true}),
+		mapInstance = new SLURL.Map(document.getElementById('map-container'), {'overviewMapControl':true}),
 		locloaded = setInterval(function(){
 			if(location.found){
 				clearInterval(locloaded);

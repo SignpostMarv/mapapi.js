@@ -363,6 +363,111 @@ var SLURL = {
 		this.zoomMax = Math.max(this.zoomMax, SLURL.maxZoomLevel);
 	},
 
+// ------------------------------------
+//
+//               SLMap
+//
+// ------------------------------------
+	Map                        : function(map_element, map_options){
+		var slMap = this;
+		if (GBrowserIsCompatible()){
+			slMap.ID                 = null;
+			slMap.showingHoverWindow = false;
+			slMap.options            = new SLURL.MapOptions(map_options);
+			slMap.mapProjection      = new SLURL.EuclideanProjection(18);
+
+			// Create our custom map types and initialise map with them
+			var
+				mapTypes           = slMap.CreateMapTypes(),
+				mapDiv             = slMap.CreateMapDiv(map_element),
+				mapOpts            = {
+					"mapTypes"        : mapTypes,
+					"backgroundColor" : SLURL.backgroundColor
+				},
+				addZoomControls    = true,
+				addPanControls     = true,
+				overviewMapControl = true
+			;
+
+			slMap.GMap             = new GMap2(mapDiv, mapOpts);
+			slMap.GMap.slMap       = slMap; // Link GMap back to us
+			slMap.currentMapWindow = null; // No GMap info windows open yet
+			slMap.voiceMarkers     = []; // No voice markers yet
+
+			if (slMap.options){
+				addPanControls     = !!slMap.options.hasPanningControls;
+				addZoomControls    = !!slMap.options.hasZoomControls;
+				overviewMapControl = !!slMap.options.hasOverviewMapControl;
+			}
+
+			if (addZoomControls || addPanControls){ // Use GMaps native controls
+				slMap.GMap.addControl(new GSmallMapControl());
+			}
+
+			if (overviewMapControl){
+				slMap.GMap.addControl(new GOverviewMapControl());
+			}
+
+			// Use GMaps xtra control methods
+			slMap.GMap.enableContinuousZoom();
+			slMap.GMap.enableScrollWheelZoom();
+
+			slMap.GMap.setCenter(new GLatLng(0, 0), 16);
+
+			// Allow user to switch map types
+			slMap.GMap.addControl(new GMapTypeControl());
+
+			// Install our various event handlers
+			GEvent.addListener( // clicking on the map
+				slMap.GMap, 
+				"click", 
+				function(marker, point){
+					SLURL.clickHandler(slMap, marker, point);
+				}
+			);
+			GEvent.addListener( // map stops moving
+					slMap.GMap, 
+					"moveend", 
+					function(){
+						slMap.onStateChangedHandler();
+					}
+			);
+
+			if (SLURL.showHoverTips){ // Enable, If we want mouse move handlers
+				GEvent.addListener(
+					slMap.GMap,
+					"mousemove",
+					function(pos){
+						slMap.onMouseMoveHandler(pos);
+					}
+				);
+				GEvent.addListener(
+					this.GMap,
+					"mouseout", 
+					function(pos){
+						slMap.onMouseOutHandler(pos);
+					}
+				);
+			}
+			GEvent.addListener(
+				slMap.GMap, 
+				"dragstart", 
+				function(){
+					SLURL.dragHandler(slMap);
+				}
+			);        
+
+			// Moved this to the end as GMaps seemed to fail if I did it right
+			// after map creation, and I don't have time to debug other people's code.
+			// --Would be nice to know who wrote the above comment. ~ SignpostMarv
+			this.GMarkerManager = new GMarkerManager(this.GMap);
+		}else{
+			// Browser does not support Google Maps
+			this.GMap = null;
+			throw 'Your browser is not supported';
+		}
+	},
+
 	dragHandler                : function(slMap){
 		if(slMap.currentMapWindow && slMap.currentMapWindow.options && slMap.currentMapWindow.options.closeOnMove){
 			slMap.GMap.closeInfoWindow();
@@ -542,114 +647,14 @@ SLURL.MapWindow.prototype.getGMapOptions = function(){
 // ------------------------------------
 
 
-function SLMap(map_element, map_options){
-	var slMap = this;
-	if (GBrowserIsCompatible()){
-		slMap.ID                 = null;
-		slMap.showingHoverWindow = false;
-		slMap.options            = new SLURL.MapOptions(map_options);
-		slMap.mapProjection      = new SLURL.EuclideanProjection(18);
-
-		// Create our custom map types and initialise map with them
-		var
-			mapTypes           = slMap.CreateMapTypes(),
-			mapDiv             = slMap.CreateMapDiv(map_element),
-			mapOpts            = {
-				"mapTypes"        : mapTypes,
-				"backgroundColor" : SLURL.backgroundColor
-			},
-			addZoomControls    = true,
-			addPanControls     = true,
-			overviewMapControl = true
-		;
-
-		slMap.GMap             = new GMap2(mapDiv, mapOpts);
-		slMap.GMap.slMap       = slMap; // Link GMap back to us
-		slMap.currentMapWindow = null; // No GMap info windows open yet
-		slMap.voiceMarkers     = []; // No voice markers yet
-
-		if (slMap.options){
-			addPanControls     = !!slMap.options.hasPanningControls;
-			addZoomControls    = !!slMap.options.hasZoomControls;
-			overviewMapControl = !!slMap.options.hasOverviewMapControl;
-		}
-
-		if (addZoomControls || addPanControls){ // Use GMaps native controls
-			slMap.GMap.addControl(new GSmallMapControl());
-		}
-
-		if (overviewMapControl){
-			slMap.GMap.addControl(new GOverviewMapControl());
-		}
-
-		// Use GMaps xtra control methods
-		slMap.GMap.enableContinuousZoom();
-		slMap.GMap.enableScrollWheelZoom();
-
-		slMap.GMap.setCenter(new GLatLng(0, 0), 16);
-
-		// Allow user to switch map types
-		slMap.GMap.addControl(new GMapTypeControl());
-
-		// Install our various event handlers
-		GEvent.addListener( // clicking on the map
-			slMap.GMap, 
-			"click", 
-			function(marker, point){
-				SLURL.clickHandler(slMap, marker, point);
-			}
-		);
-		GEvent.addListener( // map stops moving
-				slMap.GMap, 
-				"moveend", 
-				function(){
-					slMap.onStateChangedHandler();
-				}
-		);
-
-		if (SLURL.showHoverTips){ // Enable, If we want mouse move handlers
-			GEvent.addListener(
-				slMap.GMap,
-				"mousemove",
-				function(pos){
-					slMap.onMouseMoveHandler(pos);
-				}
-			);
-			GEvent.addListener(
-				this.GMap,
-				"mouseout", 
-				function(pos){
-					slMap.onMouseOutHandler(pos);
-				}
-			);
-		}
-		GEvent.addListener(
-			slMap.GMap, 
-			"dragstart", 
-			function(){
-				SLURL.dragHandler(slMap);
-			}
-		);        
-
-		// Moved this to the end as GMaps seemed to fail if I did it right
-		// after map creation, and I don't have time to debug other people's code.
-		// --Would be nice to know who wrote the above comment. ~ SignpostMarv
-		this.GMarkerManager = new GMarkerManager(this.GMap);
-	}else{
-		// Browser does not support Google Maps
-		this.GMap = null;
-		throw 'Your browser is not supported';
-	}
-}
-
-SLMap.prototype.onStateChangedHandler = function(){
+SLURL.Map.prototype.onStateChangedHandler = function(){
 	// Service user supplied handler if it exists
 	if (this.options && this.options.onStateChangedHandler){
 		this.options.onStateChangedHandler();
 	}
 }
 
-SLMap.prototype.onMouseMoveHandler = function(pos){
+SLURL.Map.prototype.onMouseMoveHandler = function(pos){
 	// We just got a mouse move, so the user isn't 'hovering' right now
 	this.resetHoverTimeout(true);
 	this.hoverPos = pos;
@@ -660,19 +665,19 @@ SLMap.prototype.onMouseMoveHandler = function(pos){
 	}
 }
 
-SLMap.prototype.onMouseOutHandler = function(pos){
+SLURL.Map.prototype.onMouseOutHandler = function(pos){
 	// Mouse is leaving map - clear tooltip timers
 	this.clearHoverTimeout(true);
 }
 
-SLMap.prototype.clearHoverTimeout = function(){
+SLURL.Map.prototype.clearHoverTimeout = function(){
 	if (this.ID != null){
 		window.clearTimeout(this.ID);
 		this.ID = null;
 	}
 }
 
-SLMap.prototype.resetHoverTimeout = function(forceTimerSet){
+SLURL.Map.prototype.resetHoverTimeout = function(forceTimerSet){
 	this.clearHoverTimeout();
 	if ((this.ID != null) || forceTimerSet){
 		var map = this;
@@ -680,7 +685,7 @@ SLMap.prototype.resetHoverTimeout = function(forceTimerSet){
 	}
 }
 
-SLMap.prototype.mousehoverHandler = function(){
+SLURL.Map.prototype.mousehoverHandler = function(){
 	// Get tile coordinate
 	var tilePos = new SLURL.XYPoint;
 	tilePos._SetFromGLatLng(this.hoverPos);
@@ -691,12 +696,12 @@ SLMap.prototype.mousehoverHandler = function(){
 	this.showTileToolTip();
 }
 
-SLMap.prototype.getRegionName = function(){
+SLURL.Map.prototype.getRegionName = function(){
 	var text = "Test Region Name";
 	return text;
 }
 
-SLMap.prototype.showTileToolTip = function(){
+SLURL.Map.prototype.showTileToolTip = function(){
 	var
 		map       = this,
 		HoverText = this.getRegionName()
@@ -707,13 +712,13 @@ SLMap.prototype.showTileToolTip = function(){
 	map.showingHoverWindow = true;
 }
 
-SLMap.prototype.hoverWindowCloseHandler = function(){
+SLURL.Map.prototype.hoverWindowCloseHandler = function(){
 	// Window has just closed, so reset any hover timer, so a window doesn't appear immediately
 	this.showingHoverWindow = false;
 	this.resetHoverTimeout(false);	
 }
 
-SLMap.prototype.CreateMapTypes = function(){
+SLURL.Map.prototype.CreateMapTypes = function(){
 	var mapTypes = [];
 	
 		var copyCollection = new GCopyrightCollection('SecondLife');
@@ -734,7 +739,7 @@ SLMap.prototype.CreateMapTypes = function(){
 	return mapTypes;
 }
 
-SLMap.prototype.CreateMapDiv = function(mainDiv){
+SLURL.Map.prototype.CreateMapDiv = function(mainDiv){
 	var
 		SLMap = this,
 		mapDiv = document.createElement("div") // Create a div to be the main map container as a child of the main div
@@ -802,7 +807,7 @@ SLMap.prototype.CreateMapDiv = function(mainDiv){
 	return mapDiv;
 }
 
-SLMap.prototype.gotoRegion = function(regionName){
+SLURL.Map.prototype.gotoRegion = function(regionName){
 	var SLMap = this;
 	SLURL.getRegionCoordsByName(regionName, function(pos){
 		if(pos.x && pos.y){
@@ -813,7 +818,7 @@ SLMap.prototype.gotoRegion = function(regionName){
 	});
 }
 
-SLMap.prototype.centerAndZoomAtSLCoord = function(pos, zoom){
+SLURL.Map.prototype.centerAndZoomAtSLCoord = function(pos, zoom){
     if (this.GMap){
         this.GMap.setCenter(pos.GetGLatLng(), SLURL.convertZoom(
 			this._forceZoomToLimits(zoom) // Enforce zoom limits specified by client
@@ -821,19 +826,19 @@ SLMap.prototype.centerAndZoomAtSLCoord = function(pos, zoom){
     }
 }
 
-SLMap.prototype.disableDragging = function(){
+SLURL.Map.prototype.disableDragging = function(){
     if(this.GMap){
         this.GMap.disableDragging();
     }
 }
 
-SLMap.prototype.enableDragging = function(){
+SLURL.Map.prototype.enableDragging = function(){
     if(this.GMap){
 		this.GMap.enableDragging();
     }
 }
 
-SLMap.prototype.getViewportBounds = function(){
+SLURL.Map.prototype.getViewportBounds = function(){
 	if (this.GMap){
 		var viewBounds = new SLURL.Bounds();
 		viewBounds._SetFromGLatLngBounds(this.GMap.getBounds());
@@ -841,7 +846,7 @@ SLMap.prototype.getViewportBounds = function(){
 	}
 }
 
-SLMap.prototype.getMapCenter = function(){
+SLURL.Map.prototype.getMapCenter = function(){
 	if(this.GMap){
 		var center  = new SLURL.XYPoint();
 		center._SetFromGLatLng(this.GMap.getCenter());
@@ -850,11 +855,11 @@ SLMap.prototype.getMapCenter = function(){
 }
 
 // Simulate a GMap click event on the centre of this marker
-SLMap.prototype.clickMarker = function(marker){
+SLURL.Map.prototype.clickMarker = function(marker){
 	SLURL.clickHandler(this, marker.gmarker, marker.gmarker.getPoint());
 }
 
-SLMap.prototype.addMarker = function(marker, mapWindow){
+SLURL.Map.prototype.addMarker = function(marker, mapWindow){
 	if (this.GMap){
 		var
 			markerImg    = marker.icons[0],
@@ -926,35 +931,35 @@ SLMap.prototype.addMarker = function(marker, mapWindow){
 	}
 }
 
-SLMap.prototype.removeMarker = function(marker){
+SLURL.Map.prototype.removeMarker = function(marker){
 	if (this.GMap && marker.gmarker){
 		this.GMap.removeOverlay(marker.gmarker);
 		marker.gmarker = null;
 	}
 }
 
-SLMap.prototype.removeAllMarkers = function(){
+SLURL.Map.prototype.removeAllMarkers = function(){
 	if (this.GMap){
 		this.GMap.clearOverlays();
 	}
 }
 
-SLMap.prototype.addMapWindow = function(mapWindow, pos){
+SLURL.Map.prototype.addMapWindow = function(mapWindow, pos){
 	if (this.GMap){
 		this.GMap.openInfoWindowHtml(pos.GetGLatLng(), mapWindow.text, mapWindow.getGMapOptions());
 		this.currentMapWindow = mapWindow;
 	}
 }
 
-SLMap.prototype.zoomIn = function(){
+SLURL.Map.prototype.zoomIn = function(){
 	return this.zoom(this.zoom() - 1);
 }
 
-SLMap.prototype.zoomOut = function(){
+SLURL.Map.prototype.zoomOut = function(){
 	return this.zoom(this.zoom() + 1);
 }
 
-SLMap.prototype.zoom = function(level){
+SLURL.Map.prototype.zoom = function(level){
 	if(this.GMap){
 		if(level){ // if a level was specified, we need to set the level before returning it
 			this.GMap.setZoom(
@@ -969,7 +974,7 @@ SLMap.prototype.zoom = function(level){
 	}
 }
 
-SLMap.prototype._forceZoomToLimits = function(zoom){ // Enforce zoom limits specified by client
+SLURL.Map.prototype._forceZoomToLimits = function(zoom){ // Enforce zoom limits specified by client
 	if (this.options && this.options.zoomMax){
 		zoom = Math.max(zoom, this.options.zoomMax);
 	}
@@ -979,7 +984,7 @@ SLMap.prototype._forceZoomToLimits = function(zoom){ // Enforce zoom limits spec
 	return zoom;
 }
 
-SLMap.prototype.panBy = function(x, y){
+SLURL.Map.prototype.panBy = function(x, y){
 	if (this.GMap){
 		var
 			pos    = this.GMap.getCenter(),
@@ -990,23 +995,23 @@ SLMap.prototype.panBy = function(x, y){
 	}
 }
 
-SLMap.prototype.panLeft = function(){
+SLURL.Map.prototype.panLeft = function(){
 	this.panBy(-SLURL.tileSize, 0);
 }
 
-SLMap.prototype.panRight = function(){
+SLURL.Map.prototype.panRight = function(){
 	this.panBy(SLURL.tileSize, 0);
 }
 
-SLMap.prototype.panUp = function(){
+SLURL.Map.prototype.panUp = function(){
 	this.panBy(0, -SLURL.tileSize);
 }
 
-SLMap.prototype.panDown = function(){
+SLURL.Map.prototype.panDown = function(){
 	this.panBy(0, SLURL.tileSize);
 }
 
-SLMap.prototype.panOrRecenterToSLCoord = function(pos, forceCenter){
+SLURL.Map.prototype.panOrRecenterToSLCoord = function(pos, forceCenter){
 	if (this.GMap){
 		this.GMap.panTo(pos.GetGLatLng());
 	}

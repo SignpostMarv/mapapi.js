@@ -22,7 +22,7 @@ html, body{
 <script>
 function loadmap(){
 	var
-		mapInstance = new SLMap(document.getElementById('map-container'), {'overviewMapControl':true})
+		mapInstance = new SLURL.Map(document.getElementById('map-container'), {'overviewMapControl':true})
 	;
 	SLURL.gotoSLURL(mapInstance, 1000.5, 1000.5);
 }
