@@ -28,8 +28,6 @@
 		mapapi       = window['mapapi']
 	;
 
-	mapapi['gridConfigs'] = {};
-
 	var
 		gridConfig = function(options){
 			var

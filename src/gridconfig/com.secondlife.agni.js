@@ -31,9 +31,13 @@
 		tileSource   = mapapi['tileSource']
 	;
 
+	mapapi['gridConfigs'] = mapapi['gridConfigs'] || {};
+
 	var SecondLifeTileSource = new tileSource({
-		'copyright'  : '© 2007 - ' + (new Date).getFullYear() + ' Linden Lab',
-		'label'      : 'Land & Objects'
+		'copyright'       : '© 2007 - ' + (new Date).getFullYear() + ' Linden Lab',
+		'label'           : 'Land & Objects',
+		'maxZoom'         : 7,
+		'backgroundColor' : '#1d475f'
 	});
 
 //  This Function returns the appropriate image tile from the S3 storage site corresponding to the
@@ -73,20 +77,15 @@
 		);
 	}
 
-	var agni = function(){
-		var
-			obj = this
-		;
-		obj._tileSources = [
-			SecondLifeTileSource
-		];
-	};
-	agni.prototype = new gridConfig({
+	var agni = new gridConfig({
 		'namespace' : 'com.secondlife.agni',
 		'vendor'    : 'Linden Lab',
 		'name'      : 'Second Life',
 		'label'     : 'Agni'
 	});
+	agni._tileSources = [
+		SecondLifeTileSource
+	];
 
 	mapapi['gridConfigs']['com.secondlife.agni'] = agni;
 })(window);

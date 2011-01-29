@@ -128,6 +128,40 @@
 		return opts['panUnitLR'];
 	}
 
+
+	renderer.prototype['scrollWheelZoom'] = function(flag){
+		if(flag != undefined){
+			if(flag){ // do stuff to enable mouse wheel zoom
+				return true;
+			}else{ // do stuff to disable it
+				return false;
+			}
+		}
+		return flag; // should return from other property
+	}
+
+	renderer.prototype['smoothZoom'] = function(flag){
+		if(flag != undefined){
+			if(flag){ // do stuff to enable smooth zoom
+				return true;
+			}else{ // do stuff to disable it
+				return false;
+			}
+		}
+		return flag; // should return from other property
+	}
+
+	renderer.prototype['draggable'] = function(flag){
+		if(flag != undefined){
+			if(flag){ // do stuff to make the map renderer draggable
+				return true;
+			}else{ // do stuff to make it non-draggable
+				return false;
+			}
+		}
+		return flag; // should return from other property
+	}
+
 	mapapi['renderer'] = renderer;
 	mapapi['renderer'].prototype['container'] = renderer.prototype.container;
 	mapapi['renderer'].prototype['minZoom']   = renderer.prototype.minZoom;

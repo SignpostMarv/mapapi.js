@@ -69,24 +69,24 @@
 		;
 		for(var i=0;i<tileSources.length;++i){
 			var
+				tileSource     = tileSources[i],
 				copyCollection = new GCopyrightCollection(gridConfig['name']),
 				landTilelayer  = new GTileLayer(copyCollection, 10, 16),
-				landMap        = new GMapType([landTilelayer], new SLURL.EuclideanProjection(18), tileSources[i]['label'])
+				landMap        = new GMapType([landTilelayer], new SLURL.EuclideanProjection(18), tileSource['options']['label'])
 			;
 
-			copyCollection.addCopyright(new GCopyright(1, new GLatLngBounds(new GLatLng(0, 0), new GLatLng(-90, 90)), 0, tileSources[i]['copyright']));
+			copyCollection.addCopyright(new GCopyright(1, new GLatLngBounds(new GLatLng(0, 0), new GLatLng(-90, 90)), 0, tileSource['options']['copyright']));
 
 			landTilelayer.getTileUrl = tileSources[i]['getTileURL'];
 
-			landMap.getMinimumResolution = function(){ return SLURL.convertZoom(SLURL.minZoomLevel); };
-			landMap.getMaximumResolution = function(){ return SLURL.convertZoom(SLURL.maxZoomLevel); };
+			landMap.getMinimumResolution = function(){ return tileSource['options']['minZoom']; };
+			landMap.getMaximumResolution = function(){ return tileSource['options']['maxZoom']; };
 
 			mapTypes.push(landMap);
 		}
-
 		obj.vendorContent  = new GMap2(obj['contentNode'],{
-			"mapTypes"        : mapTypes,
-			"backgroundColor" : SLURL.backgroundColor
+			'mapTypes'        : mapTypes,
+			'backgroundColor' : tileSources[0]['options']['backgroundColor']
 		});
 
 		var
@@ -99,6 +99,42 @@
 
 	google2.prototype['panTo'] = function(pos){
 		this.vendorContent['panTo'](pos.GetGLatLng());
+	}
+
+	google2.prototype['scrollWheelZoom'] = function(flag){
+		var vendorContent = this.vendorContent;
+		if(flag != undefined){
+			if(flag){
+				vendorContent['enableScrollWheelZoom']();
+			}else{
+				vendorContent['disableScrollWheelZoom']();
+			}
+		}
+		return vendorContent['scrollWheelZoomEnabled']();
+	}
+
+	google2.prototype['smoothZoom'] = function(flag){
+		var vendorContent = this.vendorContent;
+		if(flag != undefined){
+			if(flag){
+				vendorContent['enableContinuousZoom']();
+			}else{
+				vendorContent['disableContinuousZoom']();
+			}
+		}
+		return vendorContent['continuousZoomEnabled']();
+	}
+
+	google2.prototype['draggable'] = function(flag){
+		var vendorContent = this.vendorContent;
+		if(flag != undefined){
+			if(flag){
+				vendorContent['enableDragging']();
+			}else{
+				vendorContent['disableDragging']();
+			}
+		}
+		return vendorContent['draggingEnabled']();
 	}
 
 	mapapi['google2Renderer'] = google2;

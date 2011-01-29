@@ -34,7 +34,10 @@
 			objopts    = (obj['options'] = {}),
 			options    = options || {},
 			copyright  = options['copyright'],
-			label      = options['label']
+			label      = options['label'],
+			minZoom    = options['minZoom'] || 0,
+			maxZoom    = options['maxZoom'] || 0,
+			bgColor    = options['backgroundColor'] || '#000000'
 		;
 
 		if(!copyright){
@@ -43,8 +46,11 @@
 			throw 'tile source label not specified';
 		}
 
-		objopts['copyright']  = copyright;
-		objopts['label']      = label;
+		objopts['copyright']       = copyright;
+		objopts['label']           = label;
+		objopts['minZoom']         = Math.max(minZoom, 0);
+		objopts['maxZoom']         = Math.max(objopts['minZoom'] + 1, maxZoom);
+		objopts['backgroundColor'] = bgColor;
 	}
 
 	tileSource.prototype.getTileURL = function(pos, zoom){
