@@ -45,6 +45,15 @@
 					node.className = classes.join(' ');
 				}
 			}
+		},
+		'gridPoint' : function(x, y, gridEdgeSize){
+			var obj = this;
+			obj['x'] = x;
+			obj['y'] = y;
+		},
+		'size' : function(width, height){
+			this['width']  = Math.max(0, width || 0);
+			this['height'] = Math.max(0, height || 0);
 		}
 	}
 
