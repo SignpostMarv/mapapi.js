@@ -166,9 +166,9 @@
 
 	renderer.prototype['focus'] = function(pos){ // should return an instance of mapapi.gridPoint
 		if(pos instanceof mapapi['gridPoint']){ // implementations should do something to update the renderer to the focal point
-			obj['_focus'] = pos;
+			this['_focus'] = pos;
 		}
-		return obj['_focus'];
+		return this['_focus'];
 	}
 
 	mapapi['renderer'] = renderer;
