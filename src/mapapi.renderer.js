@@ -76,6 +76,7 @@
 				}
 			}
 		}
+		this['_focus'] = new mapapi['gridPoint'](0,0);
 		return opts['container'];
 	}
 
@@ -164,7 +165,10 @@
 		return flag; // should return from other property
 	}
 
-	renderer.prototype['focus'] = function(pos){ // should return an instance of mapapi.gridPoint
+	renderer.prototype['focus'] = function(pos, y){ // should return an instance of mapapi.gridPoint
+		if(typeof pos == 'number'){
+			pos = new mapapi['gridPoint'](pos, y);
+		}
 		if(pos instanceof mapapi['gridPoint']){ // implementations should do something to update the renderer to the focal point
 			this['_focus'] = pos;
 		}
