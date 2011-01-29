@@ -23,10 +23,6 @@ html, body{
 	margin: 0 ;
 	padding: 0 ;
 }
-.mapapi-renderer{
-	width: 100% ;
-	height: 100% ;
-}
 </style>
 <script>
 function loadmap(){
@@ -37,8 +33,8 @@ function loadmap(){
 
 	map.scrollWheelZoom(true);
 	map.smoothZoom(true);
-	map.draggable(false);
-	map.panTo(new SLURL.XYPoint(1000,1000));
+	map.draggable(true);
+	map.focus(1000,1000,0);
 }
 $(document).ready(loadmap);
 </script>
