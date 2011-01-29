@@ -32,9 +32,14 @@
 	}
 
 	var
-		document  = window['document'],
-		mapapi    = window['mapapi'],
-		renderer  = mapapi['renderer']
+		document   = window['document'],
+		mapapi     = window['mapapi'],
+		SLURL      = window['SLURL'],
+		renderer   = mapapi['renderer'],
+		gridConfig = mapapi['gridConfig'],
+		gridPoint  = mapapi['gridPoint'],
+		XYPoint    = SLURL['XYPoint'],
+		GEvent     = window['GEvent']
 	;
 
 
@@ -51,11 +56,12 @@
 		var
 			obj        = this,
 			options    = options || {},
-			gridConfig = options['gridConfig']
+			gridConf = options['gridConfig']
 		;
-		if((gridConfig instanceof mapapi['gridConfig']) == false){
+		if((gridConf instanceof gridConfig) == false){
 			throw 'Grid Configuration object must be instance of mapapi.gridConfig';
 		}
+		obj.gridConfig = gridConf;
 
 		obj['contentNode'] = document.createElement('div');
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
@@ -64,13 +70,13 @@
 
 		var
 			mapTypes = [],
-			tileSources = gridConfig['tileSources'](),
+			tileSources = gridConf['tileSources'](),
 			copyCollection = new GCopyrightCollection('SecondLife')
 		;
 		for(var i=0;i<tileSources.length;++i){
 			var
 				tileSource     = tileSources[i],
-				copyCollection = new GCopyrightCollection(gridConfig['name']),
+				copyCollection = new GCopyrightCollection(gridConf['name']),
 				landTilelayer  = new GTileLayer(copyCollection, 10, 16),
 				landMap        = new GMapType([landTilelayer], new SLURL.EuclideanProjection(18), tileSource['options']['label'])
 			;
@@ -89,16 +95,48 @@
 			'backgroundColor' : tileSources[0]['options']['backgroundColor']
 		});
 
-		var
-			gmap = obj.vendorContent
-		;
-		gmap.setCenter(new GLatLng(0, 0), 16);
+		obj['focus'](0, 0, 0);
+
+		GEvent['addListener'](
+			obj.vendorContent,
+			'zoomend',
+			function(oldZoom, newZoom){
+				obj['options']['zoom'] = (SLURL['convertZoom'](newZoom) - 1);
+			}
+		);
+
+		GEvent['addListener'](
+			obj.vendorContent,
+			'moveend',
+			function(){
+				obj['_focus'] = obj.GLatLng2gridPoint(obj.vendorContent['getCenter']());
+			}
+		);
 	}
 
 	google2.prototype = new renderer;
 
+	google2.prototype.gridPoint2GLatLng = function(pos){
+		var
+			size = this.gridConfig['size'],
+			y    = (size['height'] - pos.y)
+		;
+		return new GLatLng(
+			-y    * (90.0 / size['height']),
+			pos.x * (90.0 / size['width'])
+		);
+	}
+
+	google2.prototype.GLatLng2gridPoint = function(pos){
+		var size = this.gridConfig['size'];
+		return new gridPoint(
+			pos.lng() / (90.0 / size['width']),
+			(size['height'] - (-pos.lat() / (90.0 / size['height'])))
+		);
+	}
+
 	google2.prototype['panTo'] = function(pos){
-		this.vendorContent['panTo'](pos.GetGLatLng());
+		this.vendorContent['panTo']((pos instanceof XYPoint) ? pos.GetGLatLng() : this.gridPoint2GLatLng(pos));
 	}
 
 	google2.prototype['scrollWheelZoom'] = function(flag){
@@ -135,6 +173,19 @@
 			}
 		}
 		return vendorContent['draggingEnabled']();
+	}
+
+	google2.prototype['focus'] = function(pos, zoom, a){
+		if(typeof pos == 'number'){
+			pos = new gridPoint(pos, zoom);
+			zoom = a;
+		}
+		if(pos){
+			zoom = SLURL['convertZoom'](((zoom != undefined) ? zoom : renderer.prototype['zoom'].call(this)) + 1);
+			this['_focus'] = pos;
+			this.vendorContent['setCenter'](this.gridPoint2GLatLng(pos), zoom);
+		}
+		return this.GLatLng2gridPoint(this.vendorContent['getCenter']());
 	}
 
 	mapapi['google2Renderer'] = google2;
