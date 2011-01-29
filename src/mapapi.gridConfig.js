@@ -38,6 +38,7 @@
 			obj['vendor']    = options['vendor'];
 			obj['name']      = options['name'];
 			obj['label']     = options['label'];
+			obj['size']  = new mapapi['size'](options['gridWidth'] || 1048576, options['gridHeight'] || 1048576);
 		}
 	;
 
