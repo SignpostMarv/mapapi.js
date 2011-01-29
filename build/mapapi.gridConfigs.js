@@ -22,5 +22,5 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-(function(a){a.mapapi=a.mapapi||{};a=a.mapapi;var d=a.gridConfig,e=a.tileSource;a.gridConfigs=a.gridConfigs||{};e=new e({copyright:"\u00a9 2007 - "+(new Date).getFullYear()+" Linden Lab",label:"Land & Objects",maxZoom:7,backgroundColor:"#1d475f"});e.getTileURL=function(h,j){var i=SLURL.convertZoom(j),b=Math.pow(2,i-1),f=h.x*b,c=h.y*b,g=SLURL.gridEdgeSizeInRegions;g-=g%b;c=g-c;c-=b;f-=f%b;c-=c%b;return["http://map.secondlife.com.s3.amazonaws.com","http://map.secondlife.com"][f/b%2]+["/map",i,f,c,"objects.jpg"].join("-")};
-d=new d({namespace:"com.secondlife.agni",vendor:"Linden Lab",name:"Second Life",label:"Agni"});d._tileSources=[e];a.gridConfigs["com.secondlife.agni"]=d})(window);
+(function(a){a.mapapi=a.mapapi||{};a=a.mapapi;var e=a.gridConfig,f=a.tileSource;a.gridConfigs=a.gridConfigs||{};f=new f({copyright:"\u00a9 2007 - "+(new Date).getFullYear()+" Linden Lab",label:"Land & Objects",maxZoom:7,backgroundColor:"#1d475f"});f.getTileURL=function(b,d,i){d=i?Math.floor(d+1):Math.floor(8-d);var c=Math.pow(2,d-1),g=b.x*c;b=b.y*c;var h=1048576;if(!i){h-=h%c;b=h-b;b-=c}g-=g%c;b-=b%c;return["http://map.secondlife.com.s3.amazonaws.com","http://map.secondlife.com"][g/c%2]+["/map",d,
+g,b,"objects.jpg"].join("-")};e=new e({namespace:"com.secondlife.agni",vendor:"Linden Lab",name:"Second Life",label:"Agni"});e._tileSources=[f];a.gridConfigs["com.secondlife.agni"]=e})(window);

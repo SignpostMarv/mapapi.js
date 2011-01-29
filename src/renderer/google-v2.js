@@ -27,8 +27,6 @@
 		throw 'mapapi.js not loaded';
 	}else if(!window['mapapi']['renderer']){
 		throw 'mapapi.js renderer class not loaded';
-	}else if(!window['GMap2']){
-		throw 'Google Maps v2 not loaded';
 	}
 
 	var
@@ -38,7 +36,6 @@
 		renderer   = mapapi['renderer'],
 		gridConfig = mapapi['gridConfig'],
 		gridPoint  = mapapi['gridPoint'],
-		XYPoint    = SLURL['XYPoint'],
 		GEvent     = window['GEvent']
 	;
 
@@ -53,6 +50,9 @@
 *	@constructor
 */
 	var google2 = function(options){
+		if(!window['GMap2']){
+			throw 'Google Maps v2 not loaded';
+		}
 		var
 			obj        = this,
 			options    = options || {},
@@ -136,7 +136,7 @@
 	}
 
 	google2.prototype['panTo'] = function(pos){
-		this.vendorContent['panTo']((pos instanceof XYPoint) ? pos.GetGLatLng() : this.gridPoint2GLatLng(pos));
+		this.vendorContent['panTo']((pos instanceof SLURL['XYPoint']) ? pos.GetGLatLng() : this.gridPoint2GLatLng(pos));
 	}
 
 	google2.prototype['scrollWheelZoom'] = function(flag){
