@@ -37,7 +37,9 @@
 			label      = options['label'],
 			minZoom    = options['minZoom'] || 0,
 			maxZoom    = options['maxZoom'] || 0,
-			bgColor    = options['backgroundColor'] || '#000000'
+			bgColor    = options['backgroundColor'] || '#000000',
+			width      = Math.max(1, options['width'] || 256),
+			height     = Math.max(1, options['height'] || width)
 		;
 
 		if(!copyright){
@@ -45,6 +47,8 @@
 		}else if(!label){
 			throw 'tile source label not specified';
 		}
+
+		obj['size']                = new mapapi['size'](width, height)
 
 		objopts['copyright']       = copyright;
 		objopts['label']           = label;

@@ -54,7 +54,36 @@
 		'size' : function(width, height){
 			this['width']  = Math.max(0, width || 0);
 			this['height'] = Math.max(0, height || 0);
+		},
+		'bounds' : function(sw, ne){
+			if((sw instanceof mapapi['gridPoint']) == false){
+				if(typeof sw == 'object' && sw['x'] != undefined && sw['y'] != undefined){
+					sw = new mapapi['gridPoint'](sw['x'], sw['y']);
+				}else{
+					throw 'South-West point should be an instance of mapapi.gridPoint';
+				}
+			}else if((ne instanceof mapapi['gridPoint']) == false){
+				if(typeof ne == 'object' && ne['x'] != undefined && sw['y'] != undefined){
+					ne = new mapapi['gridPoint'](ne['x'], ne['y']);
+				}else{
+					throw 'North-East point should be an instance of mapapi.gridPoint';
+				}
+			}
+			this['sw'] = sw;
+			this['ne'] = ne;
 		}
+	}
+
+	mapapi['bounds'].prototype['isWithin'] = function(x, y){
+		if(x instanceof mapapi['gridPoint']){
+			y = x['y'];
+			x = x['x'];
+		}
+		var
+			sw = this['sw'],
+			ne = this['ne']
+		;
+		return (x >= sw['x'] && x <= ne['x'] && y >= sw['y'] && y <= ne['y']);
 	}
 
 	window['mapapi'] = mapapi;

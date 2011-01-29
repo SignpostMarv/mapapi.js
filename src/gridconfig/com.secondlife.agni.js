@@ -42,24 +42,26 @@
 
 //  This Function returns the appropriate image tile from the S3 storage site corresponding to the
 //  input location and zoom level on the google map.
-	SecondLifeTileSource.getTileURL = function(pos, zoom){
+	SecondLifeTileSource.getTileURL = function(pos, zoom, paramsAreNotBorked){
 		var
-			sl_zoom               = SLURL.convertZoom(zoom),
+			sl_zoom               = paramsAreNotBorked ? Math.floor(zoom + 1) : Math.floor(8 - zoom),
 			regions_per_tile_edge = Math.pow(2, sl_zoom - 1),
-			x                     = pos.x * regions_per_tile_edge,
-			y                     = pos.y * regions_per_tile_edge,
-			offset                = SLURL.gridEdgeSizeInRegions
+			x                     = pos['x'] * regions_per_tile_edge,
+			y                     = pos['y'] * regions_per_tile_edge,
+			offset                = 1048576
 		;
 
-		// Adjust Y axis flip location by zoom value, in case the size of the whole
-		// world is not divisible by powers-of-two.
-		offset -= offset % regions_per_tile_edge;
-		y = offset - y;
+		if(!paramsAreNotBorked){
+			// Adjust Y axis flip location by zoom value, in case the size of the whole
+			// world is not divisible by powers-of-two.
+			offset -= offset % regions_per_tile_edge;
+			y = offset - y;
 
-		// Google tiles are named (numbered) based on top-left corner, but ours
-		// are named by lower-left corner.  Since we flipped in Y, correct the
-		// name.  JC
-		y -= regions_per_tile_edge;
+			// Google tiles are named (numbered) based on top-left corner, but ours
+			// are named by lower-left corner.  Since we flipped in Y, correct the
+			// name.  JC
+			y -= regions_per_tile_edge;
+		}
 		
 		// We name our tiles based on the grid_x, grid_y of the region in the
 		// lower-left corner.
