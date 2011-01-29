@@ -38,6 +38,15 @@
 		bounds     = mapapi['bounds']
 	;
 
+	var moveOrder = function(from, to, frames){
+		this['from']    = from;
+		this['to']      = to;
+		this['frames']  = Math.max(1, frames);
+		this['current'] = 0;
+		this['incrX']   = (to.x - from.x) / frames;
+		this['incrY']   = (to.y - from.y) / frames;
+	};
+
 	var canvas = function(options){
 		var supported = document.createElement('canvas');
 		if(supported){
@@ -62,6 +71,8 @@
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
 		mapapi['renderer'].call(obj, options);
 
+		obj['options']['fps'] = Math.max(1, options['fps'] || 15);
+
 		obj.grid_images = {};
 
 		obj['contentNode']['width']  = obj['contentNode']['clientWidth'];
@@ -72,11 +83,11 @@
 		window.addEventListener('resize', function(){ obj.dirty = true; obj.updateBounds(); }, true);
 
 		obj['zoom'](0);
-		obj['focus'](new gridPoint(1000,1000));
+		obj['focus'](0, 0);
 
 		obj.updateBounds();
 		obj.dirty = true;
-		obj.draw();
+		obj.draw(obj['options']['fps']);
 	};
 
 	canvas.prototype = new renderer;
@@ -98,7 +109,8 @@
 			wVhalf  = Math.ceil(wView / 2.0),
 			hVhalf  = Math.ceil(hView / 2.0)
 		;
-		obj.bounds  = new bounds({'x': focus.x - wVhalf, 'y': focus.y - hVhalf},{'x': focus['x'] + wVhalf,  'y': focus['y'] + hVhalf});
+		obj.bounds  = new bounds({'x': focus['x'] - wVhalf, 'y': focus['y'] - hVhalf},{'x': focus['x'] + wVhalf,  'y': focus['y'] + hVhalf});
+		obj.dirty = true;
 	}
 
 	canvas.prototype.imageQueued = function(x, y, zoom){
@@ -174,10 +186,10 @@
 			if(obj.moving){
 				++obj.moving.current;
 				obj.setFocus({
-					'x':obj.moving.from.x + (obj.moving.incrX * obj.moving.current),
-					'y':obj.moving.from.y + (obj.moving.incrY * obj.moving.current)
+					'x':obj.moving['from']['x'] + (obj['moving']['incrX'] * obj['moving']['current']),
+					'y':obj.moving['from']['y'] + (obj['moving']['incrY'] * obj['moving']['current'])
 				});
-				if(obj.moving.current >= obj.moving.frames){
+				if(obj['moving']['current'] >= obj.moving['frames']){
 					delete obj.moving;
 				}
 			}
@@ -223,6 +235,22 @@
 			obj.dirty = false;
 		}
 		setTimeout(function(){ obj.draw(fps) },1000/fps);
+	}
+
+	canvas.prototype['focus'] = function(pos, y){
+		var obj = this;
+		if(pos){
+			renderer.prototype['focus'].call(obj, pos, y);
+			obj.updateBounds();
+		}
+		return renderer.prototype['focus'].call(obj);
+	}
+
+	canvas.prototype['panTo'] = function(pos, frames){
+		var obj = this;
+		if(!obj.moving){
+			obj.moving = new moveOrder(obj['focus'](), pos, frames || 15);
+		}
 	}
 
 	mapapi['canvasRenderer'] = canvas;
