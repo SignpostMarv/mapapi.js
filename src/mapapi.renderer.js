@@ -70,6 +70,8 @@
 			}else{
 				opts['container'] = container;
 				if(this['contentNode']){
+					this['contentNode']['style']['width']  = '100%';
+					this['contentNode']['style']['height'] = '100%';
 					container.appendChild(this['contentNode']);
 				}
 			}
