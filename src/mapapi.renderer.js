@@ -81,7 +81,7 @@
 		var
 			opts = this['options']
 		;
-		if(value){
+		if(value != undefined){
 			opts['minZoom'] = Math.max(0, value);
 		}
 		return opts['minZoom'];
@@ -91,7 +91,7 @@
 		var
 			opts = this['options']
 		;
-		if(value){
+		if(value != undefined){
 			opts['maxZoom'] = Math.max(this.minZoom() + 1, value);
 		}
 		return opts['maxZoom'];
@@ -102,7 +102,7 @@
 			obj  = this,
 			opts = obj['options']
 		;
-		if(value){
+		if(value != undefined){
 			opts['zoom'] = Math.min(Math.max(value, obj.minZoom()), obj.maxZoom());
 		}
 		return opts['zoom'];
@@ -160,6 +160,13 @@
 			}
 		}
 		return flag; // should return from other property
+	}
+
+	renderer.prototype['focus'] = function(pos){ // should return an instance of mapapi.gridPoint
+		if(pos instanceof mapapi['gridPoint']){ // implementations should do something to update the renderer to the focal point
+			obj['_focus'] = pos;
+		}
+		return obj['_focus'];
 	}
 
 	mapapi['renderer'] = renderer;
