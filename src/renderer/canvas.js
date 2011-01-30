@@ -38,14 +38,23 @@
 		bounds     = mapapi['bounds']
 	;
 
-	var moveOrder = function(from, to, frames){
+	var moveOrder = function(from, to){
 		this['from']    = from;
 		this['to']      = to;
-		this['frames']  = Math.max(1, frames);
 		this['current'] = 0;
-		this['incrX']   = (to.x - from.x) / frames;
-		this['incrY']   = (to.y - from.y) / frames;
 	};
+	moveOrder.prototype.overTime = function(time, fps){
+		if(!this['frames']){
+			this['frames'] = Math.max(1, Math.floor(time * fps));
+			var
+				frames = this['frames'],
+				to     = this['to'],
+				from   = this['from']
+			;
+			this['incrX']   = (to['x'] - from['x']) / frames;
+			this['incrY']   = (to['y'] - from['y']) / frames;
+		}
+	}
 
 	var canvas = function(options){
 		var supported = document.createElement('canvas');
@@ -81,6 +90,44 @@
 		obj.tileSource = gridConf['tileSources']()[0];
 
 		window.addEventListener('resize', function(){ obj.dirty = true; obj.updateBounds(); }, true);
+
+		var
+			dragging          = false,
+			mousedown_timer   = undefined,
+			dragstart_pos     = undefined,
+			mousedown_handler = function(e){
+				var
+					x = e['clientX'],
+					y = e['clientY']
+				;
+				dragstart_pos = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop']);
+				clearTimeout(mousedown_timer);
+				mousedown_timer = setTimeout(function(){
+					dragging = true;
+				}, 50);
+			},
+			mouseup_handler   = function(){
+				clearTimeout(mousedown_timer);
+				dragging = false;
+			},
+			mousemove_handler = function(e){
+				var
+					x     = e['clientX'],
+					y     = e['clientY'],
+					point = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop']),
+					focus = obj['focus']()
+				;
+				if(dragging){
+					obj['focus'](
+						focus['x'] - (point['x'] - dragstart_pos['x']),
+						focus['y'] - (point['y'] - dragstart_pos['y'])
+					);
+				}
+			}
+		;
+		obj['contentNode'].addEventListener('mousedown', mousedown_handler, false);
+		obj['contentNode'].addEventListener('mouseup'  , mouseup_handler  , false);
+		obj['contentNode'].addEventListener('mousemove', mousemove_handler, false);
 
 		obj['zoom'](0);
 		obj['focus'](0, 0);
@@ -123,6 +170,20 @@
 			x = x - (x % zoom_b)
 		;
 		return (images[zi] && images[zi][x] && images[zi][x][y] instanceof Image);
+	}
+
+	canvas.prototype['px2point'] = function(x, y){
+		var
+			obj     = this,
+			canvas  = obj['contentNode'],
+			sw      = obj.bounds['sw'],
+			ne      = obj.bounds['ne'],
+			cWidth  = canvas['width'],
+			cHeight = canvas['height'],
+			mapX    = sw['x'] + ((ne['x'] - sw['x']) * (x / cWidth)),
+			mapY    = ne['y'] - ((ne['y'] - sw['y']) * (y / cHeight))
+		;
+		return new gridPoint(mapX, mapY);
 	}
 
 	canvas.prototype.getImage = function(x, y, zoom, preload){
@@ -184,11 +245,18 @@
 			ctx.save();
 
 			if(obj.moving){
+				obj.moving.overTime(3,fps);
+				window['status'] = [
+					obj.moving['from']['x'],
+					obj['moving']['incrX'],
+					obj['moving']['current'],
+					obj.moving['frames']
+				]
 				++obj.moving.current;
-				obj.setFocus({
-					'x':obj.moving['from']['x'] + (obj['moving']['incrX'] * obj['moving']['current']),
-					'y':obj.moving['from']['y'] + (obj['moving']['incrY'] * obj['moving']['current'])
-				});
+				obj['focus'](
+					obj.moving['from']['x'] + (obj['moving']['incrX'] * obj['moving']['current']),
+					obj.moving['from']['y'] + (obj['moving']['incrY'] * obj['moving']['current'])
+				);
 				if(obj['moving']['current'] >= obj.moving['frames']){
 					delete obj.moving;
 				}
@@ -246,10 +314,13 @@
 		return renderer.prototype['focus'].call(obj);
 	}
 
-	canvas.prototype['panTo'] = function(pos, frames){
+	canvas.prototype['panTo'] = function(pos, y){
+		if(typeof pos == 'number'){
+			pos = new gridPoint(pos, y);
+		}
 		var obj = this;
 		if(!obj.moving){
-			obj.moving = new moveOrder(obj['focus'](), pos, frames || 15);
+			obj.moving = new moveOrder(obj['focus'](), pos);
 		}
 	}
 
