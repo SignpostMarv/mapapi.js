@@ -95,6 +95,7 @@
 			'backgroundColor' : tileSources[0]['options']['backgroundColor']
 		});
 
+		obj['zoom'](0);
 		obj['focus'](0, 0, 0);
 
 		GEvent['addListener'](
@@ -119,11 +120,11 @@
 	google2.prototype.gridPoint2GLatLng = function(pos){
 		var
 			size = this.gridConfig['size'],
-			y    = (size['height'] - pos.y)
+			y    = (size['height'] - pos['y'])
 		;
 		return new GLatLng(
 			-y    * (90.0 / size['height']),
-			pos.x * (90.0 / size['width'])
+			pos['x'] * (90.0 / size['width'])
 		);
 	}
 
@@ -135,7 +136,10 @@
 		);
 	}
 
-	google2.prototype['panTo'] = function(pos){
+	google2.prototype['panTo'] = function(pos, y){
+		if(typeof pos == 'number'){
+			pos = new gridPoint(pos, y);
+		}
 		this.vendorContent['panTo']((pos instanceof SLURL['XYPoint']) ? pos.GetGLatLng() : this.gridPoint2GLatLng(pos));
 	}
 
@@ -179,6 +183,9 @@
 		if(typeof pos == 'number'){
 			pos = new gridPoint(pos, zoom);
 			zoom = a;
+		}
+		if(zoom == undefined){
+			zoom = this['zoom']();
 		}
 		if(pos){
 			zoom = SLURL['convertZoom'](((zoom != undefined) ? zoom : renderer.prototype['zoom'].call(this)) + 1);
