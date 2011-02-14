@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SL Map</title>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<!--
+<script src="../build/mapapi.js"></script>
+<script src="../build/mapapi.gridConfigs.js"></script>
+-->
+<script src="../src/mapapi.js"></script>
+<script src="../src/mapapi.renderer.js"></script>
+<script src="../src/mapapi.tileSource.js"></script>
+<script src="../src/mapapi.gridConfig.js"></script>
+<script src="../src/renderer/canvas.js"></script>
+<script src="../src/gridconfig/com.secondlife.agni.js"></script>
+<style>
+html, body{
+	width: 100% ;
+	height: 100% ;
+	margin: 0 ;
+	padding: 0 ;
+}
+</style>
+<script>
+function loadmap(){
+	var map = new mapapi.canvasRenderer({
+		container  : document.body,
+		gridConfig : mapapi['gridConfigs']['com.secondlife.agni']
+	});
+
+	map.scrollWheelZoom(true);
+	map.smoothZoom(true);
+	map.draggable(true);
+	map.focus(1000,1000,0);
+	map.panTo(1005,1001);
+}
+$(document).ready(loadmap);
+</script>
+</head>
+<body>
+</body>
+</html>
