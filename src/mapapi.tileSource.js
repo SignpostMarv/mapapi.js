@@ -39,7 +39,9 @@
 			maxZoom    = options['maxZoom'] || 0,
 			bgColor    = options['backgroundColor'] || '#000000',
 			width      = Math.max(1, options['width'] || 256),
-			height     = Math.max(1, options['height'] || width)
+			height     = Math.max(1, options['height'] || width),
+			mimeType   = options['mimeType'] || 'image/jpeg',
+			opacity    = Math.max(0, Math.min(1, options['opacity'] || 1))
 		;
 
 		if(!copyright){
@@ -55,6 +57,8 @@
 		objopts['minZoom']         = Math.max(minZoom, 0);
 		objopts['maxZoom']         = Math.max(objopts['minZoom'] + 1, maxZoom);
 		objopts['backgroundColor'] = bgColor;
+		objopts['mimeType']        = mimeType;
+		objopts['opacity']         = opacity;
 	}
 
 	tileSource.prototype.getTileURL = function(pos, zoom){
