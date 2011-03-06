@@ -43,7 +43,7 @@
 	;
 
 	gridConfig.prototype.tileSources = function(){
-		return this._tileSources;
+		return this['_tileSources'];
 	}
 
 	mapapi['gridConfig'] = gridConfig;
