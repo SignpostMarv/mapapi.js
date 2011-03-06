@@ -42,7 +42,7 @@
 
 //  This Function returns the appropriate image tile from the S3 storage site corresponding to the
 //  input location and zoom level on the google map.
-	SecondLifeTileSource.getTileURL = function(pos, zoom, paramsAreNotBorked){
+	SecondLifeTileSource['getTileURL'] = function(pos, zoom, paramsAreNotBorked){
 		var
 			sl_zoom               = paramsAreNotBorked ? Math.floor(zoom + 1) : Math.floor(8 - zoom),
 			regions_per_tile_edge = Math.pow(2, sl_zoom - 1),
@@ -80,14 +80,14 @@
 	}
 
 	var agni = new gridConfig({
-		'namespace' : 'com.secondlife.agni',
-		'vendor'    : 'Linden Lab',
-		'name'      : 'Second Life',
-		'label'     : 'Agni'
+		'namespace'    : 'com.secondlife.agni',
+		'vendor'       : 'Linden Lab',
+		'name'         : 'Second Life',
+		'label'        : 'Agni',
+		'_tileSources' : [
+			SecondLifeTileSource
+		]
 	});
-	agni._tileSources = [
-		SecondLifeTileSource
-	];
 
 	mapapi['gridConfigs']['com.secondlife.agni'] = agni;
 })(window);
