@@ -63,7 +63,7 @@
 				tileSource = obj.gridConfig['tileSources']()[i]
 			;
 			firstMapType = firstMapType ? firstMapType : tileSource['label'];
-			obj.vendorContent['mapTypes']['set'](tileSource['label'], new google_maps['ImageMapType']({
+			obj.vendorContent['mapTypes']['set'](tileSource['options']['label'], new google_maps['ImageMapType']({
 				'alt'        : tileSource['options']['label'],
 				'getTileUrl' : tileSource['getTileURL'],
 				'isPng'      : (tileSource['options']['mimeType'] == 'image/png'),
