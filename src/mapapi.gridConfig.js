@@ -34,11 +34,12 @@
 				obj     = this,
 				options = options || {}
 			;
-			obj['namespace'] = options['namespace'];
-			obj['vendor']    = options['vendor'];
-			obj['name']      = options['name'];
-			obj['label']     = options['label'];
-			obj['size']  = new mapapi['size'](options['gridWidth'] || 1048576, options['gridHeight'] || 1048576);
+			obj['namespace']    = options['namespace'];
+			obj['vendor']       = options['vendor'];
+			obj['name']         = options['name'];
+			obj['label']        = options['label'];
+			obj['size']         = new mapapi['size'](options['gridWidth'] || 1048576, options['gridHeight'] || 1048576);
+			obj['_tileSources'] = options['_tileSources'] || [];
 		}
 	;
 
@@ -47,5 +48,6 @@
 	}
 
 	mapapi['gridConfig'] = gridConfig;
+	mapapi['gridConfig'].prototype['tileSources'] = gridConfig.prototype.tileSources;
 
 })(window);
