@@ -38,7 +38,6 @@
 		gridConfig  = mapapi['gridConfig'],
 		gridPoint   = mapapi['gridPoint']
 	;
-
 	var google3 = function(options){
 		var
 			obj      = this,
@@ -54,7 +53,7 @@
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
 		mapapi['renderer'].call(obj, options);
 
-		obj.vendorContent = new google_maps(obj['contentNode'], options);
+		obj.vendorContent = new google_maps['Map'](obj['contentNode'], options);
 
 		var
 			firstMapType = false
@@ -64,9 +63,9 @@
 				tileSource = obj.gridConfig['tileSources']()[i]
 			;
 			firstMapType = firstMapType ? firstMapType : tileSource['label'];
-			obj.vendorContent['mapTypes']['set'](tileSource[i]['label'], new google_maps['ImageMapType']({
+			obj.vendorContent['mapTypes']['set'](tileSource['label'], new google_maps['ImageMapType']({
 				'alt'        : tileSource['options']['label'],
-				'getTileUrl' : tileSource['getTileURL']
+				'getTileUrl' : tileSource['getTileURL'],
 				'isPng'      : (tileSource['options']['mimeType'] == 'image/png'),
 				'maxZoom'    : tileSource['options']['maxZoom'],
 				'minZoom'    : tileSource['options']['minZoom'],
@@ -91,4 +90,6 @@
 			(size['height'] - (-pos.lat() / (90.0 / size['height'])))
 		);
 	}
-)(window);
+
+	mapapi['google3Renderer'] = google3;
+})(window);
