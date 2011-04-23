@@ -68,6 +68,9 @@
 		x -= x % regions_per_tile_edge;
 		y -= y % regions_per_tile_edge; 
 
+		if(x < 0 || y < 0){
+			return null;
+		}
 		return (
 			[
 //  Add 2 hosts so that we get faster performance on clients with lots
