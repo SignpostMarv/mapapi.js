@@ -92,7 +92,14 @@
 		if(obj.gridConfig['tileSources']()[0]['options']['backgroundColor']){
 			options['backgroundColor'] = obj.gridConfig['tileSources']()[0]['options']['backgroundColor'];
 		}
-		options['scrollwheel'] = obj['options']['scrollWheelZoom'] || !0;
+		options['scrollwheel']        = obj['options']['scrollWheelZoom'] || !0;
+		options['mapTypeControl']     = options['mapTypeControl']         || !1;
+		options['overviewMapControl'] = options['overviewMapControl']     || !1;
+		options['panControl']         = options['panControl']             || !1;
+		options['rotateControl']      = options['rotateControl']          || !1;
+		options['scaleControl']       = options['scaleControl']           || !1;
+		options['streetViewControl']  = options['streetViewControl']      || !1;
+		options['zoomControl']        = options['zoomControl']            || !1;
 
 		obj.vendorContent = new google_maps['Map'](obj['contentNode'], options);
 
@@ -144,10 +151,8 @@
 		if(firstMapType){
 			obj.vendorContent['setMapTypeId'](firstMapType);
 		}
-
-//		obj['zoom'](0);
-//		obj['focus'](1000, 1000, 0);
 	}
+
 
 	google3.prototype = new renderer;
 
