@@ -225,7 +225,7 @@
 					obj.dirty = true;
 				}
 			}
-			images[zi][x][y]['src'] = obj.tileSource['getTileURL'](new gridPoint(x, y), zi, true);
+			images[zi][x][y]['src'] = obj.tileSource['getTileURL'](new gridPoint(x, y), zi);
 		}
 		return images[zi][x][y];
 	}
@@ -305,10 +305,17 @@
 		setTimeout(function(){ obj.draw(fps) },1000/fps);
 	}
 
-	canvas.prototype['focus'] = function(pos, y){
+	canvas.prototype['focus'] = function(pos, zoom, a){
+		if(typeof pos == 'number'){
+			pos = new gridPoint(pos, zoom),
+			zoom = a;
+		}
+		if(zoom == undefined){
+			zoom = this['zoom']();
+		}
 		var obj = this;
 		if(pos){
-			renderer.prototype['focus'].call(obj, pos, y);
+			renderer.prototype['focus'].call(obj, pos, zoom);
 			obj.updateBounds();
 		}
 		return renderer.prototype['focus'].call(obj);

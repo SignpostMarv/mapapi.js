@@ -28,7 +28,8 @@
 		document     = window['document'],
 		mapapi       = window['mapapi'],
 		gridConfig   = mapapi['gridConfig'],
-		tileSource   = mapapi['tileSource']
+		tileSource   = mapapi['tileSource'],
+		size         = mapapi['size']
 	;
 
 	mapapi['gridConfigs'] = mapapi['gridConfigs'] || {};
@@ -42,29 +43,13 @@
 
 //  This Function returns the appropriate image tile from the S3 storage site corresponding to the
 //  input location and zoom level on the google map.
-	SecondLifeTileSource['getTileURL'] = function(pos, zoom, paramsAreNotBorked){
+	SecondLifeTileSource['getTileURL'] = function(pos, zoom){
 		var
-			sl_zoom               = paramsAreNotBorked ? Math.floor(zoom + 1) : Math.floor(8 - zoom),
+			sl_zoom               = Math.floor(zoom + 1),
 			regions_per_tile_edge = Math.pow(2, sl_zoom - 1),
-			x                     = pos['x'] * regions_per_tile_edge,
-			y                     = pos['y'] * regions_per_tile_edge,
-			offset                = 1048576
+			x                     = pos['x'],
+			y                     = pos['y']
 		;
-
-		if(!paramsAreNotBorked){
-			// Adjust Y axis flip location by zoom value, in case the size of the whole
-			// world is not divisible by powers-of-two.
-			offset -= offset % regions_per_tile_edge;
-			y = offset - y;
-
-			// Google tiles are named (numbered) based on top-left corner, but ours
-			// are named by lower-left corner.  Since we flipped in Y, correct the
-			// name.  JC
-			y -= regions_per_tile_edge;
-		}
-		
-		// We name our tiles based on the grid_x, grid_y of the region in the
-		// lower-left corner.
 		x -= x % regions_per_tile_edge;
 		y -= y % regions_per_tile_edge; 
 
@@ -72,9 +57,7 @@
 			return null;
 		}
 		return (
-			[
-//  Add 2 hosts so that we get faster performance on clients with lots
-//  of bandwidth but possible browser limits on number of open files
+			[ // 2 hosts so that we get faster performance on clients with lots of bandwidth but possible browser limits on number of open files
 				"http://map.secondlife.com.s3.amazonaws.com",
 				"http://map.secondlife.com"
 			][((x / regions_per_tile_edge) % 2)] //  Pick a server
@@ -87,9 +70,11 @@
 		'vendor'       : 'Linden Lab',
 		'name'         : 'Second Life',
 		'label'        : 'Agni',
+		'size'         : new size(1048576, 1048576),
 		'_tileSources' : [
 			SecondLifeTileSource
-		]
+		],
+		'maxZoom'      : 7
 	});
 
 	mapapi['gridConfigs']['com.secondlife.agni'] = agni;

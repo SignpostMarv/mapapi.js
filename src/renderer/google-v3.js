@@ -34,10 +34,25 @@
 		SLURL       = window['SLURL'],
 		google      = window['google'],
 		google_maps = google['maps'],
+		GLatLng     = google_maps['LatLng'],
 		renderer    = mapapi['renderer'],
 		gridConfig  = mapapi['gridConfig'],
-		gridPoint   = mapapi['gridPoint']
+		gridPoint   = mapapi['gridPoint'],
+		euclid      = function(gc){
+			this.gridConf = gc;
+			this.hscale   = 180.0 / this.gridConf['size']['width'];
+			this.vscale   = 90.0  / this.gridConf['size']['height'];
+		}
 	;
+	euclid.prototype['fromLatLngToPoint'] = function(latlng, opt){
+		var point = opt || new gridPoint(0,0);
+		point['x'] = latlng['lng']() / this.hscale;
+		point['y'] = latlng['lat']() / this.hscale;
+		return point;
+	}
+	euclid.prototype['fromPointToLatLng'] = function(point){
+		return new GLatLng(point['y'] * this.hscale, point['x'] * this.hscale);
+	}
 	var google3 = function(options){
 		var
 			obj      = this,
@@ -48,47 +63,142 @@
 			throw 'Grid Configuration object must be instance of mapapi.gridConfig';
 		}
 		obj.gridConfig = gridConf;
+		function regionsPerTileEdge(zoom){
+			return Math.pow(2, obj.convertZoom(zoom) - 1);
+		}
+		function posZoomToxyZoom(pos, zoom){
+			var
+				regions_per_tile_edge = regionsPerTileEdge(zoom),
+				result = {
+					'x' : pos['x'] * regions_per_tile_edge,
+					'y' : pos['y'] * regions_per_tile_edge,
+					'zoom' : obj.convertZoom(zoom) - 1
+				}
+			;
+
+			result['x'] -= result['x'] % regions_per_tile_edge;
+
+			result['y'] = -result['y'];
+			result['y'] -= regions_per_tile_edge;
+			result['y'] -= result['y'] % regions_per_tile_edge;
+
+			return result;
+		}
 
 		obj['contentNode'] = document.createElement('div');
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
 		mapapi['renderer'].call(obj, options);
 
+		if(obj.gridConfig['tileSources']()[0]['options']['backgroundColor']){
+			options['backgroundColor'] = obj.gridConfig['tileSources']()[0]['options']['backgroundColor'];
+		}
+
 		obj.vendorContent = new google_maps['Map'](obj['contentNode'], options);
 
+
 		var
-			firstMapType = false
+			firstMapType = false,
+			mapTypes     = {},
+			mapTypeIds   = [],
+			size   = this.gridConfig['size'],
+			hw     = size['width'] / 2.0,
+			hh     = size['height'] / 2.0
 		;
 		for(var i=0;i<obj.gridConfig['tileSources']()['length'];++i){
 			var
-				tileSource = obj.gridConfig['tileSources']()[i]
+				tileSource = obj.gridConfig['tileSources']()[i],
+				label      = tileSource['options']['label']
 			;
-			firstMapType = firstMapType ? firstMapType : tileSource['label'];
-			obj.vendorContent['mapTypes']['set'](tileSource['options']['label'], new google_maps['ImageMapType']({
-				'alt'        : tileSource['options']['label'],
-				'getTileUrl' : tileSource['getTileURL'],
-				'isPng'      : (tileSource['options']['mimeType'] == 'image/png'),
+			mapTypeIds.push(label);
+			mapTypes[label] = new google_maps['ImageMapType']({
 				'maxZoom'    : tileSource['options']['maxZoom'],
 				'minZoom'    : tileSource['options']['minZoom'],
-				'name'       : tileSource['options']['label'],
-				'opacity'    : tileSource['options']['opacity'],
 				'tileSize'   : new google_maps['Size'](tileSource['size']['width'], tileSource['size']['height']),
-			}));
+				'isPng'      : (tileSource['options']['mimeType'] == 'image/png'),
+				'opacity'    : tileSource['options']['opacity'],
+				'getTileUrl' : function(pos,zoom){
+					var
+						newpos = posZoomToxyZoom(pos,zoom),
+						url = tileSource['getTileURL']({'x':newpos['x'], 'y':newpos['y']}, newpos['zoom'])
+					;
+//					console.log(url);
+					return url;
+				},
+				'alt'        : label,
+				'name'       : tileSource['options']['label'],
+			});
+			mapTypes[label]['projection'] = new euclid(gridConf);
+			mapTypes[label]['getTileUrl'] = tileSource['getTileURL'];
 		}
+		for(var i in mapTypes){
+			firstMapType = firstMapType ? firstMapType : label;
+			obj.vendorContent['mapTypes']['set'](i,mapTypes[i]);
+		}
+		obj.vendorContent['setOptions']({
+			'mapTypeIds' : mapTypeIds,
+			'mapTypeControlOptions' : {
+				'mapTypeIds' : mapTypeIds
+			}
+		});
 		if(firstMapType){
 			obj.vendorContent['setMapTypeId'](firstMapType);
 		}
-		obj['zoom'](0);
-		obj['focus'](0, 0, 0);
+
+//		obj['zoom'](0);
+//		obj['focus'](1000, 1000, 0);
 	}
 
 	google3.prototype = new renderer;
 
+	google3.prototype.convertZoom = function(zoom){
+		return (this.gridConfig['maxZoom'] + 1) - zoom;
+	}
+
+	google3.prototype.gridPoint2GLatLng = function(pos){
+		var
+			size   = this.gridConfig['size'],
+			hw     = size['width'] / 2.0,
+			hh     = size['height'] / 2.0,
+			hscale = 180.0 / size['height'],
+			wscale = 360.0 / size['width'],
+			lat   = (pos['y'] * 2) * hscale,
+			lng   = (pos['x'] * 2) * hscale
+		;
+		return new GLatLng(0 - lat, lng);
+	}
+
 	google3.prototype.GLatLng2gridPoint = function(pos){
-		var size = this.gridConfig['size'];
+		var
+			size   = this.gridConfig['size'],
+			hw     = size['width'] / 2.0,
+			hh     = size['height'] / 2.0,
+			hscale = 180.0 / size['height'],
+			wscale = 360.0 / size['width']
+		;
 		return new gridPoint(
-			pos.lng() / (90.0 / size['width']),
-			(size['height'] - (-pos.lat() / (90.0 / size['height'])))
+			(pos.lng() / hscale) + hw,
+			(pos.lat() / hscale) + hh
 		);
+	}
+
+	google3.prototype['zoom'] = function(zoom){
+		if(zoom != undefined){
+			this.vendorContent['setZoom'](this.convertZoom(zoom));
+		}
+		return this.convertZoom(this.vendorContent['getZoom']());
+	}
+	google3.prototype['focus'] = function(pos, zoom, a){
+		if(typeof pos == 'number'){
+			pos = new gridPoint(pos, zoom);
+			zoom = a;
+		}
+		if(pos instanceof gridPoint){
+			this.vendorContent['setCenter'](this.gridPoint2GLatLng(pos));
+		}
+		if(zoom != undefined){
+			this['zoom'](zoom);
+		}
+		return this['GLatLng2gridPoint'](this.vendorContent['getCenter']());
 	}
 
 	mapapi['google3Renderer'] = google3;

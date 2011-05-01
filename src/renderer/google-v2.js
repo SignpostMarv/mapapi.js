@@ -73,6 +73,25 @@
 			tileSources = gridConf['tileSources'](),
 			copyCollection = new GCopyrightCollection('SecondLife')
 		;
+		function posZoomToxyZoom(pos, zoom){
+			var
+				regions_per_tile_edge = Math.pow(2, SLURL['convertZoom'](zoom) - 1),
+				result = {
+					'x' : pos['x'] * regions_per_tile_edge,
+					'y' : pos['y'] * regions_per_tile_edge,
+					'zoom' : SLURL['convertZoom'](zoom) - 1
+				}
+			;
+
+			result['x'] -= result['x'] % regions_per_tile_edge;
+
+			result['y'] = -result['y'];
+			result['y'] -= regions_per_tile_edge;
+			result['y'] -= result['y'] % regions_per_tile_edge;
+			result['y'] = gridConf['size']['height'] + result['y'];
+
+			return result;
+		}
 		for(var i=0;i<tileSources.length;++i){
 			var
 				tileSource     = tileSources[i],
@@ -83,7 +102,12 @@
 
 			copyCollection.addCopyright(new GCopyright(1, new GLatLngBounds(new GLatLng(0, 0), new GLatLng(-90, 90)), 0, tileSource['options']['copyright']));
 
-			landTilelayer.getTileUrl = tileSources[i]['getTileURL'];
+			landTilelayer.getTileUrl = function(pos, zoom){
+				var
+					result = posZoomToxyZoom(pos, zoom);
+				;
+				return tileSource['getTileURL']({'x':result['x'],'y':result['y']}, result['zoom']);
+			}
 
 			landMap.getMinimumResolution = function(){ return tileSource['options']['minZoom']; };
 			landMap.getMaximumResolution = function(){ return tileSource['options']['maxZoom']; };
