@@ -165,9 +165,13 @@
 		return flag; // should return from other property
 	}
 
-	renderer.prototype['focus'] = function(pos, y){ // should return an instance of mapapi.gridPoint
+	renderer.prototype['focus'] = function(pos, zoom, a){ // should return an instance of mapapi.gridPoint
 		if(typeof pos == 'number'){
-			pos = new mapapi['gridPoint'](pos, y);
+			pos = new mapapi['gridPoint'](pos, zoom);
+			zoom = this['zoom']();
+		}
+		if(zoom != undefined){
+			this['zoom'](zoom);
 		}
 		if(pos instanceof mapapi['gridPoint']){ // implementations should do something to update the renderer to the focal point
 			this['_focus'] = pos;
