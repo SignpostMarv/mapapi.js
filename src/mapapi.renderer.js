@@ -66,14 +66,17 @@
 			opts = this['options']
 		;
 		if(container){
-			if(!container.appendChild){
+			if(!container['appendChild']){
 				throw 'Container is invalid';
 			}else{
 				opts['container'] = container;
 				if(this['contentNode']){
 					this['contentNode']['style']['width']  = '100%';
 					this['contentNode']['style']['height'] = '100%';
-					container.appendChild(this['contentNode']);
+					while(container['hasChildNodes']()){
+						container['removeChild'](container['firstChild']);
+					}
+					container['appendChild'](this['contentNode']);
 				}
 			}
 		}
