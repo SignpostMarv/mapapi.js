@@ -47,13 +47,14 @@
 		});
 
 		var
-			options    = options || {},
-			opts       = obj['options'],
-			minZoom    = obj.minZoom(options['minZoom'] || 0),
-			maxZoom    = obj.maxZoom(options['maxZoom'] || 0),
-			panUnitUD  = obj.panUnitUD(options['panUnitUD'] || 1),
-			panUnitLR  = obj.panUnitLR(options['panUnitLR'] || 1)
+			options         = options || {},
+			opts            = obj['options'],
+			minZoom         = obj.minZoom(options['minZoom'] || 0),
+			maxZoom         = obj.maxZoom(options['maxZoom'] || 0),
+			panUnitUD       = obj.panUnitUD(options['panUnitUD'] || 1),
+			panUnitLR       = obj.panUnitLR(options['panUnitLR'] || 1)
 		;
+		opts['scrollWheelZoom'] = (options['scrollWheelZoom'] || 0);
 
 		if(options['container']){
 			obj.container(options['container']);
@@ -132,15 +133,14 @@
 	}
 
 
-	renderer.prototype['scrollWheelZoom'] = function(flag){
+	renderer.prototype.scrollWheelZoom = function(flag){
+		var
+			opts = this['options']
+		;
 		if(flag != undefined){
-			if(flag){ // do stuff to enable mouse wheel zoom
-				return true;
-			}else{ // do stuff to disable it
-				return false;
-			}
+			opts['scrollWheelZoom'] = !!flag;
 		}
-		return flag; // should return from other property
+		return opts['scrollWheelZoom'];
 	}
 
 	renderer.prototype['smoothZoom'] = function(flag){
@@ -180,10 +180,11 @@
 	}
 
 	mapapi['renderer'] = renderer;
-	mapapi['renderer'].prototype['container'] = renderer.prototype.container;
-	mapapi['renderer'].prototype['minZoom']   = renderer.prototype.minZoom;
-	mapapi['renderer'].prototype['maxZoom']   = renderer.prototype.maxZoom;
-	mapapi['renderer'].prototype['zoom']      = renderer.prototype.zoom;
-	mapapi['renderer'].prototype['panUnitUD'] = renderer.prototype.panUnitUD;
-	mapapi['renderer'].prototype['panUnitLR'] = renderer.prototype.panUnitLR;
+	mapapi['renderer'].prototype['container']       = renderer.prototype.container;
+	mapapi['renderer'].prototype['minZoom']         = renderer.prototype.minZoom;
+	mapapi['renderer'].prototype['maxZoom']         = renderer.prototype.maxZoom;
+	mapapi['renderer'].prototype['zoom']            = renderer.prototype.zoom;
+	mapapi['renderer'].prototype['panUnitUD']       = renderer.prototype.panUnitUD;
+	mapapi['renderer'].prototype['panUnitLR']       = renderer.prototype.panUnitLR;
+	mapapi['renderer'].prototype['scrollWheelZoom'] = renderer.prototype.scrollWheelZoom
 })(window);

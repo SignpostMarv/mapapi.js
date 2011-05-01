@@ -81,6 +81,7 @@
 		mapapi['renderer'].call(obj, options);
 
 		obj['options']['fps'] = Math.max(1, options['fps'] || 15);
+		obj['options']['maxZoom'] = gridConf['maxZoom'];
 
 		obj.grid_images = {};
 
@@ -329,6 +330,58 @@
 		if(!obj.moving){
 			obj.moving = new moveOrder(obj['focus'](), pos);
 		}
+	}
+
+	canvas.prototype['scrollWheelZoom'] = function(flag){
+		var
+			obj        = this,
+			opts       = obj['options'],
+			zoomStuffs = function(e){
+				var d=0;
+				if(!e){
+					e = window['event']
+				}else if(e['wheelDelta']){
+					d = e['wheelDelta'] / 120;
+					if(window['opera']){
+						d = -d;
+					}
+				}else if(e['detail']){
+					d = -e['detail'] / 3;
+				}
+				if(d){
+					var
+						zoom = obj['zoom'](),
+						mod  = (d > 0) ? -1 : 1
+					;
+					obj['zoom'](zoom + mod);
+					obj.dirty = true;
+					obj.updateBounds();
+				}
+				if(e['preventDefault']){
+					e['preventDefault']();
+				}
+				e['returnValue'] = false;
+				return false;
+			}
+		;
+		if(flag != undefined){
+			flag = !!flag;
+			opts['scrollWheelZoom'] = flag;
+			if(flag){
+				if(window['addEventListener']){
+					obj['contentNode']['addEventListener']('DOMMouseScroll', zoomStuffs, false);
+				}else if(window['attachEvent']){
+					obj['contentNode']['attachEvent']('onmousewheel', zoomStuffs);
+				}
+			}else{
+				if(window['removeEventListener']){
+					obj['contentNode']['removeEventListener']('DOMMouseScroll', zoomStuffs, false);
+				}else if(window['detachEvent']){
+					obj['contentNode']['detachEvent']('onmousewheel', zoomStuffs);
+				}
+			}
+		}
+		return opts['scrollWheelZoom'];
 	}
 
 	mapapi['canvasRenderer'] = canvas;

@@ -92,6 +92,7 @@
 		if(obj.gridConfig['tileSources']()[0]['options']['backgroundColor']){
 			options['backgroundColor'] = obj.gridConfig['tileSources']()[0]['options']['backgroundColor'];
 		}
+		options['scrollwheel'] = obj['options']['scrollWheelZoom'] || !0;
 
 		obj.vendorContent = new google_maps['Map'](obj['contentNode'], options);
 
@@ -199,6 +200,15 @@
 			this['zoom'](zoom);
 		}
 		return this['GLatLng2gridPoint'](this.vendorContent['getCenter']());
+	}
+	google3.prototype['scrollWheelZoom'] = function(flag){
+		var
+			obj = this
+		;
+		if(flag != undefined){
+			obj.vendorContent['setOptions']({'scrollwheel':!!flag});
+		}
+		return obj.vendorContent['scrollwheel'];
 	}
 
 	mapapi['google3Renderer'] = google3;
