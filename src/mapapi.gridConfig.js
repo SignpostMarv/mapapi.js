@@ -38,7 +38,8 @@
 			obj['vendor']       = options['vendor'];
 			obj['name']         = options['name'];
 			obj['label']        = options['label'];
-			obj['size']         = new mapapi['size'](options['gridWidth'] || 1048576, options['gridHeight'] || 1048576);
+			obj['maxZoom']      = options['maxZoom'];
+			obj['size']         = options['size'] || new mapapi['size'](options['gridWidth'] || 1048576, options['gridHeight'] || 1048576);
 			obj['_tileSources'] = options['_tileSources'] || [];
 		}
 	;
