@@ -85,9 +85,6 @@
 
 		obj.grid_images = {};
 
-		obj['contentNode']['width']  = obj['contentNode']['clientWidth'];
-		obj['contentNode']['height'] = obj['contentNode']['clientHeight'];
-
 		obj.tileSource = gridConf['tileSources']()[0];
 
 		window.addEventListener('resize', function(){ obj.dirty = true; obj.updateBounds(); }, true);
