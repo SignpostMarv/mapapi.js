@@ -6,3 +6,10 @@ A later refactor fleshed out some experiments concerned with adding "grid config
 
 In March 2010, an issue was created in the Second Life public issue tracker: https://jira.secondlife.com/browse/WEB-1560
 WEB-1560 was a formal request for Linden Lab to apply an open source license to slmapapi.js, and in January 2011 an MIT license was approved.
+
+## Examples
+
+### Renderers
+* [Canvas](http://signpostmarv.github.com/mapapi.js/examples/renderer-canvas.html)
+* [Google v2](http://signpostmarv.github.com/mapapi.js/examples/renderer-google-v2.html)
+* [Google v3](http://signpostmarv.github.com/mapapi.js/examples/renderer-google-v3.html)
