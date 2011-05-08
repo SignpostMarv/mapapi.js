@@ -24,8 +24,9 @@
 (function(window, undefined){
 	window['mapapi'] = window['mapapi'] || {};
 	var
-		document = window['document'],
-		mapapi   = window['mapapi']
+		document  = window['document'],
+		mapapi    = window['mapapi'],
+		gridPoint = mapapi['gridPoint']
 	;
 
 	function each(array, cb){
@@ -146,7 +147,7 @@
 		return opts['scrollWheelZoom'];
 	}
 
-	renderer.prototype['smoothZoom'] = function(flag){
+	renderer.prototype.smoothZoom = function(flag){
 		if(flag != undefined){
 			if(flag){ // do stuff to enable smooth zoom
 				return true;
@@ -157,7 +158,7 @@
 		return flag; // should return from other property
 	}
 
-	renderer.prototype['draggable'] = function(flag){
+	renderer.prototype.draggable = function(flag){
 		if(flag != undefined){
 			if(flag){ // do stuff to make the map renderer draggable
 				return true;
@@ -168,7 +169,7 @@
 		return flag; // should return from other property
 	}
 
-	renderer.prototype['focus'] = function(pos, zoom, a){ // should return an instance of mapapi.gridPoint
+	renderer.prototype.focus = function(pos, zoom, a){ // should return an instance of mapapi.gridPoint
 		if(typeof pos == 'number'){
 			pos = new mapapi['gridPoint'](pos, zoom);
 			zoom = this['zoom']();
@@ -182,6 +183,24 @@
 		return this['_focus'];
 	}
 
+	renderer.prototype.px2point = function(x, y){
+		var
+			obj     = this,
+			content = obj['contentNode'],
+			cWidth  = content['width'],
+			cw2     = cWidth / 2.0,
+			cHeight = content['height'],
+			ch2     = cHeight / 2.0,
+			size    = obj.tileSize(),
+			distX   = (x - cw2) / size['width'],
+			distY   = ((cHeight - y) - ch2) / size['height'],
+			focus   = obj['focus']()//,
+			mapX    = focus['x'] + distX,
+			mapY    = focus['y'] + distY
+		;
+		return new gridPoint(mapX, mapY);
+	}
+
 	mapapi['renderer'] = renderer;
 	mapapi['renderer'].prototype['container']       = renderer.prototype.container;
 	mapapi['renderer'].prototype['minZoom']         = renderer.prototype.minZoom;
@@ -189,5 +208,9 @@
 	mapapi['renderer'].prototype['zoom']            = renderer.prototype.zoom;
 	mapapi['renderer'].prototype['panUnitUD']       = renderer.prototype.panUnitUD;
 	mapapi['renderer'].prototype['panUnitLR']       = renderer.prototype.panUnitLR;
-	mapapi['renderer'].prototype['scrollWheelZoom'] = renderer.prototype.scrollWheelZoom
+	mapapi['renderer'].prototype['scrollWheelZoom'] = renderer.prototype.scrollWheelZoom;
+	mapapi['renderer'].prototype['smoothZoom']      = renderer.prototype.smoothZoom;
+	mapapi['renderer'].prototype['draggable']       = renderer.prototype.draggable;
+	mapapi['renderer'].prototype['focus']           = renderer.prototype.focus;
+	mapapi['renderer'].prototype['px2point']        = renderer.prototype.px2point;
 })(window);
