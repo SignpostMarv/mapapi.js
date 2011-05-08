@@ -57,6 +57,23 @@
 		}
 	}
 
+	var zoomOrder = function(from, to){
+		this['from']    = from;
+		this['to']      = to;
+		this['current'] = 0;
+	}
+	zoomOrder.prototype.overTime = function(time, fps){
+		if(!this['frames']){
+			this['frames'] = Math.max(1, Math.floor(time * fps));
+			var
+				frames = this['frames'],
+				to     = this['to'],
+				from   = this['from']
+			;
+			this['increment'] = (to - from) / frames;
+		}
+	}
+
 	var canvas = function(options){
 		var supported = document.createElement('canvas');
 		if(supported){
@@ -68,29 +85,7 @@
 		var
 			obj        = this,
 			options    = options || {},
-			gridConf = options['gridConfig']
-		;
-		if((gridConf instanceof gridConfig) == false){
-			throw 'Grid Configuration object must be instance of mapapi.gridConfig';
-		}
-		obj.gridConfig = gridConf;
-
-		obj['contentNode']   = document.createElement('canvas');
-		obj.vendorContent = obj['contentNode']['getContext']('2d');
-
-		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
-		mapapi['renderer'].call(obj, options);
-
-		obj['options']['fps'] = Math.max(1, options['fps'] || 15);
-		obj['options']['maxZoom'] = gridConf['maxZoom'];
-
-		obj.grid_images = {};
-
-		obj.tileSource = gridConf['tileSources']()[0];
-
-		window.addEventListener('resize', function(){ obj.dirty = true; obj.updateBounds(); }, true);
-
-		var
+			gridConf = options['gridConfig'],
 			clickpan = function(e){
 				if(obj.dragging == false){
 					clearTimeout(obj.mousedown_timer);
@@ -103,7 +98,27 @@
 				}
 			}
 		;
-		obj['contentNode'].addEventListener('mouseup', clickpan, false);
+		if((gridConf instanceof gridConfig) == false){
+			throw 'Grid Configuration object must be instance of mapapi.gridConfig';
+		}
+		obj.gridConfig = gridConf;
+
+		obj['contentNode']   = document.createElement('canvas');
+		obj.vendorContent = obj['contentNode']['getContext']('2d');
+
+		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
+		mapapi['renderer'].call(obj, options);
+
+		obj['options']['fps'] = Math.max(1, options['fps'] || 30);
+		obj['options']['maxZoom'] = gridConf['maxZoom'];
+
+		obj.grid_images = {};
+
+		obj.tileSource = gridConf['tileSources']()[0];
+
+		window.addEventListener('resize', function(){ obj.dirty = true; obj.updateBounds(); }, true);
+
+//		obj['contentNode'].addEventListener('mouseup', clickpan, false);
 
 		obj['zoom'](0);
 		obj['focus'](0, 0);
@@ -219,13 +234,7 @@
 			ctx.save();
 
 			if(obj.moving){
-				obj.moving.overTime(1,fps);
-				window['status'] = [
-					obj.moving['from']['x'],
-					obj['moving']['incrX'],
-					obj['moving']['current'],
-					obj.moving['frames']
-				]
+				obj.moving.overTime(.5,fps);
 				++obj.moving.current;
 				obj['focus'](
 					obj.moving['from']['x'] + (obj['moving']['incrX'] * obj['moving']['current']),
@@ -233,6 +242,14 @@
 				);
 				if(obj['moving']['current'] >= obj.moving['frames']){
 					delete obj.moving;
+				}
+			}
+			if(obj.zooming){
+				obj.zooming.overTime(.5,fps);
+				++obj.zooming['current'];
+				obj['zoom'](obj.zooming['from'] + (obj.zooming['increment'] * obj.zooming['current']));
+				if(obj.zooming['current'] >= obj.zooming['frames']){
+					delete obj.zooming;
 				}
 			}
 
@@ -407,6 +424,37 @@
 			}
 		}
 		return opts['draggable'];
+	}
+
+	canvas.prototype['dblclickZoom'] = function(flag){
+		var
+			obj  = this,
+			opts = obj['options'],
+			dblclickzoom = function(e){
+				var
+					x     = e['clientX'],
+					y     = e['clientY'],
+					point = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop'])
+				;
+				if(obj['smoothZoom']()){
+					obj.moving  = new moveOrder(obj['focus'](), point);
+					obj.zooming = new zoomOrder(obj['zoom'](),obj['zoom']() - 1);
+				}else{
+					obj['zoom'](obj['zoom']() - 1);
+					obj['focus'](point);
+					obj.dirty = true;
+				}
+			}
+		;
+		if(flag != undefined){
+			flag = !!flag;
+			opts['dblclickZoom'] = flag;
+			if(flag){
+				obj['contentNode']['addEventListener']('dblclick', dblclickzoom, false);
+			}else{
+				obj['contentNode']['removeEventListener']('dblclick', dblclickzoom, false);
+			}
+		}
 	}
 
 	mapapi['canvasRenderer'] = canvas;

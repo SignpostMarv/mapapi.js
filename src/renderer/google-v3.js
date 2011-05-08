@@ -103,6 +103,9 @@
 
 		obj.vendorContent = new google_maps['Map'](obj['contentNode'], options);
 
+		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
+		obj['smoothZoom'](obj['options']['smoothZoom']);
+		obj['dblclickZoom'](obj['options']['dblclickZoom']);
 
 		var
 			firstMapType = false,
@@ -129,7 +132,6 @@
 						newpos = posZoomToxyZoom(pos,zoom),
 						url = tileSource['getTileURL']({'x':newpos['x'], 'y':newpos['y']}, newpos['zoom'])
 					;
-//					console.log(url);
 					return url;
 				},
 				'alt'        : label,
@@ -206,14 +208,44 @@
 		}
 		return this['GLatLng2gridPoint'](this.vendorContent['getCenter']());
 	}
+
 	google3.prototype['scrollWheelZoom'] = function(flag){
 		var
-			obj = this
+			obj  = this,
+			opts = obj['options']
 		;
 		if(flag != undefined){
-			obj.vendorContent['setOptions']({'scrollwheel':!!flag});
+			flag = !!flag;
+			opts['scrollWheelZoom'] = flag;
+			obj.vendorContent['setOptions']({'scrollwheel':flag});
 		}
 		return obj.vendorContent['scrollwheel'];
+	}
+
+	google3.prototype['draggable'] = function(flag){
+		var
+			obj  = this,
+			opts = obj['options']
+		;
+		if(flag != undefined){
+			flag = !!flag;
+			opts['draggable'] = flag;
+			obj.vendorContent['setOptions']({'draggable':flag});
+		}
+		return obj.vendorContent['draggable'];
+	}
+
+	google3.prototype['dblclickZoom'] = function(flag){
+		var
+			obj  = this,
+			opts = obj['options']
+		;
+		if(flag != undefined){
+			flag = !!flag;
+			opts['dblclickZoom'] = flag;
+			obj.vendorContent['setOptions']({'disableDoubleClickZoom':!flag});
+		}
+		return !obj.vendorContent['disableDoubleClickZoom'];
 	}
 
 	mapapi['google3Renderer'] = google3;

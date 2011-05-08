@@ -67,7 +67,6 @@
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
 		mapapi['renderer'].call(obj, options);
 
-
 		var
 			mapTypes = [],
 			tileSources = gridConf['tileSources'](),
@@ -119,6 +118,9 @@
 			'backgroundColor' : tileSources[0]['options']['backgroundColor']
 		});
 
+		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
+		obj['smoothZoom'](obj['options']['smoothZoom']);
+		obj['dblclickZoom'](obj['options']['dblclickZoom']);
 		obj['zoom'](0);
 		obj['focus'](0, 0, 0);
 
@@ -170,6 +172,7 @@
 	google2.prototype['scrollWheelZoom'] = function(flag){
 		var vendorContent = this.vendorContent;
 		if(flag != undefined){
+			flag = !!flag;
 			if(flag){
 				vendorContent['enableScrollWheelZoom']();
 			}else{
@@ -182,6 +185,7 @@
 	google2.prototype['smoothZoom'] = function(flag){
 		var vendorContent = this.vendorContent;
 		if(flag != undefined){
+			flag = !!flag;
 			if(flag){
 				vendorContent['enableContinuousZoom']();
 			}else{
@@ -217,6 +221,23 @@
 			this.vendorContent['setCenter'](this.gridPoint2GLatLng(pos), zoom);
 		}
 		return this.GLatLng2gridPoint(this.vendorContent['getCenter']());
+	}
+
+	google2.prototype['dblclickZoom'] = function(flag){
+		var
+			obj  = this,
+			opts = obj['options']
+		;
+		if(flag != undefined){
+			flag = !!flag;
+			opts['dblclickZoom'] = flag;
+			if(flag){
+				obj.vendorContent['enableDoubleClickZoom']();
+			}else{
+				obj.vendorContent['disableDoubleClickZoom']();
+			}
+		}
+		return obj.vendorContent['doubleClickZoomEnabled']();
 	}
 
 	mapapi['google2Renderer'] = google2;

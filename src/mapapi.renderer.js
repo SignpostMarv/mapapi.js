@@ -56,6 +56,8 @@
 			panUnitLR       = obj.panUnitLR(options['panUnitLR'] || 1)
 		;
 		opts['scrollWheelZoom'] = (options['scrollWheelZoom'] || 0);
+		opts['smoothZoom']      = (options['smoothZoom'] || 1);
+		opts['dblclickZoom']    = (options['dblclickZoom'] || 1);
 
 		if(options['container']){
 			obj.container(options['container']);
@@ -148,14 +150,14 @@
 	}
 
 	renderer.prototype.smoothZoom = function(flag){
+		var
+			obj  = this,
+			opts = obj['options']
+		;
 		if(flag != undefined){
-			if(flag){ // do stuff to enable smooth zoom
-				return true;
-			}else{ // do stuff to disable it
-				return false;
-			}
+			opts['smoothZoom'] = !!flag;
 		}
-		return flag; // should return from other property
+		return opts['smoothZoom'];
 	}
 
 	renderer.prototype.draggable = function(flag){
@@ -201,6 +203,17 @@
 		return new gridPoint(mapX, mapY);
 	}
 
+	renderer.prototype.dblclickZoom = function(flag){
+		if(flag != undefined){
+			if(flag){ // do stuff to enable smooth zoom
+				return true;
+			}else{ // do stuff to disable it
+				return false;
+			}
+		}
+		return flag; // should return from other property
+	}
+
 	mapapi['renderer'] = renderer;
 	mapapi['renderer'].prototype['container']       = renderer.prototype.container;
 	mapapi['renderer'].prototype['minZoom']         = renderer.prototype.minZoom;
@@ -213,4 +226,5 @@
 	mapapi['renderer'].prototype['draggable']       = renderer.prototype.draggable;
 	mapapi['renderer'].prototype['focus']           = renderer.prototype.focus;
 	mapapi['renderer'].prototype['px2point']        = renderer.prototype.px2point;
+	mapapi['renderer'].prototype['dblclickZoom']    = renderer.prototype.dblclickZoom;
 })(window);
