@@ -120,6 +120,9 @@
 
 //		obj['contentNode'].addEventListener('mouseup', clickpan, false);
 
+		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
+		obj['smoothZoom'](obj['options']['smoothZoom']);
+		obj['dblclickZoom'](obj['options']['dblclickZoom']);
 		obj['zoom'](0);
 		obj['focus'](0, 0);
 
