@@ -336,7 +336,7 @@
 			opts['scrollWheelZoom'] = flag;
 			if(flag){
 				if(window['addEventListener']){
-					obj['contentNode']['addEventListener'](window['navigator']['userAgent'] ? 'mousewheel' : 'DOMMouseScroll', zoomStuffs, false);
+					obj['contentNode']['addEventListener'](/WebKit/.test(window['navigator']['userAgent']) ? 'mousewheel' : 'DOMMouseScroll', zoomStuffs, false);
 				}else if(window['attachEvent']){
 					obj['contentNode']['attachEvent']('onmousewheel', zoomStuffs);
 				}
