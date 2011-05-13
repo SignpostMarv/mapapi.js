@@ -36,43 +36,18 @@
 		gridConfig = mapapi['gridConfig'],
 		gridPoint  = mapapi['gridPoint'],
 		bounds     = mapapi['bounds'],
-		size       = mapapi['size']
+		size       = mapapi['size'],
+		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
+		reqAnimSp  = false;
 	;
-
-	var moveOrder = function(from, to){
-		this['from']    = from;
-		this['to']      = to;
-		this['current'] = 0;
-	};
-	moveOrder.prototype.overTime = function(time, fps){
-		if(!this['frames']){
-			this['frames'] = Math.max(1, Math.floor(time * fps));
-			var
-				frames = this['frames'],
-				to     = this['to'],
-				from   = this['from']
-			;
-			this['incrX']   = (to['x'] - from['x']) / frames;
-			this['incrY']   = (to['y'] - from['y']) / frames;
+	for(var i=0;i<reqAnim.length;++i){
+		if(!!window[reqAnim[i]]){
+			reqAnim = window[reqAnim[i]];
+			reqAnimSp = true;
+			break;
 		}
 	}
-
-	var zoomOrder = function(from, to){
-		this['from']    = from;
-		this['to']      = to;
-		this['current'] = 0;
-	}
-	zoomOrder.prototype.overTime = function(time, fps){
-		if(!this['frames']){
-			this['frames'] = Math.max(1, Math.floor(time * fps));
-			var
-				frames = this['frames'],
-				to     = this['to'],
-				from   = this['from']
-			;
-			this['increment'] = (to - from) / frames;
-		}
-	}
+	reqAnim = reqAnimSp ? reqAnim : false;
 
 	var canvas = function(options){
 		var supported = document.createElement('canvas');
@@ -225,7 +200,7 @@
 	canvas.prototype.draw = function(fps){
 		fps = Math.max(1, fps || 0);
 		var obj = this;
-		obj.dirty = obj.dirty || obj.moving;
+		obj.dirty = obj.dirty || obj['doAnimation']();
 		if(obj.dirty){
 			obj.dirty = false;
 			var
@@ -235,26 +210,6 @@
 			canvas.width = canvas.clientWidth;
 			canvas.height = canvas.clientHeight;
 			ctx.save();
-
-			if(obj.moving){
-				obj.moving.overTime(.5,fps);
-				++obj.moving.current;
-				obj['focus'](
-					obj.moving['from']['x'] + (obj['moving']['incrX'] * obj['moving']['current']),
-					obj.moving['from']['y'] + (obj['moving']['incrY'] * obj['moving']['current'])
-				);
-				if(obj['moving']['current'] >= obj.moving['frames']){
-					delete obj.moving;
-				}
-			}
-			if(obj.zooming){
-				obj.zooming.overTime(.5,fps);
-				++obj.zooming['current'];
-				obj['zoom'](obj.zooming['from'] + (obj.zooming['increment'] * obj.zooming['current']));
-				if(obj.zooming['current'] >= obj.zooming['frames']){
-					delete obj.zooming;
-				}
-			}
 
 			var
 				zoom    = obj['zoom'](),
@@ -296,7 +251,11 @@
 
 			obj.dirty = false;
 		}
-		setTimeout(function(){ obj.draw(fps) },1000/fps);
+		if(reqAnimSp){
+			reqAnim(function(){ obj.draw() });
+		}else{
+			setTimeout(function(){ obj.draw(fps) },1000/fps);
+		}
 	}
 
 	canvas.prototype['focus'] = function(pos, zoom, a){
@@ -315,14 +274,25 @@
 		return renderer.prototype['focus'].call(obj);
 	}
 
+	canvas.prototype['zoom'] = function(value){
+		var
+			obj  = this,
+			zoom = renderer.prototype['zoom'].call(obj, value)
+		;
+		if(value != undefined){
+			obj.updateBounds();
+		}
+		return zoom;
+	}
+
 	canvas.prototype['panTo'] = function(pos, y){
 		if(typeof pos == 'number'){
 			pos = new gridPoint(pos, y);
 		}
 		var obj = this;
-		if(!obj.moving){
-			obj.moving = new moveOrder(obj['focus'](), pos);
-		}
+		this['animate']({
+			'focus' : pos
+		}, .5);
 	}
 
 	canvas.prototype['scrollWheelZoom'] = function(flag){
@@ -346,9 +316,13 @@
 						zoom = obj['zoom'](),
 						mod  = (d > 0) ? -1 : 1
 					;
-					obj['zoom'](zoom + mod);
-					obj.dirty = true;
-					obj.updateBounds();
+					if(obj['smoothZoom']()){
+						obj['animate']({
+							'zoom' : (zoom + mod)
+						}, .5);
+					}else{
+						obj['zoom'](zoom + mod);
+					}
 				}
 				if(e['preventDefault']){
 					e['preventDefault']();
@@ -440,8 +414,10 @@
 					point = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop'])
 				;
 				if(obj['smoothZoom']()){
-					obj.moving  = new moveOrder(obj['focus'](), point);
-					obj.zooming = new zoomOrder(obj['zoom'](),obj['zoom']() - 1);
+					obj['animate']({
+						'zoom'  : obj['zoom']() - 1,
+						'focus' : point
+					}, .5);
 				}else{
 					obj['zoom'](obj['zoom']() - 1);
 					obj['focus'](point);

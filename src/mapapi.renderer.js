@@ -214,6 +214,97 @@
 		return flag; // should return from other property
 	}
 
+	renderer.prototype.animate = function(opts, time){
+		if(opts == undefined || (opts != undefined && typeof time != 'number')){
+			return;
+		}
+		var
+			obj       = this,
+			time      = (!time || time < 0) ? 1 : time,
+			czoom     = obj['zoom'](),
+			mnzm      = obj['minZoom'](),
+			mxzm      = obj['maxZoom'](),
+			cpos      = obj['focus'](),
+			gridPoint = mapapi['gridPoint'],
+			zoom,
+			pos,
+			animateOrder
+		;
+		if(typeof opts == 'number'){
+			opts = {'zoom':opts};
+		}else if(opts instanceof gridPoint || (typeof opts == 'object' && typeof opts['x'] == 'number' && typeof opts['y'] == 'number')){
+			opts = {'focus':(opts instanceof gridPoint) ? opts : new gridPoint(opts['x'],opts['y'])};
+		}
+		zoom = pos = animateOrder = !1;
+		if(opts['zoom'] != undefined){
+			zoom = (typeof opts['zoom'] == 'number') ? opts['zoom'] : (opts['zoom'] * 1);
+			zoom = (zoom != czoom && zoom >= mnzm && zoom <= mxzm) ? zoom : undefined;
+		}
+		if(opts['focus'] instanceof gridPoint){
+			pos  = (opts['focus']['x'] != cpos['x'] || opts['focus']['y'] != cpos['y']) ? opts['focus'] : !1;
+		}
+		var
+			a = (zoom != undefined),
+			b = !!pos
+		;
+		if(a || b){
+			animateOrder = {};
+			if(a != undefined){
+				animateOrder['zoom']      = zoom;
+				animateOrder['fromZoom']  = czoom;
+			}
+			if(b){
+				animateOrder['focus']     = pos;
+				animateOrder['fromFocus'] = cpos;
+			}
+			animateOrder['start'] = (new Date().getTime()) / 1000;
+			animateOrder['end']   = animateOrder['start'] + time;
+			obj['animateOrder']   = animateOrder;
+		}
+	}
+	renderer.prototype.doAnimation = function(){
+		var
+			obj = this,
+			ao  = obj['animateOrder']
+		;
+		if(!ao){
+			return false;
+		}
+		var
+			a   = ao['zoom'],
+			b   = ao['fromZoom'],
+			c   = ao['focus'],
+			d   = ao['fromFocus'],
+			e   = ao['start'],
+			f   = ao['end'],
+			now,diff,g,h,i
+		;
+		if(!!ao){
+			now  = (new Date().getTime()) / 1000;
+			diff = (now - e) / (f - e);
+			if(now >= ao['end']){
+				if(!!c){
+					obj['focus'](c, !!a ? a : undefined);
+				}else if(!!a){
+					obj['zoom'](a);					
+				}
+				obj['animateOrder'] = !1;
+				return true;
+			}else if(now > ao['start']){
+				i = (a != undefined) ? (b + ((a - b) * diff)) : undefined;
+				if(!!c){
+					g = !!c ? (d['x'] + ((c['x'] - d['x']) * diff)) : 0;
+					h = !!c ? (d['y'] + ((c['y'] - d['y']) * diff)) : 0;
+					obj['focus'](g, h, i);
+				}else if(i != undefined){
+					obj['zoom'](i);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
 	mapapi['renderer'] = renderer;
 	mapapi['renderer'].prototype['container']       = renderer.prototype.container;
 	mapapi['renderer'].prototype['minZoom']         = renderer.prototype.minZoom;
@@ -227,4 +318,6 @@
 	mapapi['renderer'].prototype['focus']           = renderer.prototype.focus;
 	mapapi['renderer'].prototype['px2point']        = renderer.prototype.px2point;
 	mapapi['renderer'].prototype['dblclickZoom']    = renderer.prototype.dblclickZoom;
+	mapapi['renderer'].prototype['animate']         = renderer.prototype.animate;
+	mapapi['renderer'].prototype['doAnimation']     = renderer.prototype.doAnimation;
 })(window);
