@@ -189,6 +189,13 @@
 		);
 	}
 
+	google3.prototype['panTo'] = function(pos, y){
+		if(typeof pos == 'number'){
+			pos = new gridPoint(pos, y);
+		}
+		this.vendorContent['panTo'](this.gridPoint2GLatLng(pos));
+	}
+
 	google3.prototype['zoom'] = function(zoom){
 		if(zoom != undefined){
 			this.vendorContent['setZoom'](this.convertZoom(zoom));
