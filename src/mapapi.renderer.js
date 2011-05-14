@@ -26,7 +26,8 @@
 	var
 		document  = window['document'],
 		mapapi    = window['mapapi'],
-		gridPoint = mapapi['gridPoint']
+		gridPoint = mapapi['gridPoint'],
+		bounds    = mapapi['bounds']
 	;
 
 	function each(array, cb){
@@ -138,6 +139,22 @@
 		return opts['panUnitLR'];
 	}
 
+	renderer.prototype.panTo = function(pos, a){
+		if(typeof pos == 'number' && typeof a == 'number'){
+			pos = new gridPoint(pos, a);
+		}else if(typeof pos == 'object' && typeof pos['x'] == 'number' && typeof pos['y'] == 'number'){
+			pos = new gridPoint(pos['x'], pos['y']);
+		}
+		if(pos instanceof gridPoint){
+			if(this['bounds']()['isWithin'](pos)){
+				this['animate']({
+					'focus' : pos
+				}, .5);
+			}else{
+				this['focus'](pos);
+			}
+		}
+	}
 
 	renderer.prototype.scrollWheelZoom = function(flag){
 		var
@@ -305,6 +322,26 @@
 		return false;
 	}
 
+	renderer.prototype.bounds = function(){
+		var
+			obj     = this,
+			content = obj['contentNode'],
+			zoom    = obj['zoom'](),
+			zoom_a  = .5 + (.5 * (1 - (zoom % 1))),
+			zoom_b  = 1 << Math.floor(zoom),
+			focus   = obj['focus'](),
+			cWidth  = content['width'],
+			cHeight = content['height'],
+			tWidth  = (obj.tileSource['size']['width'] * zoom_a) / zoom_b,
+			tHeight = (obj.tileSource['size']['height'] * zoom_a) / zoom_b,
+			wView   = Math.ceil(cWidth / tWidth) + 1,
+			hView   = Math.ceil(cHeight / tHeight) + 1,
+			wVhalf  = Math.ceil(wView / 2.0),
+			hVhalf  = Math.ceil(hView / 2.0)
+		;
+		return new bounds({'x': focus['x'] - wVhalf, 'y': focus['y'] - hVhalf},{'x': focus['x'] + wVhalf,  'y': focus['y'] + hVhalf});
+	}
+
 	mapapi['renderer'] = renderer;
 	mapapi['renderer'].prototype['container']       = renderer.prototype.container;
 	mapapi['renderer'].prototype['minZoom']         = renderer.prototype.minZoom;
@@ -312,6 +349,7 @@
 	mapapi['renderer'].prototype['zoom']            = renderer.prototype.zoom;
 	mapapi['renderer'].prototype['panUnitUD']       = renderer.prototype.panUnitUD;
 	mapapi['renderer'].prototype['panUnitLR']       = renderer.prototype.panUnitLR;
+	mapapi['renderer'].prototype['panTo']           = renderer.prototype.panTo;
 	mapapi['renderer'].prototype['scrollWheelZoom'] = renderer.prototype.scrollWheelZoom;
 	mapapi['renderer'].prototype['smoothZoom']      = renderer.prototype.smoothZoom;
 	mapapi['renderer'].prototype['draggable']       = renderer.prototype.draggable;
@@ -320,4 +358,5 @@
 	mapapi['renderer'].prototype['dblclickZoom']    = renderer.prototype.dblclickZoom;
 	mapapi['renderer'].prototype['animate']         = renderer.prototype.animate;
 	mapapi['renderer'].prototype['doAnimation']     = renderer.prototype.doAnimation;
+	mapapi['renderer'].prototype['bounds']          = renderer.prototype.bounds;
 })(window);
