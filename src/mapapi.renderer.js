@@ -156,6 +156,26 @@
 		}
 	}
 
+	renderer.prototype.panUp = function(){
+		var pos = this.focus();
+		this.panTo(pos['x'], pos['y'] + this.panUnitUD());
+	}
+
+	renderer.prototype.panDown = function(){
+		var pos = this.focus();
+		this.panTo(pos['x'], pos['y'] - this.panUnitUD());
+	}
+
+	renderer.prototype.panLeft = function(){
+		var pos = this.focus();
+		this.panTo(pos['x'] - this.panUnitLR(), pos['y']);
+	}
+
+	renderer.prototype.panRight = function(){
+		var pos = this.focus();
+		this.panTo(pos['x'] + this.panUnitLR(), pos['y']);
+	}
+
 	renderer.prototype.scrollWheelZoom = function(flag){
 		var
 			opts = this['options']
@@ -350,6 +370,10 @@
 	mapapi['renderer'].prototype['panUnitUD']       = renderer.prototype.panUnitUD;
 	mapapi['renderer'].prototype['panUnitLR']       = renderer.prototype.panUnitLR;
 	mapapi['renderer'].prototype['panTo']           = renderer.prototype.panTo;
+	mapapi['renderer'].prototype['panUp']           = renderer.prototype.panUp;
+	mapapi['renderer'].prototype['panDown']         = renderer.prototype.panDown;
+	mapapi['renderer'].prototype['panLeft']         = renderer.prototype.panLeft;
+	mapapi['renderer'].prototype['panRight']        = renderer.prototype.panRight;
 	mapapi['renderer'].prototype['scrollWheelZoom'] = renderer.prototype.scrollWheelZoom;
 	mapapi['renderer'].prototype['smoothZoom']      = renderer.prototype.smoothZoom;
 	mapapi['renderer'].prototype['draggable']       = renderer.prototype.draggable;
