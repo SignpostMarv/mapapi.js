@@ -165,10 +165,7 @@
 	google3.prototype.gridPoint2GLatLng = function(pos){
 		var
 			size   = this.gridConfig['size'],
-			hw     = size['width'] / 2.0,
-			hh     = size['height'] / 2.0,
 			hscale = 180.0 / size['height'],
-			wscale = 360.0 / size['width'],
 			lat   = (pos['y'] * 2) * hscale,
 			lng   = (pos['x'] * 2) * hscale
 		;
@@ -178,14 +175,11 @@
 	google3.prototype.GLatLng2gridPoint = function(pos){
 		var
 			size   = this.gridConfig['size'],
-			hw     = size['width'] / 2.0,
-			hh     = size['height'] / 2.0,
-			hscale = 180.0 / size['height'],
-			wscale = 360.0 / size['width']
+			hscale = 180.0 / size['height']
 		;
 		return new gridPoint(
-			(pos.lng() / hscale) + hw,
-			(pos.lat() / hscale) + hh
+			(pos.lng() / hscale) / 2,
+			(pos.lat() / hscale) / -2
 		);
 	}
 
