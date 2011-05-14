@@ -191,10 +191,13 @@
 	}
 
 	google3.prototype['zoom'] = function(zoom){
+		if(this.vendorContent == undefined){
+			return 0;
+		}
 		if(zoom != undefined){
 			this.vendorContent['setZoom'](this.convertZoom(zoom));
 		}
-		return this.convertZoom(this.vendorContent['getZoom']());
+		return this.convertZoom(this.vendorContent['getZoom']()) - 1;
 	}
 	google3.prototype['focus'] = function(pos, zoom, a){
 		if(typeof pos == 'number'){
