@@ -46,7 +46,7 @@
 				}
 			}
 		},
-		'gridPoint' : function(x, y, gridEdgeSize){
+		'gridPoint' : function(x, y){
 			var obj = this;
 			obj['x'] = x;
 			obj['y'] = y;
@@ -84,6 +84,16 @@
 			ne = this['ne']
 		;
 		return (x >= sw['x'] && x <= ne['x'] && y >= sw['y'] && y <= ne['y']);
+	}
+
+	mapapi['bounds'].prototype['equals'] = function(bounds){
+		var
+			obj = this
+		;
+		if(bounds instanceof mapapi['bounds']){
+			return (obj['sw']['x'] == bounds['sw']['x'] && obj['sw']['y'] == bounds['sw']['y'] && obj['ne']['x'] == bounds['ne']['x'] && obj['ne']['y'] == bounds['ne']['y']);
+		}
+		return false;
 	}
 
 	window['mapapi'] = mapapi;
