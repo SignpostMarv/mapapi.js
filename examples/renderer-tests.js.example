@@ -1,0 +1,21 @@
+(function(window, undefined){
+	window['mapapapi_js_renderer_tests'] = function(map){
+		if(!!map){
+			setTimeout(function(){
+				map.panTo(1001,1001);
+				setTimeout(function(){
+					map.panUp();
+					setTimeout(function(){
+						map.panDown();
+						setTimeout(function(){
+							map.panLeft();
+							setTimeout(function(){
+								map.panRight();
+							},1000);
+						},1000);
+					},1000);
+				},1000);
+			}, 3000);
+		}
+	}
+})(window);

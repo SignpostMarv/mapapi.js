@@ -15,6 +15,7 @@
 <script src="../src/mapapi.gridConfig.js"></script>
 <script src="../src/renderer/google-v3.js"></script>
 <script src="../src/gridconfig/com.secondlife.agni.js"></script>
+<script src="renderer-tests.js"></script>
 <style>
 html, body{
 	width: 100% ;
@@ -34,9 +35,9 @@ function loadmap(){
 	map.smoothZoom(true);
 	map.draggable(true);
 	map.focus(1000,1000,0);
-	setTimeout(function(){
-		map.panTo(1001,1001);
-	}, 3000);
+	if(mapapapi_js_renderer_tests){
+		mapapapi_js_renderer_tests(map);
+	}
 }
 $(document).ready(loadmap);
 </script>
