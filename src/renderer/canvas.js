@@ -91,8 +91,6 @@
 
 		obj.tileSource = gridConf['tileSources']()[0];
 
-		window.addEventListener('resize', function(){ obj.dirty = true; obj.updateBounds(); }, true);
-
 //		obj['contentNode'].addEventListener('mouseup', clickpan, false);
 
 		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
@@ -101,33 +99,11 @@
 		obj['zoom'](0);
 		obj['focus'](0, 0);
 
-		obj.updateBounds();
 		obj.dirty = true;
 		obj.draw(obj['options']['fps']);
 	};
 
 	canvas.prototype = new renderer;
-
-	canvas.prototype.updateBounds = function(){
-		var
-			obj = this,
-			canvas  = obj['contentNode'],
-			zoom    = obj['zoom'](),
-			zoom_a  = .5 + (.5 * (1 - (zoom % 1))),
-			zoom_b  = 1 << Math.floor(zoom),
-			focus   = obj['focus'](),
-			cWidth  = canvas['width'],
-			cHeight = canvas['height'],
-			tWidth  = (obj.tileSource['size']['width'] * zoom_a) / zoom_b,
-			tHeight = (obj.tileSource['size']['height'] * zoom_a) / zoom_b,
-			wView   = Math.ceil(cWidth / tWidth) + 1,
-			hView   = Math.ceil(cHeight / tHeight) + 1,
-			wVhalf  = Math.ceil(wView / 2.0),
-			hVhalf  = Math.ceil(hView / 2.0)
-		;
-		obj.bounds  = new bounds({'x': focus['x'] - wVhalf, 'y': focus['y'] - hVhalf},{'x': focus['x'] + wVhalf,  'y': focus['y'] + hVhalf});
-		obj.dirty = true;
-	}
 
 	canvas.prototype.imageQueued = function(x, y, zoom){
 		var
@@ -176,7 +152,7 @@
 			};
 			images[zi][x][y]['onload'] = function(){
 				this['_mapapi']['loaded'] = true;
-				if(obj.bounds['isWithin'](this['_mapapi']['x'], this['_mapapi']['y'])){
+				if(obj.bounds()['isWithin'](this['_mapapi']['x'], this['_mapapi']['y'])){
 					obj.dirty = true;
 				}
 			}
@@ -199,10 +175,17 @@
 
 	canvas.prototype.draw = function(fps){
 		fps = Math.max(1, fps || 0);
-		var obj = this;
-		obj.dirty = obj.dirty || obj['doAnimation']();
+		var
+			obj     = this,
+			cbounds = obj['bounds']()
+		;
+		if(obj.lastsize == undefined || (obj.lastsize['width'] != obj['contentNode']['clientWidth'] || obj.lastsize['height'] != obj['contentNode']['clientHeight'])){
+			obj.lastbounds = undefined;
+		}
+		obj.dirty = obj.dirty || obj['doAnimation']() || (obj.lastbounds == undefined || !obj.lastbounds['equals'](cbounds)) ;
+		obj.lastbounds = cbounds;
+		obj.lastsize   = new mapapi['size'](obj['contentNode']['clientWidth'], obj['contentNode']['clientHeight']);
 		if(obj.dirty){
-			obj.dirty = false;
 			var
 				ctx     = obj.vendorContent,
 				canvas  = ctx.canvas
@@ -216,7 +199,6 @@
 				zoom_a  = .5 + (.5 * (1 - (zoom % 1))),
 				zoom_b  = 1 << Math.floor(zoom),
 				focus   = obj['focus'](),
-				cbounds = obj.bounds,
 				cWidth  = canvas['width'],
 				cWidth2 = cWidth / 2.0,
 				cHeight = canvas['height'],
@@ -269,7 +251,6 @@
 		var obj = this;
 		if(pos){
 			renderer.prototype['focus'].call(obj, pos, zoom);
-			obj.updateBounds();
 		}
 		return renderer.prototype['focus'].call(obj);
 	}
@@ -279,9 +260,6 @@
 			obj  = this,
 			zoom = renderer.prototype['zoom'].call(obj, value)
 		;
-		if(value != undefined){
-			obj.updateBounds();
-		}
 		return zoom;
 	}
 
@@ -421,7 +399,6 @@
 				}else{
 					obj['zoom'](obj['zoom']() - 1);
 					obj['focus'](point);
-					obj.dirty = true;
 				}
 			}
 		;
