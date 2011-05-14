@@ -126,7 +126,7 @@
 		if(value){
 			opts['panUnitUD'] = Math.max(value, 1);
 		}
-		return opts['panUnitUD'];
+		return opts['panUnitUD'] * Math.pow(2, this['zoom']());
 	}
 
 	renderer.prototype.panUnitLR = function(value){
@@ -136,7 +136,7 @@
 		if(value){
 			opts['panUnitLR'] = Math.max(value, 1);
 		}
-		return opts['panUnitLR'];
+		return opts['panUnitLR'] * Math.pow(2, this['zoom']());
 	}
 
 	renderer.prototype.panTo = function(pos, a){
@@ -272,7 +272,7 @@
 		}else if(opts instanceof gridPoint || (typeof opts == 'object' && typeof opts['x'] == 'number' && typeof opts['y'] == 'number')){
 			opts = {'focus':(opts instanceof gridPoint) ? opts : new gridPoint(opts['x'],opts['y'])};
 		}
-		zoom = pos = animateOrder = !1;
+		pos = animateOrder = !1;
 		if(opts['zoom'] != undefined){
 			zoom = (typeof opts['zoom'] == 'number') ? opts['zoom'] : (opts['zoom'] * 1);
 			zoom = (zoom != czoom && zoom >= mnzm && zoom <= mxzm) ? zoom : undefined;
@@ -286,7 +286,7 @@
 		;
 		if(a || b){
 			animateOrder = {};
-			if(a != undefined){
+			if(zoom != undefined){
 				animateOrder['zoom']      = zoom;
 				animateOrder['fromZoom']  = czoom;
 			}
