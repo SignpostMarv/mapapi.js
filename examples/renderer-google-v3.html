@@ -34,6 +34,9 @@ function loadmap(){
 	map.smoothZoom(true);
 	map.draggable(true);
 	map.focus(1000,1000,0);
+	setTimeout(function(){
+		map.panTo(1001,1001);
+	}, 3000);
 }
 $(document).ready(loadmap);
 </script>
