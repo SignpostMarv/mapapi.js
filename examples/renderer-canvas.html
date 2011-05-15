@@ -2,8 +2,8 @@
 <html>
 <head>
 <title>SL Map</title>
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<meta charset="UTF-8" />
+<link rel=stylesheet href="../src/reset.css">
 <!--
 <script src="../build/mapapi.js"></script>
 <script src="../build/mapapi.gridConfigs.js"></script>
@@ -19,15 +19,10 @@
 html, body{
 	width: 100% ;
 	height: 100% ;
-	margin: 0 ;
-	padding: 0 ;
-}
-canvas{
-	display: block ;
 }
 </style>
 <script>
-function loadmap(){
+window.onload = function(){
 	var map = new mapapi.canvasRenderer({
 		container  : document.body,
 		gridConfig : mapapi['gridConfigs']['com.secondlife.agni']
@@ -41,7 +36,6 @@ function loadmap(){
 		mapapapi_js_renderer_tests(map);
 	}
 }
-$(document).ready(loadmap);
 </script>
 </head>
 <body>

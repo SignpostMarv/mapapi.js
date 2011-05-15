@@ -2,9 +2,9 @@
 <html>
 <head>
 <title>SL Map</title>
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<meta charset="UTF-8" />
+<link rel=stylesheet href="../src/reset.css">
 <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA_7eLK3UI1MLX_NkCb5B9ChR_3tPE69LMEQxQ2vuQ-hnyTC7mmBSoDhER_y6z_P14WZxbqcwFcYpKJg"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 <script src="../src/slmapapi.js"></script>
 <!--
 <script src="../build/mapapi.js"></script>
@@ -21,12 +21,10 @@
 html, body{
 	width: 100% ;
 	height: 100% ;
-	margin: 0 ;
-	padding: 0 ;
 }
 </style>
 <script>
-function loadmap(){
+window.onload = function(){
 	var map = new mapapi.google2Renderer({
 		container  : document.body,
 		gridConfig : mapapi['gridConfigs']['com.secondlife.agni']
@@ -40,7 +38,6 @@ function loadmap(){
 		mapapapi_js_renderer_tests(map);
 	}
 }
-$(document).ready(loadmap);
 </script>
 </head>
 <body id="google-v2">
