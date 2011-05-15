@@ -54,38 +54,29 @@
 			minZoom         = obj.minZoom(options['minZoom'] || 0),
 			maxZoom         = obj.maxZoom(options['maxZoom'] || 0),
 			panUnitUD       = obj.panUnitUD(options['panUnitUD'] || 1),
-			panUnitLR       = obj.panUnitLR(options['panUnitLR'] || 1)
+			panUnitLR       = obj.panUnitLR(options['panUnitLR'] || 1),
+			container       = options['container']
 		;
 		opts['scrollWheelZoom'] = (options['scrollWheelZoom'] || 0);
 		opts['smoothZoom']      = (options['smoothZoom'] || 1);
 		opts['dblclickZoom']    = (options['dblclickZoom'] || 1);
 
-		if(options['container']){
-			obj.container(options['container']);
-		}
-	}
-
-	renderer.prototype.container = function(container){
-		var
-			opts = this['options']
-		;
 		if(container){
 			if(!container['appendChild']){
 				throw 'Container is invalid';
 			}else{
 				opts['container'] = container;
-				if(this['contentNode']){
-					this['contentNode']['style']['width']  = '100%';
-					this['contentNode']['style']['height'] = '100%';
+				if(obj['contentNode']){
+					obj['contentNode']['style']['width']  = '100%';
+					obj['contentNode']['style']['height'] = '100%';
 					while(container['hasChildNodes']()){
 						container['removeChild'](container['firstChild']);
 					}
-					container['appendChild'](this['contentNode']);
+					container['appendChild'](obj['contentNode']);
 				}
 			}
 		}
-		this['_focus'] = new mapapi['gridPoint'](0,0);
-		return opts['container'];
+		this['_focus'] = new gridPoint(0,0);
 	}
 
 	renderer.prototype.minZoom = function(value){
