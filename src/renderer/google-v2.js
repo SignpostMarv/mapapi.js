@@ -64,7 +64,7 @@
 		obj.gridConfig = gridConf;
 
 		obj['contentNode'] = document.createElement('div');
-		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
+		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-google-v2');
 		mapapi['renderer'].call(obj, options);
 
 		var

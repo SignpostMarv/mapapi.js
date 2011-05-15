@@ -81,7 +81,7 @@
 		obj['contentNode']   = document.createElement('canvas');
 		obj.vendorContent = obj['contentNode']['getContext']('2d');
 
-		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
+		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-canvas');
 		mapapi['renderer'].call(obj, options);
 
 		obj['options']['fps'] = Math.max(1, options['fps'] || 30);
@@ -198,6 +198,7 @@
 				zoom    = obj['zoom'](),
 				zoom_a  = .5 + (.5 * (1 - (zoom % 1))),
 				zoom_b  = 1 << Math.floor(zoom),
+				zoom_c  = 1 << Math.floor(zoom - 1),
 				focus   = obj['focus'](),
 				cWidth  = canvas['width'],
 				cWidth2 = cWidth / 2.0,

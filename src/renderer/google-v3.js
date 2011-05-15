@@ -86,7 +86,7 @@
 		}
 
 		obj['contentNode'] = document.createElement('div');
-		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer');
+		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-google-v3');
 		mapapi['renderer'].call(obj, options);
 
 		if(obj.gridConfig['tileSources']()[0]['options']['backgroundColor']){
