@@ -42,7 +42,7 @@
 				;
 				if(classes.indexOf(className) == -1){
 					classes.push(className);
-					node.className = classes.join(' ');
+					node.className = classes.join(' ').replace(/^\s+|\s+$/,'');
 				}
 			}
 		},
