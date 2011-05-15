@@ -1,5 +1,3 @@
-
-
 /**
 * License and Terms of Use
 *
@@ -40,13 +38,17 @@
 	}
 
 	var	ui = function(options){
+		if(options == undefined){
+			return;
+		}
 		var
 			obj          = this,
 			options      = options || {},
 			container    = options['container'],
 			renderer     = options['renderer'],
 			gridConfig   = options['gridConfig'],
-			rendererNode = createElement('div')
+			rendererNode = createElement('div'),
+			sidebars     = createElement('ul')
 		;
 		if(container == undefined){
 			container = document['body'];
@@ -84,12 +86,17 @@
 		while(container['hasChildNodes']()){
 			container['removeChild'](container['firstChild']);
 		}
+		container['appendChild'](rendererNode);
+		container['appendChild'](sidebars);
+
+		mapapi['utils']['addClass'](container, 'mapapi-ui');
+		mapapi['utils']['addClass'](rendererNode, 'mapapi-ui-renderer');
+		mapapi['utils']['addClass'](sidebars, 'mapapi-ui-sidebars');
+
 		obj['renderer']     = renderer;
 		obj['rendererNode'] = rendererNode;
-		container['appendChild'](rendererNode);
-
-		container['setAttribute']('class', ((container['getAttribute']('class') || '') + ' mapapi-ui')['replace'](/^\ +/,''));
-		rendererNode['setAttribute']('class', 'mapapi-renderer-container');
+		obj['contentNode']  = container;
+		obj['sidebars']     = sidebars;
 
 		obj.loadCSS();
 	}
@@ -101,13 +108,14 @@
 	ui.prototype.loadCSS = function(){
 		var
 			obj     = this,
-			scripts = document.getElementsByTagName('script'),
-			links   = document.getElementsByTagName('link'),
 			head    = document.getElementsByTagName('head')[0],
+			scripts = head.getElementsByTagName('script'),
+			links   = head.getElementsByTagName('link'),
 			regexp  = /./,
 			uiregex = /mapapi\.ui\.js$/,
 			exregex = /^https?/,
-			styles = [],
+			styles  = [],
+			css     = [],
 			csspath,
 			csspathregex,
 			mapuijs,
@@ -128,9 +136,15 @@
 		if(mapuijs == undefined){
 			throw 'Could not find mapapi.js UI file';
 		}else{
+			for(var i=0;i<ui.prototype.css.length;++i){
+				css.push(ui.prototype.css[i]);
+			}
 			for(var i=0;i<obj['css']['length'];++i){
+				css.push(obj['css'][i]);
+			}
+			for(var i=0;i<css.length;++i){
 				cssfound     = false;
-				csspath      = obj['css'][i];
+				csspath      = css[i];
 				csspathregex = csspath.replace(/\./g,'\.').replace(/\//g,'\/');
 				if(exregex.test(csspath)){
 					regexp.compile('/^' + csspathregex + '$/');

@@ -1,0 +1,21 @@
+.mapapi-ui-sidebars {
+	z-index: 200 ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .zoomcontrol{
+	position: absolute ;
+	top: 37px;
+	right: 8px ;
+	width: 16px ;
+	height: 29px ;
+	z-index: 200 ;
+	vertical-align: top ;
+	line-height: 14.5px ;
+	background: #eee ;
+	text-align: center ;
+	font-size: 12px ;
+	text-indent: -4px ;
+	border-radius: 0 8px 8px 0;
+	box-shadow: 0px 2px 4px #000 ;
+	overflow: hidden ;
+	clip:rect(0,20px,33px,0);
+}
