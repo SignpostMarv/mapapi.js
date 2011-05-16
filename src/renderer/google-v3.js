@@ -135,7 +135,7 @@
 					return url;
 				},
 				'alt'        : label,
-				'name'       : tileSource['options']['label'],
+				'name'       : tileSource['options']['label']
 			});
 			mapTypes[label]['projection'] = new euclid(gridConf);
 			mapTypes[label]['getTileUrl'] = tileSource['getTileURL'];
