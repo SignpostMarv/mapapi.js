@@ -31,12 +31,6 @@
 		bounds        = mapapi['bounds']
 	;
 
-	function each(array, cb){
-		for(var i=0;i<array.length;++i){
-			cb(array[i],i);
-		}
-	}
-
 	var	ui = function(options){
 		if(options == undefined){
 			return;
