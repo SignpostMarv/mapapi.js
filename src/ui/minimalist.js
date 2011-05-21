@@ -24,6 +24,7 @@
 (function(window, undefined){
 	var
 		document      = window['document'],
+		navigator     = window['navigator'],
 		createElement = function(element){ return document['createElement'](element); },
 		createText    = function(text){ return document['createTextNode'](text); },
 		appendChild   = function(a,b){ return a['appendChild'](b); },
@@ -55,7 +56,7 @@
 		appendChild(zoomout, createText('–'));
 
 		function changeZoom(level){
-			if(renderer['smoothZoom']()){
+			if(renderer['smoothZoom']() && /MSIE ([0-9]{1,}[\.0-9]{0,})/.test(navigator['userAgent']) == !1){
 				renderer['animate']({
 					'zoom' : level
 				}, .5);
