@@ -64,7 +64,7 @@
 		}
 		obj.gridConfig = gridConf;
 		function regionsPerTileEdge(zoom){
-			return Math.pow(2, obj.convertZoom(zoom) - 1);
+			return Math.pow(2, obj.convertZoom(zoom));
 		}
 		function posZoomToxyZoom(pos, zoom){
 			var
@@ -72,7 +72,7 @@
 				result = {
 					'x' : pos['x'] * regions_per_tile_edge,
 					'y' : pos['y'] * regions_per_tile_edge,
-					'zoom' : obj.convertZoom(zoom) - 1
+					'zoom' : obj.convertZoom(zoom)
 				}
 			;
 
@@ -159,7 +159,7 @@
 	google3.prototype = new renderer;
 
 	google3.prototype.convertZoom = function(zoom){
-		return (this.gridConfig['maxZoom'] + 1) - zoom;
+		return (this.gridConfig['maxZoom'] + 1) - zoom - 1;
 	}
 
 	google3.prototype.gridPoint2GLatLng = function(pos){
@@ -197,7 +197,7 @@
 		if(zoom != undefined){
 			this.vendorContent['setZoom'](this.convertZoom(zoom));
 		}
-		return this.convertZoom(this.vendorContent['getZoom']()) - 1;
+		return this.convertZoom(this.vendorContent['getZoom']());
 	}
 	google3.prototype['focus'] = function(pos, zoom, a){
 		if(typeof pos == 'number'){
