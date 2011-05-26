@@ -1,51 +1,58 @@
 //Copyright (c) 2010 Nicholas C. Zakas. All rights reserved.
 //MIT License
+(function(window, undefined){
+	function EventTarget(){
+		this['_listeners'] = {};
+	}
 
-function EventTarget(){
-    this._listeners = {};
-}
+	EventTarget['prototype'] = {
 
-EventTarget.prototype = {
+		'constructor': EventTarget,
 
-    constructor: EventTarget,
+		'addListener': function(type, listener){
+			if (this['_listeners'][type] == undefined){
+				this['_listeners'][type] = [];
+			}
+			this['_listeners'][type].push(listener);
+		},
 
-    addListener: function(type, listener){
-        if (typeof this._listeners[type] == "undefined"){
-            this._listeners[type] = [];
-        }
+		'fire': function(event, args){
+			var
+				event = typeof event == 'string' ? {'type':event} : {'type':event['type']},
+				type = event['type'],
+				args = args || {}
+			;
+			for(var i in args){
+				event[i] = args[i];
+			}
+			event['target'] = this;
 
-        this._listeners[type].push(listener);
-    },
+			if (!type){
+				throw new 'Event object missing \'type\' property.';
+			}
 
-    fire: function(event){
-        if (typeof event == "string"){
-            event = { type: event };
-        }
-        if (!event.target){
-            event.target = this;
-        }
+			if (this['_listeners'][type] instanceof Array){
+				var
+					listeners = this['_listeners'][type]
+				;
+				for (var i=0; i < listeners.length; i++){
+					listeners[i].call(this, event);
+				}
+			}
+		},
 
-        if (!event.type){  //falsy
-            throw new Error("Event object missing 'type' property.");
-        }
+		'removeListener': function(type, listener){
+			if (this['_listeners'][type] instanceof Array){
+				var listeners = this['_listeners'][type];
+				for (var i=0, len=listeners.length; i < len; i++){
+					if (listeners[i] === listener){
+						listeners.splice(i, 1);
+						break;
+					}
+				}
+			}
+		}
+	};
 
-        if (this._listeners[event.type] instanceof Array){
-            var listeners = this._listeners[event.type];
-            for (var i=0, len=listeners.length; i < len; i++){
-                listeners[i].call(this, event);
-            }
-        }
-    },
-
-    removeListener: function(type, listener){
-        if (this._listeners[type] instanceof Array){
-            var listeners = this._listeners[type];
-            for (var i=0, len=listeners.length; i < len; i++){
-                if (listeners[i] === listener){
-                    listeners.splice(i, 1);
-                    break;
-                }
-            }
-        }
-    }
-};
+	window['EventTarget'] = EventTarget;
+})(window);
