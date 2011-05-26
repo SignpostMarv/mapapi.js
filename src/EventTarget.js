@@ -14,6 +14,7 @@
 				this['_listeners'][type] = [];
 			}
 			this['_listeners'][type].push(listener);
+			return listener;
 		},
 
 		'fire': function(event, args){
