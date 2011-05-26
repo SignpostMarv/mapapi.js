@@ -242,6 +242,7 @@
 		}
 		if(pos instanceof mapapi['gridPoint']){ // implementations should do something to update the renderer to the focal point
 			this['_focus'] = pos;
+			this['fire']('focus_changed', {'pos':pos, 'withinBounds' : this['bounds']()['isWithin'](pos)});
 		}
 		return this['_focus'];
 	}
@@ -254,7 +255,7 @@
 			cw2     = cWidth / 2.0,
 			cHeight = content['height'],
 			ch2     = cHeight / 2.0,
-			size    = obj.tileSize(),
+			size    = obj['tileSize'](),
 			distX   = (x - cw2) / size['width'],
 			distY   = ((cHeight - y) - ch2) / size['height'],
 			focus   = obj['focus']()//,
@@ -262,6 +263,27 @@
 			mapY    = focus['y'] + distY
 		;
 		return new gridPoint(mapX, mapY);
+	}
+
+	renderer.prototype['point2px'] = function(x, y){
+		if(x instanceof gridPoint){
+			y = x['y'];
+			x = x['x'];
+		}
+		var
+			content = this['contentNode'],
+			cWidth  = content['clientWidth'],
+			cw2     = cWidth / 2.0,
+			cHeight = content['clientHeight'],
+			ch2     = cHeight / 2.0,
+			size    = this['tileSize'](),
+			focus   = this['focus'](),
+			fx      = focus['x'],
+			fy      = focus['y'],
+			diffX   = (x - fx) * size['width'],
+			diffY   = (y - fy) * size['height']
+		;
+		return {'x':cw2 + diffX, 'y':ch2 - diffY};
 	}
 
 	renderer.prototype['dblclickZoom'] = function(flag){
@@ -403,6 +425,10 @@
 			tHeight = (obj['tileSource']['size']['height'] * zoom_a) / zoom_b
 		;
 		return new size(tWidth, tHeight);
+	}
+
+	renderer.prototype['infoWindow'] = function(opts){
+		return new mapapi['infoWindow'](opts);
 	}
 
 	mapapi['renderer'] = renderer;
