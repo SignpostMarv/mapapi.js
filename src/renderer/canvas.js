@@ -37,6 +37,7 @@
 		gridPoint  = mapapi['gridPoint'],
 		bounds     = mapapi['bounds'],
 		size       = mapapi['size'],
+		infoWindow = mapapi['infoWindow'],
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
 		reqAnimSp  = false
 	;
@@ -80,6 +81,18 @@
 
 		obj['contentNode']   = document.createElement('canvas');
 		obj.vendorContent = obj['contentNode']['getContext']('2d');
+		
+
+		obj['contentNode']['addEventListener']('click', function(e){
+			var
+				x     = e['clientX'],
+				y     = e['clientY'],
+				point = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop'])
+			;
+			obj['fire']('click', {
+				'pos' : point
+			});
+		}, false);
 
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-canvas');
 		mapapi['renderer'].call(obj, options);
@@ -399,4 +412,40 @@
 	}
 
 	mapapi['canvasRenderer'] = canvas;
+
+	if(!!infoWindow){
+		function canvasInfoWindow(opts){
+			infoWindow['call'](this, opts);
+		}
+
+		canvasInfoWindow.prototype = new infoWindow;
+		canvasInfoWindow.prototype['constructor'] = canvasInfoWindow;
+
+		canvasInfoWindow.prototype['open'] = function(ui){
+			infoWindow.prototype['open']['call'](this, ui);
+			var
+				obj      = this,
+				DOM      = obj['DOM'],
+				DOMp     = DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined,
+				renderer = ui['renderer'],
+				rcontent = renderer['contentNode'],
+				offset   = function(){
+					if(!!(DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined)){
+						var
+							csspos = ui['renderer']['point2px'](obj['position']());
+						;
+						DOM['style']['left'] = csspos['x'] + 'px';
+						DOM['style']['top']  = csspos['y'] - DOM['clientHeight'] + 'px';
+					}
+				}
+			;
+			offset();
+			ui['renderer']['addListener']('focus_changed', offset);
+		}
+
+		canvas.prototype['infoWindow'] = function(opts){
+			return new canvasInfoWindow(opts);
+		}
+	}
+
 })(window);
