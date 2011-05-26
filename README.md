@@ -12,3 +12,7 @@ WEB-1560 was a formal request for Linden Lab to apply an open source license to 
 ### Renderers
 * [Canvas](http://signpostmarv.github.com/mapapi.js/examples/renderer-canvas.html)
 * [Google v3](http://signpostmarv.github.com/mapapi.js/examples/renderer-google-v3.html)
+
+### UI
+* [minimalist UI](http://signpostmarv.github.com/mapapi.js/examples/ui.minimalist.html) (a work in progress port of the minimalist UI from mapapi.net)
+* [infoWindow interface](http://signpostmarv.github.com/mapapi.js/examples/infoWindow.html)
