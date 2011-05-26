@@ -9,6 +9,7 @@
 <script src="../build/mapapi.js"></script>
 <script src="../build/mapapi.gridConfigs.js"></script>
 -->
+<script src="../src/EventTarget.js"></script>
 <script src="../src/mapapi.js"></script>
 <script src="../src/mapapi.renderer.js"></script>
 <script src="../src/mapapi.tileSource.js"></script>
@@ -24,10 +25,13 @@ html, body{
 </style>
 <script>
 window.onload = function(){
-	var map = new mapapi.google3Renderer({
-		container  : document.body,
-		gridConfig : mapapi['gridConfigs']['com.secondlife.agni']
-	});
+	var
+		map = new mapapi.google3Renderer({
+			container  : document.body,
+			gridConfig : mapapi['gridConfigs']['com.secondlife.agni']
+		}),
+		mapapapi_js_renderer_tests = mapapapi_js_renderer_tests || false
+	;
 
 	map.scrollWheelZoom(true);
 	map.smoothZoom(true);
