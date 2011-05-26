@@ -183,6 +183,9 @@
 			obj.lastbounds = undefined;
 		}
 		obj.dirty = obj.dirty || obj['doAnimation']() || (obj.lastbounds == undefined || !obj.lastbounds['equals'](cbounds)) ;
+		if((obj.lastbounds == undefined || !obj.lastbounds['equals'](cbounds))){
+			obj['fire']('bounds_changed', {'bounds':cbounds});
+		}
 		obj.lastbounds = cbounds;
 		obj.lastsize   = new mapapi['size'](obj['contentNode']['clientWidth'], obj['contentNode']['clientHeight']);
 		if(obj.dirty){
@@ -441,6 +444,7 @@
 			;
 			offset();
 			ui['renderer']['addListener']('focus_changed', offset);
+			ui['renderer']['addListener']('bounds_changed', offset);
 		}
 
 		canvas.prototype['infoWindow'] = function(opts){
