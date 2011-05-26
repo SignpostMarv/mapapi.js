@@ -24,11 +24,16 @@
 (function(window, undefined){
 	window['mapapi'] = window['mapapi'] || {};
 	var
-		document  = window['document'],
-		mapapi    = window['mapapi'],
-		gridPoint = mapapi['gridPoint'],
-		bounds    = mapapi['bounds']
+		document    = window['document'],
+		EventTarget = window['EventTarget'],
+		mapapi      = window['mapapi'],
+		gridPoint   = mapapi['gridPoint'],
+		bounds      = mapapi['bounds'],
+		size       = mapapi['size']
 	;
+	if(EventTarget == undefined){
+		throw 'EventTarget not loaded';
+	}
 
 	function each(array, cb){
 		for(var i=0;i<array.length;++i){
@@ -36,17 +41,40 @@
 		}
 	}
 
+	function dblclick_handler(e){
+		var
+			obj   = this,
+			point = e['pos'],
+			zoom  = obj['zoom']() - 1
+		;
+		if(this['smoothZoom']()){
+			this['animate']({
+				'zoom'  : zoom,
+				'focus' : point
+			}, .5);
+		}else{
+			obj['zoom'](zoom);
+			obj['focus'](point);
+		}
+	}
+	function dragpan(e){
+		var
+			obj = this,
+			pos = e['to']
+		;
+		obj['focus'](pos);
+	}
+
 /**
 *	@constructor
 */
-	var renderer = function(options){
+	function renderer(options){
 		var
 			obj        = this
 		;
+		EventTarget['call'](this);		
 
-		each(['options'], function(value){
-			obj[value] = {};
-		});
+		obj['options'] = {};
 
 		var
 			options         = options || {},
@@ -60,6 +88,8 @@
 		opts['scrollWheelZoom'] = (options['scrollWheelZoom'] || 0);
 		opts['smoothZoom']      = (options['smoothZoom'] || 1);
 		opts['dblclickZoom']    = (options['dblclickZoom'] || 1);
+
+		obj['addListener']('drag', dragpan);
 
 		if(container){
 			if(!container['appendChild']){
@@ -79,7 +109,10 @@
 		this['_focus'] = new gridPoint(0,0);
 	}
 
-	renderer.prototype.minZoom = function(value){
+	renderer.prototype = new EventTarget();
+	renderer.prototype['constructor'] = renderer;
+
+	renderer.prototype['minZoom'] = function(value){
 		var
 			opts = this['options']
 		;
@@ -89,7 +122,7 @@
 		return opts['minZoom'];
 	};
 
-	renderer.prototype.maxZoom = function(value){
+	renderer.prototype['maxZoom'] = function(value){
 		var
 			opts = this['options']
 		;
@@ -99,7 +132,7 @@
 		return opts['maxZoom'];
 	}
 
-	renderer.prototype.zoom = function(value){
+	renderer.prototype['zoom'] = function(value){
 		var
 			obj  = this,
 			opts = obj['options']
@@ -110,7 +143,7 @@
 		return opts['zoom'];
 	}
 
-	renderer.prototype.panUnitUD = function(value){
+	renderer.prototype['panUnitUD'] = function(value){
 		var
 			opts = this['options']
 		;
@@ -120,7 +153,7 @@
 		return opts['panUnitUD'] * Math.pow(2, this['zoom']());
 	}
 
-	renderer.prototype.panUnitLR = function(value){
+	renderer.prototype['panUnitLR'] = function(value){
 		var
 			opts = this['options']
 		;
@@ -130,7 +163,7 @@
 		return opts['panUnitLR'] * Math.pow(2, this['zoom']());
 	}
 
-	renderer.prototype.panTo = function(pos, a){
+	renderer.prototype['panTo'] = function(pos, a){
 		if(typeof pos == 'number' && typeof a == 'number'){
 			pos = new gridPoint(pos, a);
 		}else if(typeof pos == 'object' && typeof pos['x'] == 'number' && typeof pos['y'] == 'number'){
@@ -147,27 +180,27 @@
 		}
 	}
 
-	renderer.prototype.panUp = function(){
+	renderer.prototype['panUp'] = function(){
 		var pos = this.focus();
 		this.panTo(pos['x'], pos['y'] + this.panUnitUD());
 	}
 
-	renderer.prototype.panDown = function(){
+	renderer.prototype['panDown'] = function(){
 		var pos = this.focus();
 		this.panTo(pos['x'], pos['y'] - this.panUnitUD());
 	}
 
-	renderer.prototype.panLeft = function(){
+	renderer.prototype['panLeft'] = function(){
 		var pos = this.focus();
 		this.panTo(pos['x'] - this.panUnitLR(), pos['y']);
 	}
 
-	renderer.prototype.panRight = function(){
+	renderer.prototype['panRight'] = function(){
 		var pos = this.focus();
 		this.panTo(pos['x'] + this.panUnitLR(), pos['y']);
 	}
 
-	renderer.prototype.scrollWheelZoom = function(flag){
+	renderer.prototype['scrollWheelZoom'] = function(flag){
 		var
 			opts = this['options']
 		;
@@ -177,7 +210,7 @@
 		return opts['scrollWheelZoom'];
 	}
 
-	renderer.prototype.smoothZoom = function(flag){
+	renderer.prototype['smoothZoom'] = function(flag){
 		var
 			obj  = this,
 			opts = obj['options']
@@ -188,7 +221,7 @@
 		return opts['smoothZoom'];
 	}
 
-	renderer.prototype.draggable = function(flag){
+	renderer.prototype['draggable'] = function(flag){
 		if(flag != undefined){
 			if(flag){ // do stuff to make the map renderer draggable
 				return true;
@@ -199,7 +232,7 @@
 		return flag; // should return from other property
 	}
 
-	renderer.prototype.focus = function(pos, zoom, a){ // should return an instance of mapapi.gridPoint
+	renderer.prototype['focus'] = function(pos, zoom, a){ // should return an instance of mapapi.gridPoint
 		if(typeof pos == 'number'){
 			pos = new mapapi['gridPoint'](pos, zoom);
 			zoom = this['zoom']();
@@ -213,7 +246,7 @@
 		return this['_focus'];
 	}
 
-	renderer.prototype.px2point = function(x, y){
+	renderer.prototype['px2point'] = function(x, y){
 		var
 			obj     = this,
 			content = obj['contentNode'],
@@ -231,18 +264,25 @@
 		return new gridPoint(mapX, mapY);
 	}
 
-	renderer.prototype.dblclickZoom = function(flag){
+	renderer.prototype['dblclickZoom'] = function(flag){
+		var
+			obj          = this,
+			opts         = obj['options']
+		;
 		if(flag != undefined){
-			if(flag){ // do stuff to enable smooth zoom
-				return true;
-			}else{ // do stuff to disable it
-				return false;
+			opts['dblclickZoom'] = !!flag;
+			if(obj['contentNode']){
+				if(!!flag){
+					obj['addListener']('dblclick', dblclick_handler);
+				}else{
+					obj['removeListener']('dblclick', dblclick_handler);
+				}
 			}
 		}
-		return flag; // should return from other property
+		return opts['dblclickZoom']; // should return from other property
 	}
 
-	renderer.prototype.animate = function(opts, time){
+	renderer.prototype['animate'] = function(opts, time){
 		if(opts == undefined || (opts != undefined && typeof time != 'number')){
 			return;
 		}
@@ -290,7 +330,7 @@
 			obj['animateOrder']   = animateOrder;
 		}
 	}
-	renderer.prototype.doAnimation = function(){
+	renderer.prototype['doAnimation'] = function(){
 		var
 			obj = this,
 			ao  = obj['animateOrder']
@@ -333,7 +373,7 @@
 		return false;
 	}
 
-	renderer.prototype.bounds = function(){
+	renderer.prototype['bounds'] = function(){
 		var
 			obj     = this,
 			content = obj['contentNode'],
@@ -353,25 +393,17 @@
 		return new bounds({'x': focus['x'] - wVhalf, 'y': focus['y'] - hVhalf},{'x': focus['x'] + wVhalf,  'y': focus['y'] + hVhalf});
 	}
 
+	renderer.prototype['tileSize'] = function(){
+		var
+			obj = this,
+			zoom    = obj['zoom'](),
+			zoom_a  = .5 + (.5 * (1 - (zoom % 1))),
+			zoom_b  = 1 << Math.floor(zoom),
+			tWidth  = (obj['tileSource']['size']['width'] * zoom_a) / zoom_b,
+			tHeight = (obj['tileSource']['size']['height'] * zoom_a) / zoom_b
+		;
+		return new size(tWidth, tHeight);
+	}
+
 	mapapi['renderer'] = renderer;
-	mapapi['renderer'].prototype['container']       = renderer.prototype.container;
-	mapapi['renderer'].prototype['minZoom']         = renderer.prototype.minZoom;
-	mapapi['renderer'].prototype['maxZoom']         = renderer.prototype.maxZoom;
-	mapapi['renderer'].prototype['zoom']            = renderer.prototype.zoom;
-	mapapi['renderer'].prototype['panUnitUD']       = renderer.prototype.panUnitUD;
-	mapapi['renderer'].prototype['panUnitLR']       = renderer.prototype.panUnitLR;
-	mapapi['renderer'].prototype['panTo']           = renderer.prototype.panTo;
-	mapapi['renderer'].prototype['panUp']           = renderer.prototype.panUp;
-	mapapi['renderer'].prototype['panDown']         = renderer.prototype.panDown;
-	mapapi['renderer'].prototype['panLeft']         = renderer.prototype.panLeft;
-	mapapi['renderer'].prototype['panRight']        = renderer.prototype.panRight;
-	mapapi['renderer'].prototype['scrollWheelZoom'] = renderer.prototype.scrollWheelZoom;
-	mapapi['renderer'].prototype['smoothZoom']      = renderer.prototype.smoothZoom;
-	mapapi['renderer'].prototype['draggable']       = renderer.prototype.draggable;
-	mapapi['renderer'].prototype['focus']           = renderer.prototype.focus;
-	mapapi['renderer'].prototype['px2point']        = renderer.prototype.px2point;
-	mapapi['renderer'].prototype['dblclickZoom']    = renderer.prototype.dblclickZoom;
-	mapapi['renderer'].prototype['animate']         = renderer.prototype.animate;
-	mapapi['renderer'].prototype['doAnimation']     = renderer.prototype.doAnimation;
-	mapapi['renderer'].prototype['bounds']          = renderer.prototype.bounds;
 })(window);

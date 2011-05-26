@@ -38,7 +38,7 @@
 		bounds     = mapapi['bounds'],
 		size       = mapapi['size'],
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
-		reqAnimSp  = false;
+		reqAnimSp  = false
 	;
 	for(var i=0;i<reqAnim.length;++i){
 		if(!!window[reqAnim[i]]){
@@ -49,7 +49,7 @@
 	}
 	reqAnim = reqAnimSp ? reqAnim : false;
 
-	var canvas = function(options){
+	function canvas(options){
 		var supported = document.createElement('canvas');
 		if(supported){
 			supported = (supported['getContext'] && supported['getContext']('2d'));
@@ -91,8 +91,6 @@
 
 		obj.tileSource = gridConf['tileSources']()[0];
 
-//		obj['contentNode'].addEventListener('mouseup', clickpan, false);
-
 		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
 		obj['smoothZoom'](obj['options']['smoothZoom']);
 		obj['dblclickZoom'](obj['options']['dblclickZoom']);
@@ -104,6 +102,7 @@
 	};
 
 	canvas.prototype = new renderer;
+	canvas.prototype['constructor'] = canvas;
 
 	canvas.prototype.imageQueued = function(x, y, zoom){
 		var
@@ -159,18 +158,6 @@
 			images[zi][x][y]['src'] = obj.tileSource['getTileURL'](new gridPoint(x, y), zi);
 		}
 		return images[zi][x][y];
-	}
-
-	canvas.prototype.tileSize = function(){
-		var
-			obj = this,
-			zoom    = obj['zoom'](),
-			zoom_a  = .5 + (.5 * (1 - (zoom % 1))),
-			zoom_b  = 1 << Math.floor(zoom),
-			tWidth  = (obj.tileSource['size']['width'] * zoom_a) / zoom_b,
-			tHeight = (obj.tileSource['size']['height'] * zoom_a) / zoom_b
-		;
-		return new size(tWidth, tHeight);
 	}
 
 	canvas.prototype.draw = function(fps){
@@ -359,10 +346,12 @@
 						point = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop']),
 						focus = obj['focus']()
 					;
-					obj['focus'](
-						focus['x'] - (point['x'] - dragstart_pos['x']),
-						focus['y'] - (point['y'] - dragstart_pos['y'])
-					);
+					obj['fire']('drag',{
+						'to': new gridPoint(
+							focus['x'] - (point['x'] - dragstart_pos['x']),
+							focus['y'] - (point['y'] - dragstart_pos['y'])
+						)
+					});
 				}
 			}
 		;
@@ -392,26 +381,21 @@
 					y     = e['clientY'],
 					point = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop'])
 				;
-				if(obj['smoothZoom']()){
-					obj['animate']({
-						'zoom'  : obj['zoom']() - 1,
-						'focus' : point
-					}, .5);
-				}else{
-					obj['zoom'](obj['zoom']() - 1);
-					obj['focus'](point);
-				}
+				obj['fire']('dblclick', {
+					'pos' : point
+				});
 			}
 		;
+		renderer.prototype['dblclickZoom'].call(obj, flag);
 		if(flag != undefined){
 			flag = !!flag;
-			opts['dblclickZoom'] = flag;
 			if(flag){
 				obj['contentNode']['addEventListener']('dblclick', dblclickzoom, false);
 			}else{
 				obj['contentNode']['removeEventListener']('dblclick', dblclickzoom, false);
 			}
 		}
+		return opts['dblclickZoom'];
 	}
 
 	mapapi['canvasRenderer'] = canvas;

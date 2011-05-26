@@ -42,7 +42,9 @@
 			this.gridConf = gc;
 			this.hscale   = 180.0 / this.gridConf['size']['width'];
 			this.vscale   = 90.0  / this.gridConf['size']['height'];
-		}
+		},
+		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
+		reqAnimSp  = false
 	;
 	euclid.prototype['fromLatLngToPoint'] = function(latlng, opt){
 		var point = opt || new gridPoint(0,0);
@@ -53,7 +55,17 @@
 	euclid.prototype['fromPointToLatLng'] = function(point){
 		return new GLatLng(point['y'] * this.hscale, point['x'] * this.hscale);
 	}
-	var google3 = function(options){
+
+	for(var i=0;i<reqAnim.length;++i){
+		if(!!window[reqAnim[i]]){
+			reqAnim = window[reqAnim[i]];
+			reqAnimSp = true;
+			break;
+		}
+	}
+	reqAnim = reqAnimSp ? reqAnim : false;
+
+	function google3(options){
 		var
 			obj      = this,
 			options  = options || {},
@@ -101,11 +113,12 @@
 		options['streetViewControl']  = options['streetViewControl']      || !1;
 		options['zoomControl']        = options['zoomControl']            || !1;
 
+		options['disableDoubleClickZoom'] = true;
+
 		obj.vendorContent = new google_maps['Map'](obj['contentNode'], options);
 
 		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
 		obj['smoothZoom'](obj['options']['smoothZoom']);
-		obj['dblclickZoom'](obj['options']['dblclickZoom']);
 
 		var
 			firstMapType = false,
@@ -153,10 +166,28 @@
 		if(firstMapType){
 			obj.vendorContent['setMapTypeId'](firstMapType);
 		}
+
+		obj.tileSource = gridConf['tileSources']()[0];
+
+		obj['dblclickZoom'](obj['options']['dblclickZoom']);
+		if(reqAnim){
+			function a(){
+				obj['doAnimation']();
+				reqAnim(a);
+			}
+			reqAnim(a);
+		}else{
+			function b(){
+				obj['doAnimation']();
+				setTimeout(b, 1000/15);
+			}
+			b();
+		}
 	}
 
 
 	google3.prototype = new renderer;
+	google3.prototype['constructor'] = google3;
 
 	google3.prototype.convertZoom = function(zoom){
 		return (this.gridConfig['maxZoom'] + 1) - zoom - 1;
@@ -242,14 +273,23 @@
 	google3.prototype['dblclickZoom'] = function(flag){
 		var
 			obj  = this,
-			opts = obj['options']
+			opts = obj['options'],
+			foo = function(e){
+				obj['fire']('dblclick', {
+					'pos' : obj.GLatLng2gridPoint(e.latLng)
+				});
+			}
 		;
+		renderer.prototype['dblclickZoom'].call(obj, flag);
 		if(flag != undefined){
 			flag = !!flag;
-			opts['dblclickZoom'] = flag;
-			obj.vendorContent['setOptions']({'disableDoubleClickZoom':!flag});
+			if(flag){
+				google_maps['event']['addListener'](obj['vendorContent'], 'dblclick', foo);
+			}else{
+				google_maps['event']['removeListener'](obj['vendorContent'], 'dblclick', foo);
+			}
 		}
-		return !obj.vendorContent['disableDoubleClickZoom'];
+		return opts['dblclickZoom'];
 	}
 
 	mapapi['google3Renderer'] = google3;
