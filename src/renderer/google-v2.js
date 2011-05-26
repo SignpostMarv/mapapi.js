@@ -139,6 +139,21 @@
 				obj['_focus'] = obj.GLatLng2gridPoint(obj.vendorContent['getCenter']());
 			}
 		);
+
+		obj['dblclickZoom'](obj['options']['dblclickZoom']);
+		if(reqAnim){
+			function a(){
+				obj['doAnimation']();
+				reqAnim(a);
+			}
+			reqAnim(a);
+		}else{
+			function b(){
+				obj['doAnimation']();
+				setTimeout(b, 1000/15);
+			}
+			b();
+		}
 	}
 
 	google2.prototype = new renderer;
