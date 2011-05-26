@@ -1,4 +1,4 @@
-/**
+﻿/**
 * License and Terms of Use
 *
 * Copyright (c) 2011 SignpostMarv
@@ -25,13 +25,16 @@
 	window['mapapi'] = window['mapapi'] || {};
 	var
 		document      = window['document'],
+		EventTarget   = window['EventTarget'],
 		createElement = function(a){ return document['createElement'](a); },
+		createText    = function(a){ return document['createTextNode'](a); },
 		mapapi        = window['mapapi'],
 		gridPoint     = mapapi['gridPoint'],
-		bounds        = mapapi['bounds']
+		bounds        = mapapi['bounds'],
+		addClass      = mapapi['utils'] ? mapapi['utils']['addClass'] : undefined
 	;
 
-	var	ui = function(options){
+	function ui(options){
 		if(options == undefined){
 			return;
 		}
@@ -83,9 +86,9 @@
 		container['appendChild'](rendererNode);
 		container['appendChild'](sidebars);
 
-		mapapi['utils']['addClass'](container, 'mapapi-ui');
-		mapapi['utils']['addClass'](rendererNode, 'mapapi-ui-renderer');
-		mapapi['utils']['addClass'](sidebars, 'mapapi-ui-sidebars');
+		addClass(container, 'mapapi-ui');
+		addClass(rendererNode, 'mapapi-ui-renderer');
+		addClass(sidebars, 'mapapi-ui-sidebars');
 
 		obj['renderer']     = renderer;
 		obj['rendererNode'] = rendererNode;
@@ -166,4 +169,191 @@
 	mapapi['ui'].prototype['css']     = ui.prototype.css;
 	mapapi['ui'].prototype['loadCSS'] = ui.prototype.loadCSS;
 
+	function infoWindow(options){
+		if(EventTarget == undefined){
+			throw 'EventTarget not loaded';
+		}
+		var
+			obj       = this,
+			opts      = {},
+			options   = options || {},
+			content   = options['content'],
+			autoFocus = options['autoFocus'] == undefined ? true : !!options['autoFocus'],
+			maxWidth  = Math.max(80, options['maxWidth'] || 0),
+			position  = options['position'],
+			zIndex    = options['zIndex'] || 0
+		;
+
+		EventTarget['call'](this); 
+
+		obj['opts'] = opts;
+
+		obj['content'](content);
+		obj['position'](position);
+		obj['maxWidth'](maxWidth);
+		obj['zIndex'](zIndex);
+
+		obj['autoFocus'] = autoFocus;
+
+		obj['DOM'] = undefined;
+
+		obj['addListener']('content_changed', function(){
+			obj['DOM'] = obj['content2DOM']();
+		});
+		if(content != undefined){
+			obj['fire']('content_changed');
+		}
+	};
+
+	infoWindow.prototype = new EventTarget();
+	infoWindow.prototype['constructor'] = infoWindow;
+
+	infoWindow.prototype['close'] = function(){
+		if(this['DOM'] != undefined && this['DOM']['parentNode'] != undefined){
+			this['DOM']['parentNode']['removeChild'](this['DOM']);
+		}
+		if(this['ui'] && this['ui']['renderer'] && this['_focus_changed'] != undefined){
+			this['ui']['renderer']['removeListener'](this['_focus_changed']);
+		}
+	}
+
+	infoWindow.prototype['open'] = function(ui){
+		if(!ui){
+			return;
+		}
+		var
+			obj     = this,
+			DOM     = obj['DOM'],
+			DOMp    = DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined,
+			dest    = ui['contentNode']
+		;
+		if((ui instanceof mapapi['ui']) == false){
+			throw 'ui argument is not an instance of mapapi.ui';
+		}
+		obj['ui'] = ui;
+		if(DOM != undefined && DOMp != undefined && DOMp == dest){
+			return;
+		}
+		if(DOM != undefined){
+			if(!!obj['opts']['autoFocus']){
+				ui['renderer']['focus'](obj['position']);
+			}
+			obj['_focus_changed'] = ui['renderer']['addListener']('focus_changed', function(){
+				if(obj['ui']['renderer']['bounds']()['isWithin'](obj['position']())){
+					obj['show']();
+				}else{
+					obj['hide']();
+				}
+			});
+			dest['appendChild'](DOM);
+		}
+	}
+
+	infoWindow.prototype['content'] = function(content){
+		var
+			opts     = this['opts']
+		;
+		if(content != undefined){
+			if(typeof content != 'string' && !content['getElementById']){
+				throw 'Contents are invalid';
+			}
+			opts['content'] = content;
+			this['fire']('content_changed');
+		}
+		return opts['content'];
+	}
+
+	infoWindow.prototype['position'] = function(position){
+		var
+			opts = this['opts']
+		;
+		if(position != undefined){
+			if((position instanceof gridPoint) == false && typeof position['x'] == 'number' &&  typeof position['y'] == 'number'){
+				position = new gridPoint(position['x'], position['y']);
+			}
+			if((position instanceof gridPoint) == false){
+				throw 'No position specified';
+			}
+			opts['position'] = position;
+			this['fire']('position_changed');
+		}
+		return opts['position'];
+	}
+
+	infoWindow.prototype['maxWidth'] = function(maxWidth){
+		var
+			opts = this['opts']
+		;
+		if(maxWidth != undefined){
+			if(typeof maxWidth != 'number'){
+				throw 'max width should be a number';
+			}
+			opts['maxWidth'] = Math.max(80, maxWidth || 0);
+		}
+	}
+
+	infoWindow.prototype['zIndex'] = function(zIndex){
+		var
+			opts = this['opts']
+		;
+		if(zIndex != undefined){
+			if(typeof zIndex != 'number'){
+				throw 'zIndex should be number';
+			}
+			opts['zIndex'] = zIndex;
+			this['fire']('zIndex_changed');
+		}
+		return opts['zIndex'];
+	}
+
+	infoWindow.prototype['content2DOM'] = function(){
+		var
+			obj     = this,
+			content = obj['content'](),
+			content = content == undefined ? '' : content,
+			DOM     = createElement('div'),
+			close   = createElement('p')
+		;
+		addClass(DOM, 'mapapi-ui-infowindow');
+		addClass(close, 'mapapi-ui-infowindow-close');
+		close['appendChild'](createText('×'));
+		close['setAttribute']('title', 'Close');
+		if(typeof content == 'string'){
+			var
+				paragraphs,
+				paragraph
+			;
+			if(/\n/.test(content)){
+				paragraphs = content.split("\n");
+			}else{
+				paragraphs = [content];
+			}
+			for(var i=0;i<paragraphs.length;++i){
+				paragraph = createElement('p');
+				paragraph.appendChild(createText(paragraphs[i]));
+				DOM.appendChild(paragraph);
+			}
+		}else if(!!content['appendChild']){
+			DOM.appendChild(content);
+		}
+		DOM.appendChild(close);
+		close['onclick'] = function(){
+			obj['close']();
+		}
+		return DOM;
+	}
+
+	infoWindow.prototype['hide'] = function(){
+		if(this['DOM'] && this['DOM']['parentNode']){
+			this['DOM']['style']['visibility'] = 'hidden';
+		}
+	}
+
+	infoWindow.prototype['show'] = function(){
+		if(this['DOM'] && this['DOM']['parentNode']){
+			this['DOM']['style']['visibility'] = 'visible';
+		}
+	}
+
+	mapapi['infoWindow'] = infoWindow;
 })(window);
