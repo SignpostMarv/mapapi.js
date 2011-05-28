@@ -69,6 +69,16 @@
 					throw 'North-East point should be an instance of mapapi.gridPoint';
 				}
 			}
+			if(sw['x'] > ne['x']){
+				var foo = sw['x'];
+				sw['x'] = ne['x'];
+				ne['x'] = foo;
+			}
+			if(sw['y'] > ne['y']){
+				var foo = sw['y'];
+				sw['y'] = ne['y'];
+				ne['y'] = foo;
+			}
 			this['sw'] = sw;
 			this['ne'] = ne;
 		}
