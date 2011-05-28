@@ -117,6 +117,23 @@
 
 		obj.vendorContent = new google_maps['Map'](obj['contentNode'], options);
 
+		google_maps['event']['addListener'](obj.vendorContent, 'click', function(e){
+			obj['fire']('click', {'pos': obj['GLatLng2gridPoint'](e['latLng'])});
+		});
+		google_maps['event']['addListener'](obj.vendorContent, 'bounds_changed', function(){
+			obj['fire']('bounds_changed', {'bounds': obj['bounds']()});
+		});
+		google_maps['event']['addListener'](obj.vendorContent, 'center_changed', function(){
+			var
+				pos    = obj['focus'](),
+				bounds = obj['bounds']()
+			;
+			if(bounds == undefined){
+				return;
+			}
+			obj['fire']('focus_changed', {'pos':pos, 'withinBounds' : bounds['isWithin'](pos)});
+		});
+
 		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
 		obj['smoothZoom'](obj['options']['smoothZoom']);
 
@@ -203,7 +220,7 @@
 		return new GLatLng(0 - lat, lng);
 	}
 
-	google3.prototype.GLatLng2gridPoint = function(pos){
+	google3.prototype['GLatLng2gridPoint'] = function(pos){
 		var
 			size   = this.gridConfig['size'],
 			hscale = 180.0 / size['height']
@@ -227,6 +244,7 @@
 		}
 		if(zoom != undefined){
 			this.vendorContent['setZoom'](this.convertZoom(zoom));
+			this['fire']('bounds_changed', {'bounds': this['bounds']()});
 		}
 		return this.convertZoom(this.vendorContent['getZoom']());
 	}
@@ -292,5 +310,15 @@
 		return opts['dblclickZoom'];
 	}
 
+	google3.prototype['bounds'] = function(){
+		var
+			obj    = this,
+			bounds = obj['vendorContent']['getBounds']()
+		;
+		if(bounds == undefined){
+			return undefined;
+		}
+		return new mapapi['bounds'](obj['GLatLng2gridPoint'](bounds['getSouthWest']()), obj['GLatLng2gridPoint'](bounds['getNorthEast']()));
+	}
 	mapapi['google3Renderer'] = google3;
 })(window);
