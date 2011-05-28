@@ -197,6 +197,11 @@
 
 		obj['DOM'] = undefined;
 
+		obj['rendererEvents'] = {
+			'focus_changed'  : [],
+			'bounds_changed' : []
+		};
+
 		obj['addListener']('content_changed', function(){
 			obj['DOM'] = obj['content2DOM']();
 		});
@@ -209,11 +214,22 @@
 	infoWindow.prototype['constructor'] = infoWindow;
 
 	infoWindow.prototype['close'] = function(){
-		if(this['DOM'] != undefined && this['DOM']['parentNode'] != undefined){
-			this['DOM']['parentNode']['removeChild'](this['DOM']);
+		var
+			obj    = this,
+			DOM    = obj['DOM'],
+			DOMp   = (DOM != undefined) ? DOM['parentNode'] : undefined,
+			ui     = obj['ui'],
+			events = obj['rendererEvents']
+		;
+		if(DOM != undefined && DOMp != undefined){
+			DOMp['removeChild'](DOM);
 		}
-		if(this['ui'] && this['ui']['renderer'] && this['_focus_changed'] != undefined){
-			this['ui']['renderer']['removeListener'](this['_focus_changed']);
+		if(ui && ui['renderer']){
+			for(var type in events){
+				for(var i=0;i<events[type].length;++i){
+					ui['renderer']['removeListener'](type, events[i]);
+				}
+			}
 		}
 	}
 
@@ -238,14 +254,31 @@
 			if(!!obj['opts']['autoFocus']){
 				ui['renderer']['focus'](obj['position']);
 			}
-			obj['_focus_changed'] = ui['renderer']['addListener']('focus_changed', function(){
+			obj['rendererEvents']['focus_changed'].push(ui['renderer']['addListener']('focus_changed', function(){
 				if(obj['ui']['renderer']['bounds']()['isWithin'](obj['position']())){
 					obj['show']();
 				}else{
 					obj['hide']();
 				}
-			});
+			}));
 			dest['appendChild'](DOM);
+			var
+				obj      = this,
+				renderer = ui['renderer'],
+				rcontent = renderer['contentNode'],
+				offset   = function(){
+					if(!!(DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined)){
+						var
+							csspos = ui['renderer']['point2px'](obj['position']());
+						;
+						DOM['style']['left'] = csspos['x'] + 'px';
+						DOM['style']['top']  = csspos['y'] - DOM['clientHeight'] + 'px';
+					}
+				}
+			;
+			offset();
+			obj['rendererEvents']['focus_changed'].push('focus_changed', ui['renderer']['addListener']('focus_changed', offset));
+			obj['rendererEvents']['bounds_changed'].push('bounds_changed', ui['renderer']['addListener']('bounds_changed', offset));
 		}
 	}
 
