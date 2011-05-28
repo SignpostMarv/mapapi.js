@@ -37,7 +37,6 @@
 		gridPoint  = mapapi['gridPoint'],
 		bounds     = mapapi['bounds'],
 		size       = mapapi['size'],
-		infoWindow = mapapi['infoWindow'],
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
 		reqAnimSp  = false
 	;
@@ -415,41 +414,4 @@
 	}
 
 	mapapi['canvasRenderer'] = canvas;
-
-	if(!!infoWindow){
-		function canvasInfoWindow(opts){
-			infoWindow['call'](this, opts);
-		}
-
-		canvasInfoWindow.prototype = new infoWindow;
-		canvasInfoWindow.prototype['constructor'] = canvasInfoWindow;
-
-		canvasInfoWindow.prototype['open'] = function(ui){
-			infoWindow.prototype['open']['call'](this, ui);
-			var
-				obj      = this,
-				DOM      = obj['DOM'],
-				DOMp     = DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined,
-				renderer = ui['renderer'],
-				rcontent = renderer['contentNode'],
-				offset   = function(){
-					if(!!(DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined)){
-						var
-							csspos = ui['renderer']['point2px'](obj['position']());
-						;
-						DOM['style']['left'] = csspos['x'] + 'px';
-						DOM['style']['top']  = csspos['y'] - DOM['clientHeight'] + 'px';
-					}
-				}
-			;
-			offset();
-			ui['renderer']['addListener']('focus_changed', offset);
-			ui['renderer']['addListener']('bounds_changed', offset);
-		}
-
-		canvas.prototype['infoWindow'] = function(opts){
-			return new canvasInfoWindow(opts);
-		}
-	}
-
 })(window);
