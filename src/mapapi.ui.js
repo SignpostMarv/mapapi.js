@@ -98,11 +98,11 @@
 		obj.loadCSS();
 	}
 
-	ui.prototype.css = [
+	ui.prototype['css'] = [
 		'reset.css',
 		'ui.css'
 	];
-	ui.prototype.loadCSS = function(){
+	ui.prototype['loadCSS'] = function(){
 		var
 			obj     = this,
 			head    = document.getElementsByTagName('head')[0],
@@ -166,8 +166,6 @@
 	}
 
 	mapapi['ui'] = ui;
-	mapapi['ui'].prototype['css']     = ui.prototype.css;
-	mapapi['ui'].prototype['loadCSS'] = ui.prototype.loadCSS;
 
 	function uiItem(){
 		if(EventTarget == undefined){
@@ -265,6 +263,10 @@
 		return DOM;
 	}
 
+	uiItem.prototype['csspos'] = function(){
+		return ui['renderer']['point2px'](this['position']());
+	}
+
 	uiItem.prototype['open'] = function(ui){
 		if(ui == undefined){
 			throw 'UI was not supplied';
@@ -304,7 +306,7 @@
 							style['top'] = 0;
 						}
 						var
-							csspos      = ui['renderer']['point2px'](obj['position']()),
+							csspos      = obj['csspos'](),
 							height      = DOM['clientHeight'],
 							width       = DOM['clientWidth'],
 							top         = csspos['y'] - height,
@@ -331,7 +333,7 @@
 				}
 			;
 			offset();
-			obj['rendererEvents']['focus_changed'].push('focus_changed', ui['renderer']['addListener']('focus_changed', offset));
+			obj['rendererEvents']['focus_changed' ].push('focus_changed' , ui['renderer']['addListener']('focus_changed' , offset));
 			obj['rendererEvents']['bounds_changed'].push('bounds_changed', ui['renderer']['addListener']('bounds_changed', offset));
 		}
 	}
@@ -439,4 +441,7 @@
 	}
 
 	mapapi['infoWindow'] = infoWindow;
+	ui.prototype['infoWindow'] = function(options){
+		return new infoWindow(options);
+	}
 })(window);

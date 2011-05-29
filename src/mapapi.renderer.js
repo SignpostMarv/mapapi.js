@@ -427,9 +427,5 @@
 		return new size(tWidth, tHeight);
 	}
 
-	renderer.prototype['infoWindow'] = function(opts){
-		return new mapapi['infoWindow'](opts);
-	}
-
 	mapapi['renderer'] = renderer;
 })(window);

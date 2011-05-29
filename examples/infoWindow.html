@@ -31,7 +31,7 @@ window.onload = function(){
 	map.smoothZoom(true);
 	map.draggable(true);
 	map.focus(1000,1000,0);
-	var infoWindow = map.infoWindow({
+	var infoWindow = mapui.infoWindow({
 		'content'  : 'oh hai!',
 		'position' : new mapapi.gridPoint(1000, 1000)
 	});
