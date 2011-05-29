@@ -26,6 +26,7 @@
 	var
 		document      = window['document'],
 		EventTarget   = window['EventTarget'],
+		Image         = window['Image'],
 		createElement = function(a){ return document['createElement'](a); },
 		createText    = function(a){ return document['createTextNode'](a); },
 		mapapi        = window['mapapi'],
@@ -176,7 +177,7 @@
 		;
 		EventTarget['call'](obj);
 
-		obj['opts'] = {};
+		obj['opts'] = {'open':false};
 
 		obj['rendererEvents'] = {
 			'focus_changed'  : [],
@@ -186,6 +187,9 @@
 		obj['DOM'] = undefined;
 		obj['addListener']('content_changed', function(){
 			obj['DOM'] = obj['content2DOM']();
+			if(obj['opts']['open'] == true){
+				obj['open'](obj['ui']);
+			}
 		});
 	}
 
@@ -226,7 +230,7 @@
 			opts     = this['opts']
 		;
 		if(content != undefined){
-			if(typeof content != 'string' && !content['getElementById']){
+			if(typeof content != 'string' && !content['appendChild'] && !(content instanceof Image)){
 				throw 'Contents are invalid';
 			}
 			opts['content'] = content;
@@ -254,7 +258,7 @@
 				paragraph.appendChild(createText(paragraphs[i]));
 				DOM.appendChild(paragraph);
 			}
-		}else if(content['appendChild'] != undefined){
+		}else if(content['appendChild'] != undefined || content instanceof Image){
 			DOM.appendChild(content);
 		}
 
@@ -264,7 +268,7 @@
 	}
 
 	uiItem.prototype['csspos'] = function(){
-		return ui['renderer']['point2px'](this['position']());
+		return this['ui']['renderer']['point2px'](this['position']());
 	}
 
 	uiItem.prototype['open'] = function(ui){
@@ -309,7 +313,7 @@
 							csspos      = obj['csspos'](),
 							height      = DOM['clientHeight'],
 							width       = DOM['clientWidth'],
-							top         = csspos['y'] - height,
+							top         = csspos['y'],
 							left        = csspos['x'],
 							contentNode = ui['renderer']['contentNode'],
 							vertical    = height > 0 && top >= 0  && (top + height) <= contentNode['clientHeight'],
@@ -335,7 +339,9 @@
 			offset();
 			obj['rendererEvents']['focus_changed' ].push('focus_changed' , ui['renderer']['addListener']('focus_changed' , offset));
 			obj['rendererEvents']['bounds_changed'].push('bounds_changed', ui['renderer']['addListener']('bounds_changed', offset));
+			obj['fire']('opened');
 		}
+		obj['opts']['open'] = true;
 	}
 
 	uiItem.prototype['close'] = function(){
@@ -356,9 +362,12 @@
 				}
 			}
 		}
+		obj['fire']('closed');
+		obj['opts']['open'] = false;
 	}
 
 	function infoWindow(options){
+		uiItem['call'](this);
 		var
 			obj       = this,
 			opts      = {},
@@ -369,8 +378,6 @@
 			position  = options['position'],
 			zIndex    = options['zIndex'] || 0
 		;
-
-		uiItem['call'](this); 
 
 		obj['opts'] = opts;
 
@@ -390,6 +397,12 @@
 
 	infoWindow.prototype = new uiItem();
 	infoWindow.prototype['constructor'] = infoWindow;
+
+	infoWindow.prototype['csspos'] = function(){
+		var pos = uiItem.prototype['csspos']['call'](this);
+		pos['y'] -= (this['DOM'] != undefined && this['DOM']['clientHeight'] != undefined) ? this['DOM']['clientHeight'] : 0;
+		return pos;
+	}
 
 	infoWindow.prototype['maxWidth'] = function(maxWidth){
 		var
@@ -444,4 +457,100 @@
 	ui.prototype['infoWindow'] = function(options){
 		return new infoWindow(options);
 	}
+
+	function marker(options){
+		uiItem['call'](this);
+		if(Image == undefined){
+			throw 'Your browser does not support the image object';
+		}
+		var
+			obj      = this,
+			opts     = obj['opts'],
+			options  = options || {},
+			image    = options['image'],
+			anchor   = options['anchor'],
+			position = options['position'],
+			infoW    = options['infoWindow'],
+			img      = new Image
+		;
+		if(image == undefined){
+			throw 'No marker image specified';
+		}else if(position == undefined){
+			throw 'No position specified';
+		}else if((position instanceof gridPoint) == false){
+			throw 'Invalid position specified';
+		}
+		obj['position'](position);
+		if(anchor != undefined){
+			obj['anchor'](anchor);
+		}
+		obj['position'](position);
+		img['onload'] = function(){
+			if(anchor == undefined){
+				obj['anchor']({'x':img['width'] / 2, 'y' : img['height']});
+			}
+			obj['content'](img);
+		}
+		img['onerror'] = function(){
+			throw 'Could not load image';
+		}
+		img['src'] = image;
+		obj['img'] = img;
+		if(infoW instanceof infoWindow){
+			infoW['position'](obj['position']());
+			obj['addListener']('click', function(){
+				obj['hide']();
+				infoW['open'](obj['ui']);
+			});
+			infoW['addListener']('closed', function(){
+				obj['show']();
+			});
+		}
+	}
+
+	marker.prototype = new uiItem;
+	marker.prototype['constructor'] = marker;
+
+	marker.prototype['anchor'] = function(anchor){
+		if(anchor != undefined){
+			if(typeof anchor['x'] != 'number' || typeof anchor['y'] != 'number'){
+				throw 'x and y anchor points must be numbers';
+			}
+			this['opts']['anchor'] = {'x':anchor['x'], 'y':anchor['y']};
+		}
+		return this['opts']['anchor'];
+	}
+
+	marker.prototype['csspos'] = function(){
+		var
+			pos    = uiItem.prototype['csspos']['call'](this),
+			anchor = this['anchor']()
+		;
+		if(anchor == undefined){
+			throw 'No anchor point found';
+		}else{
+			pos['x'] -= anchor['x'],
+			pos['y'] -= anchor['y']
+		}
+		return pos;
+	}
+
+	marker.prototype['content2DOM'] = function(){
+		var
+			obj     = this,
+			content = obj['content'](),
+			DOM     = createElement('img')
+		;
+		if(!(content instanceof Image) && content['nodeName']['toLowerCase']() != 'img'){
+			throw 'Invalid contents, must be an instance of Image or an img tag';
+		}
+		DOM['setAttribute']('src', content['src']);
+		addClass(DOM, 'mapapi-ui-marker');
+		DOM['onclick'] = function(){
+			obj['fire']('click');
+		}
+		return DOM;
+	}
+
+	mapapi['marker'] = marker;
 })(window);

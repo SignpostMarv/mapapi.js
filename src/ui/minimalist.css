@@ -43,6 +43,13 @@
 	clip:rect(0,20px,33px,0);
 }
 
+.mapapi-ui-minimalist img.mapapi-ui-marker{
+	display: block ;
+	position: absolute ;
+	top: 0 ;
+	left: 0 ;
+}
+
 .mapapi-ui-minimalist .mapapi-ui-infowindow{
 	display: block ;
 	position: absolute ;
