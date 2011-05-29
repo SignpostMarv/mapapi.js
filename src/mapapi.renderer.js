@@ -407,8 +407,8 @@
 			cHeight = content['height'],
 			tWidth  = (obj.tileSource['size']['width'] * zoom_a) / zoom_b,
 			tHeight = (obj.tileSource['size']['height'] * zoom_a) / zoom_b,
-			wView   = Math.ceil(cWidth / tWidth) + 1,
-			hView   = Math.ceil(cHeight / tHeight) + 1,
+			wView   = Math.ceil(cWidth / tWidth),
+			hView   = Math.ceil(cHeight / tHeight),
 			wVhalf  = Math.ceil(wView / 2.0),
 			hVhalf  = Math.ceil(hView / 2.0)
 		;

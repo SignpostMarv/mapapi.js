@@ -35,8 +35,9 @@ window.onload = function(){
 		'content'  : 'oh hai!',
 		'position' : new mapapi.gridPoint(1000, 1000)
 	});
-	map.addListener('click', function(e){
+	var foo = map.addListener('click', function(e){
 		infoWindow.open(mapui);
+		map.removeListener('click', foo);
 	});
 };
 </script>

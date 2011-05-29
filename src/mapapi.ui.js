@@ -169,51 +169,174 @@
 	mapapi['ui'].prototype['css']     = ui.prototype.css;
 	mapapi['ui'].prototype['loadCSS'] = ui.prototype.loadCSS;
 
-	function infoWindow(options){
+	function uiItem(){
 		if(EventTarget == undefined){
 			throw 'EventTarget not loaded';
 		}
 		var
-			obj       = this,
-			opts      = {},
-			options   = options || {},
-			content   = options['content'],
-			autoFocus = options['autoFocus'] == undefined ? true : !!options['autoFocus'],
-			maxWidth  = Math.max(80, options['maxWidth'] || 0),
-			position  = options['position'],
-			zIndex    = options['zIndex'] || 0
+			obj = this
 		;
+		EventTarget['call'](obj);
 
-		EventTarget['call'](this); 
-
-		obj['opts'] = opts;
-
-		obj['content'](content);
-		obj['position'](position);
-		obj['maxWidth'](maxWidth);
-		obj['zIndex'](zIndex);
-
-		obj['autoFocus'] = autoFocus;
-
-		obj['DOM'] = undefined;
+		obj['opts'] = {};
 
 		obj['rendererEvents'] = {
 			'focus_changed'  : [],
 			'bounds_changed' : []
 		};
 
+		obj['DOM'] = undefined;
 		obj['addListener']('content_changed', function(){
 			obj['DOM'] = obj['content2DOM']();
 		});
-		if(content != undefined){
-			obj['fire']('content_changed');
+	}
+
+	uiItem.prototype = new EventTarget;
+	uiItem.prototype['constructor'] = uiItem;
+
+	uiItem.prototype['position'] = function(position){
+		var
+			opts = this['opts']
+		;
+		if(position != undefined){
+			if((position instanceof gridPoint) == false && typeof position['x'] == 'number' &&  typeof position['y'] == 'number'){
+				position = new gridPoint(position['x'], position['y']);
+			}
+			if((position instanceof gridPoint) == false){
+				throw 'No position specified';
+			}
+			opts['position'] = position;
+			this['fire']('position_changed');
 		}
-	};
+		return opts['position'];
+	}
 
-	infoWindow.prototype = new EventTarget();
-	infoWindow.prototype['constructor'] = infoWindow;
+	uiItem.prototype['hide'] = function(){
+		if(this['DOM'] && this['DOM']['parentNode']){
+			this['DOM']['style']['display'] = 'none';
+		}
+	}
 
-	infoWindow.prototype['close'] = function(){
+	uiItem.prototype['show'] = function(){
+		if(this['DOM'] && this['DOM']['parentNode']){
+			this['DOM']['style']['display'] = 'block';
+		}
+	}
+
+	uiItem.prototype['content'] = function(content){
+		var
+			opts     = this['opts']
+		;
+		if(content != undefined){
+			if(typeof content != 'string' && !content['getElementById']){
+				throw 'Contents are invalid';
+			}
+			opts['content'] = content;
+			this['fire']('content_changed');
+		}
+		return opts['content'];
+	}
+
+	uiItem.prototype['content2DOM'] = function(){
+		var
+			obj = this,
+			content = obj['content'](),
+			content = content == undefined ? '' : content,
+			DOM     = createElement('div')
+		;
+
+		if(typeof content == 'string'){
+			var
+				paragraphs,
+				paragraph
+			;
+			paragraphs = /\n/.test(content) ? content.split("\n") : [content];
+			for(var i=0;i<paragraphs.length;++i){
+				paragraph = createElement('p');
+				paragraph.appendChild(createText(paragraphs[i]));
+				DOM.appendChild(paragraph);
+			}
+		}else if(content['appendChild'] != undefined){
+			DOM.appendChild(content);
+		}
+
+		addClass(DOM, 'mapapi-ui-item-contents');
+
+		return DOM;
+	}
+
+	uiItem.prototype['open'] = function(ui){
+		if(ui == undefined){
+			throw 'UI was not supplied';
+		}else if((ui instanceof mapapi['ui']) == false){
+			throw 'ui argument is not an instance of mapapi.ui';
+		}else if(this['DOM'] != undefined && this['DOM']['parentNode'] != undefined && this['DOM']['parentNode'] == ui['contentNode']){
+			throw 'Already open';
+		}else if(this['ui'] != undefined && this['ui'] != ui){
+			throw 'Already open on another UI instance';
+		}
+		this['ui'] = ui;
+		var
+			obj     = this,
+			DOM     = obj['DOM'],
+			DOMp    = DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined,
+			dest    = ui['contentNode']
+		;
+		if(DOM != undefined){
+			if(!!obj['opts']['autoFocus']){
+				ui['renderer']['focus'](obj['position']);
+			}
+			dest['appendChild'](DOM);
+			var
+				renderer = ui['renderer'],
+				rcontent = renderer['contentNode'],
+				offset   = function(){
+					if(!!(DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined)){
+						var
+							style     = DOM['style'],
+							wasHidden = (style['display'] == 'none'),
+							zIndex    = style['zIndex']
+						;
+						if(wasHidden){
+							style['zIndex'] = '-1';
+							style['display'] = 'block';
+							style['left'] = 0;
+							style['top'] = 0;
+						}
+						var
+							csspos      = ui['renderer']['point2px'](obj['position']()),
+							height      = DOM['clientHeight'],
+							width       = DOM['clientWidth'],
+							top         = csspos['y'] - height,
+							left        = csspos['x'],
+							contentNode = ui['renderer']['contentNode'],
+							vertical    = height > 0 && top >= 0  && (top + height) <= contentNode['clientHeight'],
+							horizontal  = width > 0  && left >= 0 && (left + DOM['clientWidth']) <= contentNode['clientWidth']
+						;
+						if((vertical && horizontal) || (height == 0 && obj['ui']['renderer']['bounds']()['isWithin'](obj['position']()))){
+							style['top']  = top + 'px';
+							style['left'] = left + 'px';
+							obj['show']()
+						}else{
+							obj['hide']();
+						}
+						if(wasHidden){
+							if(zIndex == undefined){
+								delete style['zIndex'];
+							}else{
+								style['zIndex'] = zIndex;
+							}
+						}
+					}
+				}
+			;
+			offset();
+			obj['rendererEvents']['focus_changed'].push('focus_changed', ui['renderer']['addListener']('focus_changed', offset));
+			obj['rendererEvents']['bounds_changed'].push('bounds_changed', ui['renderer']['addListener']('bounds_changed', offset));
+		}
+	}
+
+	uiItem.prototype['close'] = function(){
 		var
 			obj    = this,
 			DOM    = obj['DOM'],
@@ -233,85 +356,38 @@
 		}
 	}
 
-	infoWindow.prototype['open'] = function(ui){
-		if(!ui){
-			return;
-		}
+	function infoWindow(options){
 		var
-			obj     = this,
-			DOM     = obj['DOM'],
-			DOMp    = DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined,
-			dest    = ui['contentNode']
+			obj       = this,
+			opts      = {},
+			options   = options || {},
+			content   = options['content'],
+			autoFocus = options['autoFocus'] == undefined ? true : !!options['autoFocus'],
+			maxWidth  = Math.max(80, options['maxWidth'] || 0),
+			position  = options['position'],
+			zIndex    = options['zIndex'] || 0
 		;
-		if((ui instanceof mapapi['ui']) == false){
-			throw 'ui argument is not an instance of mapapi.ui';
-		}
-		obj['ui'] = ui;
-		if(DOM != undefined && DOMp != undefined && DOMp == dest){
-			return;
-		}
-		if(DOM != undefined){
-			if(!!obj['opts']['autoFocus']){
-				ui['renderer']['focus'](obj['position']);
-			}
-			obj['rendererEvents']['focus_changed'].push(ui['renderer']['addListener']('focus_changed', function(){
-				if(obj['ui']['renderer']['bounds']()['isWithin'](obj['position']())){
-					obj['show']();
-				}else{
-					obj['hide']();
-				}
-			}));
-			dest['appendChild'](DOM);
-			var
-				obj      = this,
-				renderer = ui['renderer'],
-				rcontent = renderer['contentNode'],
-				offset   = function(){
-					if(!!(DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined)){
-						var
-							csspos = ui['renderer']['point2px'](obj['position']());
-						;
-						DOM['style']['left'] = csspos['x'] + 'px';
-						DOM['style']['top']  = csspos['y'] - DOM['clientHeight'] + 'px';
-					}
-				}
-			;
-			offset();
-			obj['rendererEvents']['focus_changed'].push('focus_changed', ui['renderer']['addListener']('focus_changed', offset));
-			obj['rendererEvents']['bounds_changed'].push('bounds_changed', ui['renderer']['addListener']('bounds_changed', offset));
-		}
-	}
 
-	infoWindow.prototype['content'] = function(content){
-		var
-			opts     = this['opts']
-		;
+		uiItem['call'](this); 
+
+		obj['opts'] = opts;
+
+		obj['content'](content);
+		obj['position'](position);
+		obj['maxWidth'](maxWidth);
+		obj['zIndex'](zIndex);
+
+		obj['autoFocus'] = autoFocus;
+
+		obj['DOM'] = undefined;
+
 		if(content != undefined){
-			if(typeof content != 'string' && !content['getElementById']){
-				throw 'Contents are invalid';
-			}
-			opts['content'] = content;
-			this['fire']('content_changed');
+			obj['fire']('content_changed');
 		}
-		return opts['content'];
-	}
+	};
 
-	infoWindow.prototype['position'] = function(position){
-		var
-			opts = this['opts']
-		;
-		if(position != undefined){
-			if((position instanceof gridPoint) == false && typeof position['x'] == 'number' &&  typeof position['y'] == 'number'){
-				position = new gridPoint(position['x'], position['y']);
-			}
-			if((position instanceof gridPoint) == false){
-				throw 'No position specified';
-			}
-			opts['position'] = position;
-			this['fire']('position_changed');
-		}
-		return opts['position'];
-	}
+	infoWindow.prototype = new uiItem();
+	infoWindow.prototype['constructor'] = infoWindow;
 
 	infoWindow.prototype['maxWidth'] = function(maxWidth){
 		var
@@ -323,6 +399,7 @@
 			}
 			opts['maxWidth'] = Math.max(80, maxWidth || 0);
 		}
+		return opts['maxWidth'];
 	}
 
 	infoWindow.prototype['zIndex'] = function(zIndex){
@@ -342,8 +419,7 @@
 	infoWindow.prototype['content2DOM'] = function(){
 		var
 			obj     = this,
-			content = obj['content'](),
-			content = content == undefined ? '' : content,
+			content = uiItem.prototype['content2DOM']['call'](obj),
 			DOM     = createElement('div'),
 			close   = createElement('p')
 		;
@@ -351,41 +427,15 @@
 		addClass(close, 'mapapi-ui-infowindow-close');
 		close['appendChild'](createText('×'));
 		close['setAttribute']('title', 'Close');
-		if(typeof content == 'string'){
-			var
-				paragraphs,
-				paragraph
-			;
-			if(/\n/.test(content)){
-				paragraphs = content.split("\n");
-			}else{
-				paragraphs = [content];
-			}
-			for(var i=0;i<paragraphs.length;++i){
-				paragraph = createElement('p');
-				paragraph.appendChild(createText(paragraphs[i]));
-				DOM.appendChild(paragraph);
-			}
-		}else if(!!content['appendChild']){
-			DOM.appendChild(content);
-		}
+		DOM.appendChild(content);
 		DOM.appendChild(close);
+		if(obj['maxWidth']() != undefined){
+			DOM['style']['maxWidth'] = obj['maxWidth']();
+		}
 		close['onclick'] = function(){
 			obj['close']();
 		}
 		return DOM;
-	}
-
-	infoWindow.prototype['hide'] = function(){
-		if(this['DOM'] && this['DOM']['parentNode']){
-			this['DOM']['style']['visibility'] = 'hidden';
-		}
-	}
-
-	infoWindow.prototype['show'] = function(){
-		if(this['DOM'] && this['DOM']['parentNode']){
-			this['DOM']['style']['visibility'] = 'visible';
-		}
 	}
 
 	mapapi['infoWindow'] = infoWindow;
