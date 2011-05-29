@@ -18,21 +18,51 @@
 html, .mapapi-ui{
 	height: 100% ;
 }
+.mapapi-ui-minimalist .marker-shadows-numbered-marker p.mapapi-ui-marker-number{
+	width: 32px ;
+	height: 32px ;
+	line-height: 30px ;
+}
 </style>
 <script>
 window.onload = function(){
+	function numberedMarker(options){
+		options = options || {};
+		options.image  = '../src/ui/marker-shadows.png',
+		options.anchor = {'x':16, 'y': 64}
+		mapapi.numberedMarker.call(this, options);
+	}
+	numberedMarker.prototype = new mapapi.numberedMarker;
+	numberedMarker.prototype.constructor = numberedMarker;
+	numberedMarker.prototype.DOMclasses.push('marker-shadows-numbered-marker');
+
 	var
 		mapui = new mapapi.minimalistUI({
 			gridConfig : mapapi.gridConfigs['com.secondlife.agni']
 		}),
 		map   = mapui.renderer,
-		marker = new mapapi.marker({
+		marker1 = new mapapi.marker({
 			'image'      : '../src/ui/marker-shadows.png',
 			'anchor'     : {'x':16, 'y': 64},
 			'position'   : new mapapi.gridPoint(1000, 1000),
 			'infoWindow' : new mapapi.infoWindow({
 				'content' : 'Marker Infowindow'
 			})
+		}),
+		marker2 = new mapapi.marker({
+			'image'      : '../src/ui/marker-shadows.png',
+			'anchor'     : {'x':16, 'y': 64},
+			'position'   : new mapapi.gridPoint(900, 1000),
+			'infoWindow' : new mapapi.infoWindow({
+				'content' : 'Marker Infowindow'
+			})
+		}),
+		numbered = new numberedMarker({
+			'position'   : new mapapi.gridPoint(999, 1000),
+			'infoWindow' : new mapapi.infoWindow({
+				'content' : 'Marker Infowindow'
+			}),
+			'numbered'   : 8
 		})
 	;
 	map.scrollWheelZoom(true);
@@ -40,7 +70,11 @@ window.onload = function(){
 	map.draggable(true);
 	map.focus(1000,1000,0);
 
-	marker.open(mapui);
+	mapui.addMarker(marker1);
+	mapui.addMarker(marker2);
+	mapui.addMarker(numbered);
+
+	mapui.markerManager.open(mapui);
 };
 </script>
 </head>

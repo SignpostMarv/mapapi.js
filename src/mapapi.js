@@ -22,9 +22,12 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	var
+		Array = window['Array']
+	;
 
-	if(!window['Array'].prototype['indexOf']){
-		window['Array'].prototype['indexOf'] = function(value){
+	if(!Array.prototype['indexOf']){
+		Array.prototype['indexOf'] = function(value){
 			for(var i=0;i<this.length;++i){
 				if(this[i] == value){
 					return i;
@@ -43,6 +46,16 @@
 				if(classes.indexOf(className) == -1){
 					classes.push(className);
 					node.className = classes.join(' ').replace(/^\s+|\s+$/,'');
+				}
+			},
+			'delClass' : function(node, className){
+				var
+					classes = (node['className'] || '')['split'](' '),
+					pos     = classes['indexOf'](className)
+				;
+				if(pos >= 0){
+					classes['splice'](pos, 1);
+					node['className'] = classes['join'](' ')['replace'](/^\s+|\s+$/,'');
 				}
 			}
 		},

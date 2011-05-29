@@ -32,8 +32,14 @@
 		mapapi        = window['mapapi'],
 		gridPoint     = mapapi['gridPoint'],
 		bounds        = mapapi['bounds'],
-		addClass      = mapapi['utils'] ? mapapi['utils']['addClass'] : undefined
+		addClass      = mapapi['utils'] ? mapapi['utils']['addClass'] : undefined,
+		delClass      = mapapi['utils'] ? mapapi['utils']['delClass'] : undefined
 	;
+
+	function extend(a,b){
+		a.prototype = new b;
+		a.prototype['constructor'] = a;
+	}
 
 	function ui(options){
 		if(options == undefined){
@@ -45,9 +51,15 @@
 			container    = options['container'],
 			renderer     = options['renderer'],
 			gridConfig   = options['gridConfig'],
+			markerMngr   = options['markerManager'],
 			rendererNode = createElement('div'),
 			sidebars     = createElement('ul')
 		;
+		if(markerMngr == undefined){
+			markerMngr = new markerManager;
+		}else if(!(markerMngr instanceof markerManager)){
+			throw 'marker manager must be an instance of mapapi.markerManager';
+		}
 		if(container == undefined){
 			container = document['body'];
 		}
@@ -91,10 +103,11 @@
 		addClass(rendererNode, 'mapapi-ui-renderer');
 		addClass(sidebars, 'mapapi-ui-sidebars');
 
-		obj['renderer']     = renderer;
-		obj['rendererNode'] = rendererNode;
-		obj['contentNode']  = container;
-		obj['sidebars']     = sidebars;
+		obj['renderer']      = renderer;
+		obj['rendererNode']  = rendererNode;
+		obj['contentNode']   = container;
+		obj['sidebars']      = sidebars;
+		obj['markerManager'] = markerMngr;
 
 		obj.loadCSS();
 	}
@@ -173,7 +186,8 @@
 			throw 'EventTarget not loaded';
 		}
 		var
-			obj = this
+			obj        = this,
+			DOMclasses = obj['DOMclasses']
 		;
 		EventTarget['call'](obj);
 
@@ -187,14 +201,19 @@
 		obj['DOM'] = undefined;
 		obj['addListener']('content_changed', function(){
 			obj['DOM'] = obj['content2DOM']();
+			for(var i=0;i<DOMclasses['length'];++i){
+				addClass(obj['DOM'], DOMclasses[i]);
+			}
 			if(obj['opts']['open'] == true){
 				obj['open'](obj['ui']);
 			}
 		});
 	}
+	extend(uiItem, EventTarget);
 
-	uiItem.prototype = new EventTarget;
-	uiItem.prototype['constructor'] = uiItem;
+	uiItem.prototype['DOMclasses'] = [
+		'mapapi-ui-item'
+	];
 
 	uiItem.prototype['position'] = function(position){
 		var
@@ -394,9 +413,7 @@
 			obj['fire']('content_changed');
 		}
 	};
-
-	infoWindow.prototype = new uiItem();
-	infoWindow.prototype['constructor'] = infoWindow;
+	extend(infoWindow, uiItem);
 
 	infoWindow.prototype['csspos'] = function(){
 		var pos = uiItem.prototype['csspos']['call'](this);
@@ -438,7 +455,6 @@
 			DOM     = createElement('div'),
 			close   = createElement('p')
 		;
-		addClass(DOM, 'mapapi-ui-infowindow');
 		addClass(close, 'mapapi-ui-infowindow-close');
 		close['appendChild'](createText('×'));
 		close['setAttribute']('title', 'Close');
@@ -453,6 +469,10 @@
 		return DOM;
 	}
 
+	infoWindow.prototype['DOMclasses'] = [
+		'mapapi-ui-infowindow'
+	];
+
 	mapapi['infoWindow'] = infoWindow;
 	ui.prototype['infoWindow'] = function(options){
 		return new infoWindow(options);
@@ -460,6 +480,9 @@
 
 	function marker(options){
 		uiItem['call'](this);
+		if(options == undefined){
+			return;
+		}
 		if(Image == undefined){
 			throw 'Your browser does not support the image object';
 		}
@@ -507,9 +530,7 @@
 			});
 		}
 	}
-
-	marker.prototype = new uiItem;
-	marker.prototype['constructor'] = marker;
+	extend(marker, uiItem);
 
 	marker.prototype['anchor'] = function(anchor){
 		if(anchor != undefined){
@@ -545,12 +566,119 @@
 			throw 'Invalid contents, must be an instance of Image or an img tag';
 		}
 		DOM['setAttribute']('src', content['src']);
-		addClass(DOM, 'mapapi-ui-marker');
 		DOM['onclick'] = function(){
 			obj['fire']('click');
 		}
 		return DOM;
 	}
 
+	marker.prototype['DOMclasses'] = [
+		'mapapi-ui-marker'
+	];
+
 	mapapi['marker'] = marker;
+
+	function markerManager(){
+		EventTarget['call'](this);
+		this['markers'] = [];
+	}
+	extend(markerManager, EventTarget);
+
+	markerManager.prototype['add'] = function(one){
+		if(one == undefined){
+			throw 'No marker specified';
+		}else if(one instanceof marker){
+			if(this['markers']['indexOf'](one) == -1){
+				this['markers']['push'](one);
+			}
+		}else{
+			throw 'value is not a marker';
+		}
+	}
+
+	markerManager.prototype['remove'] = function(one){
+		if(one != undefined){
+			var
+				pos = this['markers']['indexOf'](one)
+			;
+			if(pos >= 0){
+				this['markers'][i]['close']();
+				this['markers']['splice'](pos, 1);
+			}
+		}
+	}
+
+	markerManager.prototype['open'] = function(on){
+		if(!(on instanceof ui)){
+			throw 'value must be an instance of mapapi.ui';
+		}
+		for(var i=0;i<this['markers']['length'];++i){
+			this['markers'][i]['open'](on);
+		}
+		this['fire']('opened');
+	}
+
+	markerManager.prototype['close'] = function(){
+		for(var i=0;i<this['markers']['length'];++i){
+			this['markers'][i]['close']();
+		}
+		this['fire']('closed');
+	}
+
+	mapapi['markerManager'] = markerManager;
+	ui.prototype['addMarker'] = function(one){
+		if(one instanceof marker){
+			this['markerManager']['add'](one);
+		}else{
+			throw 'value must be instance of mapapi.marker';
+		}
+	}
+
+	function numberedMarker(options){
+		marker['call'](this, options);
+
+		if(options != undefined){
+			this['opts']['number'] = options['number'] || 0;
+		}
+	}
+	extend(numberedMarker, marker);
+
+	numberedMarker.prototype['number'] = function(number){
+		if(typeof number == 'number'){
+			this['opts']['number'] = number;
+			this['fire']('content_changed');
+		}
+		return this['opts']['number'];
+	}
+
+	numberedMarker.prototype['content2DOM'] = function(){
+		var
+			content = marker.prototype['content2DOM']['call'](this),
+			img     = this['img'],
+			DOM     = createElement('div'),
+			number  = createElement('p'),
+			value   = parseInt(this['opts']['number'])
+		;
+		number['appendChild'](createText(value));
+		number['setAttribute']('title', value);
+
+		delClass(content, 'mapapi-ui-marker');
+		addClass(content, 'mapapi-ui-marker-img');
+
+		DOM['style']['width']  = img['width'] + 'px';
+		DOM['style']['height'] = img['height'] + 'px';
+
+		addClass(number, 'mapapi-ui-marker-number');
+
+		DOM['appendChild'](content);
+		DOM['appendChild'](number);
+
+		return DOM;
+	}
+	numberedMarker.prototype['DOMclasses'] = [
+		'mapapi-ui-marker',
+		'mapapi-ui-marker-numbered'
+	];
+
+	mapapi['numberedMarker'] = numberedMarker;
 })(window);
