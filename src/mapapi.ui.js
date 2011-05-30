@@ -191,7 +191,9 @@
 		;
 		EventTarget['call'](obj);
 
-		obj['opts'] = {'open':false};
+		obj['opts'] = {
+			'open' : false
+		};
 
 		obj['rendererEvents'] = {
 			'focus_changed'  : [],
@@ -341,7 +343,11 @@
 						if((vertical && horizontal) || (height == 0 && obj['ui']['renderer']['bounds']()['isWithin'](obj['position']()))){
 							style['top']  = top + 'px';
 							style['left'] = left + 'px';
-							obj['show']()
+							if(obj['opts']['disableAutoShow'] != true){
+								obj['show']()
+							}else{
+								obj['hide']();
+							}
 						}else{
 							obj['hide']();
 						}
@@ -522,10 +528,12 @@
 		if(infoW instanceof infoWindow){
 			infoW['position'](obj['position']());
 			obj['addListener']('click', function(){
+				obj['opts']['disableAutoShow'] = true;
 				obj['hide']();
 				infoW['open'](obj['ui']);
 			});
 			infoW['addListener']('closed', function(){
+				obj['opts']['disableAutoShow'] = false;
 				obj['show']();
 			});
 		}
