@@ -101,8 +101,8 @@
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-google-v3');
 		mapapi['renderer'].call(obj, options);
 
-		if(obj.gridConfig['tileSources']()[0]['options']['backgroundColor']){
-			options['backgroundColor'] = obj.gridConfig['tileSources']()[0]['options']['backgroundColor'];
+		if(obj.gridConfig['tileSources'][0]['options']['backgroundColor']){
+			options['backgroundColor'] = obj.gridConfig['tileSources'][0]['options']['backgroundColor'];
 		}
 		options['scrollwheel']        = obj['options']['scrollWheelZoom'] || !0;
 		options['mapTypeControl']     = options['mapTypeControl']         || !1;
@@ -145,9 +145,9 @@
 			hw     = size['width'] / 2.0,
 			hh     = size['height'] / 2.0
 		;
-		for(var i=0;i<obj.gridConfig['tileSources']()['length'];++i){
+		for(var i=0;i<obj.gridConfig['tileSources']['length'];++i){
 			var
-				tileSource = obj.gridConfig['tileSources']()[i],
+				tileSource = obj.gridConfig['tileSources'][i],
 				label      = tileSource['options']['label']
 			;
 			mapTypeIds.push(label);
@@ -184,7 +184,7 @@
 			obj.vendorContent['setMapTypeId'](firstMapType);
 		}
 
-		obj.tileSource = gridConf['tileSources']()[0];
+		obj.tileSource = gridConf['tileSources'][0];
 
 		obj['dblclickZoom'](obj['options']['dblclickZoom']);
 		if(reqAnim){
