@@ -25,19 +25,45 @@ window.onload = function(){
 		mapui = new mapapi.minimalistUI({
 			gridConfig : mapapi.gridConfigs['com.secondlife.agni']
 		}),
-		map   = mapui.renderer
+		map   = mapui.renderer,
+		infoWindows = {}
 	;
 	map.scrollWheelZoom(true);
 	map.smoothZoom(true);
 	map.draggable(true);
 	map.focus(1000,1000,0);
-	var infoWindow = mapui.infoWindow({
-		'content'  : 'oh hai!',
-		'position' : new mapapi.gridPoint(1000, 1000)
-	});
-	var foo = map.addListener('click', function(e){
-		infoWindow.open(mapui);
-		map.removeListener('click', foo);
+	map.addListener('click', function(e){
+		var
+			x = Math.floor(e.pos['x']),
+			y = Math.floor(e.pos['y'])
+		;
+		map.gridConfig.pos2region(e.pos, function(result){
+			var
+				infoWindow = mapui.infoWindow({
+					content  : result.region,
+					position : e.pos
+				})
+			;
+			if(infoWindows[x] != undefined && infoWindows[x][y] != undefined){
+				infoWindows[x][y].close();
+			}
+			infoWindows[x] = infoWindows[x] || {};
+			infoWindows[x][y] = infoWindow;
+			infoWindow.open(mapui);
+		}, function(errorMsg){
+			var
+				infoWindow = mapui.infoWindow({
+					content  : errorMsg,
+					position : e.pos
+				})
+			;
+			if(infoWindows[x] != undefined && infoWindows[x][y] != undefined){
+				infoWindows[x][y].close();
+			}
+			infoWindows[x] = infoWindows[x] || {};
+			infoWindows[x][y] = infoWindow;
+			infoWindow.open(mapui);
+		});
 	});
 };
 </script>

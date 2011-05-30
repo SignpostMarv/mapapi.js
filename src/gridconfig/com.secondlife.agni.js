@@ -65,17 +65,72 @@
 		);
 	}
 
-	var agni = new gridConfig({
-		'namespace'    : 'com.secondlife.agni',
-		'vendor'       : 'Linden Lab',
-		'name'         : 'Second Life',
-		'label'        : 'Agni',
-		'size'         : new size(1048576, 1048576),
-		'_tileSources' : [
-			SecondLifeTileSource
-		],
-		'maxZoom'      : 7
-	});
+	var
+		pos2region_pool = 0,
+		getapivarparts  = 'abcdefghij',
+		getapivar       = function(){
+			var
+				num = ++pos2region_pool,
+				result = ''
+			;
+			while(num > 0){
+				result += getapivarparts[num % 10]
+				num = Math.floor(num / 10);
+			}
+			return result;
+		},
+		agni            = new gridConfig({
+			'namespace'   : 'com.secondlife.agni',
+			'vendor'      : 'Linden Lab',
+			'name'        : 'Second Life',
+			'label'       : 'Agni',
+			'size'        : new size(1048576, 1048576),
+			'tileSources' : [
+				SecondLifeTileSource
+			],
+			'maxZoom'     : 7,
+			'pos2region'  : function(pos, success, fail){
+				if(!(pos instanceof mapapi['gridPoint'])){
+					throw 'Position should be an instance of mapapi.gridPoint';
+				}
+				var
+					cachecheck = agni['apiCacheCheck']('pos2region', Math.floor(pos['x']), Math.floor(pos['y']));
+				;
+				if(cachecheck != undefined){
+					success({'pos':pos, 'region': cachecheck});
+					return;
+				}
+				var
+					script = document['createElement']('script'),
+					_var   = 'com_secondlife_agni_posToRegion_' + getapivar()
+				;
+				function done(){
+					if(window[_var] == undefined){
+						fail('slurl.com API failed to load script variable');
+					}else if(window[_var]['error'] != undefined){
+						fail('slurl.com API call failed, perhaps your arguments were invalid');
+					}else{
+						success({'pos':pos, 'region': window[_var] + ''});
+						agni['APIcache']['pos2region'][Math.floor(pos['x'])]           = agni['APIcache']['pos2region'][Math.floor(pos['x'])] || {};
+						agni['APIcache']['pos2region'][Math.floor(pos['x'])][Math.floor(pos['y'])] = window[_var] + '';
+						script['parentNode']['removeChild'](script);
+					}				
+				}
+				script['onload'] = done;
+				script['onreadystatechange'] = function(){
+					if(script['readyState'] == 'complete' || script['readyState'] == 'loaded'){
+						done();
+					}
+				}
+				script['onerror'] = function(){
+					fail('Error with script loading the slurl.com API');
+				}
+				script['setAttribute']('src', 'http://slurl.com/get-region-name-by-coords?' + ['var=' + escape(_var), 'grid_x=' + escape(Math.floor(pos['x'])), 'grid_y=' + escape(Math.floor(pos['y']))].join('&'));
+				document['getElementsByTagName']('head')[0]['appendChild'](script);
+			}
+		})
+	;
+	getapivarparts = getapivarparts.split('');
 
 	mapapi['gridConfigs']['com.secondlife.agni'] = agni;
 })(window);

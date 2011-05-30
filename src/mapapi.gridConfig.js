@@ -28,27 +28,54 @@
 		mapapi       = window['mapapi']
 	;
 
-	var
-		gridConfig = function(options){
-			var
-				obj     = this,
-				options = options || {}
-			;
-			obj['namespace']    = options['namespace'];
-			obj['vendor']       = options['vendor'];
-			obj['name']         = options['name'];
-			obj['label']        = options['label'];
-			obj['maxZoom']      = options['maxZoom'];
-			obj['size']         = options['size'] || new mapapi['size'](options['gridWidth'] || 1048576, options['gridHeight'] || 1048576);
-			obj['_tileSources'] = options['_tileSources'] || [];
-		}
-	;
+	function gridConfig(options){
+		var
+			obj     = this,
+			options = options || {}
+		;
+		obj['namespace']    = options['namespace'];
+		obj['vendor']       = options['vendor'];
+		obj['name']         = options['name'];
+		obj['label']        = options['label'];
+		obj['maxZoom']      = options['maxZoom'];
+		obj['size']         = options['size'] || new mapapi['size'](options['gridWidth'] || 1048576, options['gridHeight'] || 1048576);
+		obj['tileSources']  = options['tileSources'] || [];
 
-	gridConfig.prototype.tileSources = function(){
-		return this['_tileSources'];
+		obj['API']          = {};
+		obj['APIcache']     = {};
+		if(options['pos2region'] != undefined){
+			obj['API']['pos2region'] = options['pos2region'];
+			obj['APIcache']['pos2region'] = {};
+		}
+	}
+
+	gridConfig.prototype['pos2region'] = function(pos, success, fail){
+		if(this['API']['pos2region'] == undefined){
+			throw 'This grid config has no pos2region API';
+		}else if(!(pos instanceof mapapi['gridPoint'])){
+			throw 'Position should be an instance of mapapi.gridPoint';
+		}
+		this['API']['pos2region'](pos, success, fail);
+	}
+
+	gridConfig.prototype['apiCacheCheck'] = function(call){
+		var
+			dest = this['APIcache'][call],
+			i = 1
+		;
+		if(dest != undefined && arguments.length >= 2){
+			for(i=1;i<arguments.length;++i){
+				dest = dest[arguments[i]];
+				if(dest == undefined){
+					break;
+				}
+			}
+			if(i == arguments.length && dest != undefined){
+				return dest;
+			}
+		}
+		return undefined;
 	}
 
 	mapapi['gridConfig'] = gridConfig;
-	mapapi['gridConfig'].prototype['tileSources'] = gridConfig.prototype.tileSources;
-
 })(window);

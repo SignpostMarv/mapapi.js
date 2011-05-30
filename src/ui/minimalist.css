@@ -59,6 +59,7 @@
 	box-shadow: 0px 2px 4px #000 ;
 	padding: .25em 1.25em .5em .5em ;
 	background: #eee ;
+	max-width: 50% ;
 }
 
 .mapapi-ui-minimalist .mapapi-ui-infowindow .mapapi-ui-infowindow-close{
