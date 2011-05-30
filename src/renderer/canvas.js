@@ -62,7 +62,7 @@
 			options    = options || {},
 			gridConf = options['gridConfig'],
 			clickpan = function(e){
-				if(obj.dragging == false){
+				if(obj['dragging'] == false){
 					clearTimeout(obj.mousedown_timer);
 					var
 						x     = e['clientX'],
@@ -88,9 +88,11 @@
 				y     = e['clientY'],
 				point = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop'])
 			;
-			obj['fire']('click', {
-				'pos' : point
-			});
+			if(obj['dragging'] != true){
+				obj['fire']('click', {
+					'pos' : point
+				});
+			}
 		}, false);
 
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-canvas');
@@ -101,7 +103,7 @@
 
 		obj.grid_images = {};
 
-		obj.tileSource = gridConf['tileSources']()[0];
+		obj.tileSource = gridConf['tileSources'][0];
 
 		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
 		obj['smoothZoom'](obj['options']['smoothZoom']);
@@ -344,17 +346,19 @@
 				;
 				dragstart_pos = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop']);
 				clearTimeout(obj.mousedown_timer);
-				obj.dragging = false;
+				obj['dragging'] = false;
 				obj.mousedown_timer = setTimeout(function(){
-					obj.dragging = true;
+					obj['dragging'] = true;
 				}, 100);
 			},
 			mouseup_handler   = function(){
 				clearTimeout(obj.mousedown_timer);
-				obj.dragging = false;
+				obj.mousedown_timer = setTimeout(function(){
+					obj['dragging'] = false;
+				}, 100);
 			},
 			mousemove_handler = function(e){
-				if(obj.dragging){
+				if(obj['dragging']){
 					var
 						x     = e['clientX'],
 						y     = e['clientY'],
