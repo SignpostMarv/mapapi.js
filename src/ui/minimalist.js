@@ -30,6 +30,7 @@
 		appendChild   = function(a,b){ return a['appendChild'](b); },
 		mapapi        = window['mapapi'],
 		mapapiui      = (mapapi != undefined) ? mapapi['ui'] : undefined,
+		infoWindow    = mapapi['infoWindow'],
 		addClass      = (mapapi != undefined) ? mapapi['utils']['addClass'] : undefined
 	;
 	if(mapapi == undefined){
@@ -85,4 +86,24 @@
 	];
 
 	mapapi['minimalistUI'] = minimalistUI;
+
+
+	function minimalistUIinfoWindow(options){
+		infoWindow['call'](this, options);
+	}
+
+	minimalistUIinfoWindow.prototype = new infoWindow;
+	minimalistUIinfoWindow.prototype['constructor'] = minimalistUIinfoWindow;
+
+	minimalistUIinfoWindow.prototype['csspos'] = function(){
+		var
+			pos = infoWindow.prototype['csspos']['call'](this);
+		;
+		pos['x'] -= 16;
+		return pos;
+	}
+
+	minimalistUI.prototype['infoWindow'] = function(options){
+		return new minimalistUIinfoWindow(options);
+	}
 })(window);

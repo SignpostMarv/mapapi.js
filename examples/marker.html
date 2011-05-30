@@ -45,22 +45,22 @@ window.onload = function(){
 			'image'      : '../src/ui/marker-shadows.png',
 			'anchor'     : {'x':16, 'y': 64},
 			'position'   : new mapapi.gridPoint(1000, 1000),
-			'infoWindow' : new mapapi.infoWindow({
-				'content' : 'Marker Infowindow'
+			'infoWindow' : mapui.infoWindow({
+				'content' : 'Marker 1'
 			})
 		}),
 		marker2 = new mapapi.marker({
 			'image'      : '../src/ui/marker-shadows.png',
 			'anchor'     : {'x':16, 'y': 64},
 			'position'   : new mapapi.gridPoint(900, 1000),
-			'infoWindow' : new mapapi.infoWindow({
-				'content' : 'Marker Infowindow'
+			'infoWindow' : mapui.infoWindow({
+				'content' : 'Marker 2'
 			})
 		}),
 		numbered = new numberedMarker({
 			'position'   : new mapapi.gridPoint(999, 1000),
-			'infoWindow' : new mapapi.infoWindow({
-				'content' : 'Marker Infowindow'
+			'infoWindow' : mapui.infoWindow({
+				'content' : 'Marker Numbered'
 			}),
 			'numbered'   : 8
 		})

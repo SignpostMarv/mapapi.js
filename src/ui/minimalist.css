@@ -55,21 +55,45 @@
 	position: absolute ;
 	top: 0 ;
 	left: 0 ;
-	border-radius: 8px 8px 8px 0 ;
-	box-shadow: 0px 2px 4px #000 ;
-	padding: .25em 1.25em .5em .5em ;
-	background: #eee ;
+	padding: 0 0 40px 32px ;
 	max-width: 50% ;
+	background: transparent url('marker.png') bottom left no-repeat ;
 }
+.mapapi-ui-minimalist .mapapi-ui-infowindow .mapapi-ui-wrapper{
+	padding: 1px ;
+	border-radius: 16px ;
+	position: absolute ;
+	bottom: 32px ;
+	left: 0 ;
+	background: #fff url('marker-tail-top-slice.png') bottom left no-repeat ;
+}
+.mapapi-ui-minimalist .mapapi-ui-infowindow .mapapi-ui-item-contents{
+	background: #fff ;
+	padding: .25em 1em .25em 8px ;
+	border: 2px solid #5a749e ;
+	border-radius: 16px ;
+}
+.mapapi-ui-minimalist .mapapi-ui-infowindow .waiting .mapapi-ui-item-contents{
+	font-size: 0 ;
+	line-height: 28px ;
+}
+.mapapi-ui-minimalist .mapapi-ui-infowindow .waiting .mapapi-ui-infowindow-close{
+	display: none ;
+}
+
 
 .mapapi-ui-minimalist .mapapi-ui-infowindow .mapapi-ui-infowindow-close{
 	position: absolute ;
-	top: 0 ;
-	right: 0 ;
-	border: 1px solid ;
+	top: 1px ;
+	right: 1px ;
 	width: 1em ;
+	padding: 2px ;
 	text-align: center ;
-	border-radius: 0 4px 0 0 ;
+	border-radius: 0 16px 0 0 ;
+}
+.mapapi-ui-minimalist .mapapi-ui-infowindow .mapapi-ui-infowindow-close:hover{
+	background: #eee ;
+	box-shadow: 0px 2px 4px #000 ;
 }
 
 .mapapi-ui-minimalist .mapapi-ui-marker-numbered .mapapi-ui-marker-number, .mapapi-ui-minimalist .mapapi-ui-marker-numbered .mapapi-ui-marker-img{

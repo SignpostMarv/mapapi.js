@@ -458,20 +458,34 @@
 		var
 			obj     = this,
 			content = uiItem.prototype['content2DOM']['call'](obj),
-			DOM     = createElement('div'),
+			DOM     = createElement('aside'),
+			div     = createElement('div'),
 			close   = createElement('p')
 		;
 		addClass(close, 'mapapi-ui-infowindow-close');
+		addClass(div,   'mapapi-ui-wrapper');
+/*
+		obj['addListener']('opened', function(){
+			setTimeout(function(){
+				addClass(div, 'done');
+			},100);
+		});
+		obj['addListener']('closed', function(){
+			delClass(div, 'done');
+		});
+*/
+
 		close['appendChild'](createText('×'));
 		close['setAttribute']('title', 'Close');
-		DOM.appendChild(content);
-		DOM.appendChild(close);
+		div.appendChild(content);
+		content.appendChild(close);
 		if(obj['maxWidth']() != undefined){
 			DOM['style']['maxWidth'] = obj['maxWidth']();
 		}
 		close['onclick'] = function(){
 			obj['close']();
 		}
+		DOM['appendChild'](div);
 		return DOM;
 	}
 
@@ -644,10 +658,10 @@
 
 	function numberedMarker(options){
 		marker['call'](this, options);
-
-		if(options != undefined){
-			this['opts']['number'] = options['number'] || 0;
+		if(options == undefined){
+			return;
 		}
+		this['opts']['number'] = options['number'] || 0;
 	}
 	extend(numberedMarker, marker);
 
@@ -677,8 +691,10 @@
 		delClass(content, 'mapapi-ui-marker');
 		addClass(content, 'mapapi-ui-marker-img');
 
-		DOM['style']['width']  = img['width'] + 'px';
-		DOM['style']['height'] = img['height'] + 'px';
+		if(!!img){
+			DOM['style']['width']  = img['width'] + 'px';
+			DOM['style']['height'] = img['height'] + 'px';
+		}
 
 		addClass(number, 'mapapi-ui-marker-number');
 
