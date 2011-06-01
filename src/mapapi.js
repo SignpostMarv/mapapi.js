@@ -37,65 +37,80 @@
 		}
 	}
 
-	var mapapi = {
-		'utils' : {
-			'addClass' : function(node, className){
-				var
-					classes = (node.className || '').split(' ')
-				;
-				if(classes.indexOf(className) == -1){
-					classes.push(className);
-					node.className = classes.join(' ').replace(/^\s+|\s+$/,'');
+	var
+		mapapi = {
+			'utils' : {
+				'addClass' : function(node, className){
+					var
+						classes = (node.className || '').split(' ')
+					;
+					if(classes.indexOf(className) == -1){
+						classes.push(className);
+						node.className = classes.join(' ').replace(/^\s+|\s+$/,'');
+					}
+				},
+				'delClass' : function(node, className){
+					var
+						classes = (node['className'] || '')['split'](' '),
+						pos     = classes['indexOf'](className)
+					;
+					if(pos >= 0){
+						classes['splice'](pos, 1);
+						node['className'] = classes['join'](' ')['replace'](/^\s+|\s+$/,'');
+					}
+				},
+				'windowDiscovery' : function(checkThis){
+					for(var i=0;i<checkThis.length;++i){
+						if(window[checkThis[i]] != undefined){
+							return window[checkThis[i]];
+						}
+					}
+					return undefined;
 				}
 			},
-			'delClass' : function(node, className){
-				var
-					classes = (node['className'] || '')['split'](' '),
-					pos     = classes['indexOf'](className)
-				;
-				if(pos >= 0){
-					classes['splice'](pos, 1);
-					node['className'] = classes['join'](' ')['replace'](/^\s+|\s+$/,'');
+			'gridPoint' : function(x, y){
+				var obj = this;
+				obj['x'] = x;
+				obj['y'] = y;
+			},
+			'size' : function(width, height){
+				this['width']  = Math.max(0, width || 0);
+				this['height'] = Math.max(0, height || 0);
+			},
+			'bounds' : function(sw, ne){
+				if((sw instanceof mapapi['gridPoint']) == false){
+					if(typeof sw == 'object' && sw['x'] != undefined && sw['y'] != undefined){
+						sw = new mapapi['gridPoint'](sw['x'], sw['y']);
+					}else{
+						throw 'South-West point should be an instance of mapapi.gridPoint';
+					}
+				}else if((ne instanceof mapapi['gridPoint']) == false){
+					if(typeof ne == 'object' && ne['x'] != undefined && sw['y'] != undefined){
+						ne = new mapapi['gridPoint'](ne['x'], ne['y']);
+					}else{
+						throw 'North-East point should be an instance of mapapi.gridPoint';
+					}
 				}
+				if(sw['x'] > ne['x']){
+					var foo = sw['x'];
+					sw['x'] = ne['x'];
+					ne['x'] = foo;
+				}
+				if(sw['y'] > ne['y']){
+					var foo = sw['y'];
+					sw['y'] = ne['y'];
+					ne['y'] = foo;
+				}
+				this['sw'] = sw;
+				this['ne'] = ne;
 			}
 		},
-		'gridPoint' : function(x, y){
-			var obj = this;
-			obj['x'] = x;
-			obj['y'] = y;
-		},
-		'size' : function(width, height){
-			this['width']  = Math.max(0, width || 0);
-			this['height'] = Math.max(0, height || 0);
-		},
-		'bounds' : function(sw, ne){
-			if((sw instanceof mapapi['gridPoint']) == false){
-				if(typeof sw == 'object' && sw['x'] != undefined && sw['y'] != undefined){
-					sw = new mapapi['gridPoint'](sw['x'], sw['y']);
-				}else{
-					throw 'South-West point should be an instance of mapapi.gridPoint';
-				}
-			}else if((ne instanceof mapapi['gridPoint']) == false){
-				if(typeof ne == 'object' && ne['x'] != undefined && sw['y'] != undefined){
-					ne = new mapapi['gridPoint'](ne['x'], ne['y']);
-				}else{
-					throw 'North-East point should be an instance of mapapi.gridPoint';
-				}
-			}
-			if(sw['x'] > ne['x']){
-				var foo = sw['x'];
-				sw['x'] = ne['x'];
-				ne['x'] = foo;
-			}
-			if(sw['y'] > ne['y']){
-				var foo = sw['y'];
-				sw['y'] = ne['y'];
-				ne['y'] = foo;
-			}
-			this['sw'] = sw;
-			this['ne'] = ne;
-		}
-	}
+		windowDiscovery = mapapi['utils']['windowDiscovery']
+	;
+
+	window['IndexedDB']      = windowDiscovery(['IndexedDB', 'mozIndexedDB', 'webkitIndexedDB']);
+	window['IDBTransaction'] = windowDiscovery(['IDBTransaction', 'webkitIDBTransaction']);
+	window['IDBObjectStore'] = windowDiscovery(['IDBObjectStore', 'webkitIDBObjectStore']);
 
 	mapapi['bounds'].prototype['isWithin'] = function(x, y){
 		if(x instanceof mapapi['gridPoint']){

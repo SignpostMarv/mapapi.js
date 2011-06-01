@@ -23,10 +23,56 @@
 */
 (function(window, undefined){
 	window['mapapi'] = window['mapapi'] || {};
+
 	var
-		document     = window['document'],
-		mapapi       = window['mapapi']
+		document       = window['document'],
+		mapapi         = window['mapapi'],
+		IndexedDB      = window['IndexedDB'],
+		IDBTransaction = window['IDBTransaction'],
+		Date           = window['Date'],
+		cacheTimeout   = {
+			'pos2region' : 86400
+		}
 	;
+
+	function useDatabase(db, grdcnfg){
+		grdcnfg['IndexedDB'] = db;
+		if(db['objectStoreNames']['contains']('pos2region')){
+			var
+				deleteThese = [],
+				now         = Math.floor(new Date()['getTime']() / 1000)
+			;
+			db['transaction']('pos2region', IDBTransaction['READ'])['objectStore']('pos2region')['openCursor']()['onsuccess'] = function(e){
+				var
+					cursor = e['target']['result'],
+					value  = cursor ? cursor['value'] : undefined
+				;
+				if(cursor){
+					if(value !== undefined && (value['cached'] == undefined || typeof value['cached'] != 'number' || (now - value['cached']) >= cacheTimeout['pos2region'])){
+						deleteThese.push(value['pos']);
+					}
+					cursor['continue']();
+				}else{
+					if(deleteThese.length){
+						var i=0;
+						function a(){
+							if(i < deleteThese.length){
+								b();
+							}
+						}
+						function b(){
+							db['transaction']('pos2region', IDBTransaction['READ'])['objectStore']('pos2region')['delete'](deleteThese[i++])['onsuccess'] = a;
+						}
+						a();
+					}
+				}
+			}
+		}
+		db['onversionchange'] = function(e){
+			db['close']();
+			alert('A new version of this page is ready. Please reload!');
+		}
+	}
 
 	function gridConfig(options){
 		var
@@ -47,6 +93,58 @@
 			obj['API']['pos2region'] = options['pos2region'];
 			obj['APIcache']['pos2region'] = {};
 		}
+
+		var
+			needsIndexedDB  = false,
+			needsIndexedDBc = [options['pos2region'] != undefined]
+		;
+
+		for(var i=0;i<needsIndexedDBc.length;++i){
+			if(needsIndexedDBc[i] == true){
+				needsIndexedDB = true;
+				break;
+			}
+		}
+
+		if(IndexedDB != undefined && needsIndexedDB){
+			try{
+				var
+					idb = IndexedDB['open'](obj['namespace'])['onsuccess'] = function(e){
+						var
+							db = e['target']['result']
+						;
+						if(db['version'] == '0.1'){
+							useDatabase(db, obj);
+							return;
+						}else if(db['version'] != ''){
+							obj['IndexedDB'] = undefined;
+							throw 'Database version is not upgradable';
+						}
+						var
+							req = db['setVersion']('0.1')
+						;
+						req['onblocked'] = function(e){
+							obj['IndexedDB'] = undefined;
+							throw 'Site is open in other tabs, please close them so the database can be upgraded';
+						}
+						req['onsuccess'] = function(e){
+							var
+								pos2region = db['createObjectStore']('pos2region', {'keyPath':'pos'})
+							;
+							pos2region['createIndex']('region', 'region', {'unique': false});
+							pos2region['createIndex']('l_region', 'l_region', {'unique': false});
+							useDatabase(db, obj);
+						}
+					}
+				;
+			}catch(e){
+				if(e['name'] != 'NS_ERROR_DOM_INDEXEDDB_UNKNOWN_ERR'){
+					throw e;
+				}else{
+					alert('IndexedDB failure. Are you running locally in Firefox? Try debugging in chrome, or load on a localhost web server');
+				}
+			}
+		}
 	}
 
 	gridConfig.prototype['pos2region'] = function(pos, success, fail){
@@ -60,7 +158,8 @@
 
 	gridConfig.prototype['apiCacheCheck'] = function(call){
 		var
-			dest = this['APIcache'][call],
+			obj  = this,
+			dest = obj['APIcache'][call],
 			i = 1
 		;
 		if(dest != undefined && arguments.length >= 2){
