@@ -40,6 +40,9 @@
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
 		reqAnimSp  = false
 	;
+
+	mapapi['renderers'] = mapapi['renderers'] || {};
+
 	for(var i=0;i<reqAnim.length;++i){
 		if(!!window[reqAnim[i]]){
 			reqAnim = window[reqAnim[i]];
@@ -417,5 +420,5 @@
 		return opts['dblclickZoom'];
 	}
 
-	mapapi['canvasRenderer'] = canvas;
+	mapapi['renderers']['canvas'] = canvas;
 })(window);

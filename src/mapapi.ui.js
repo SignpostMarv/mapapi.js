@@ -77,11 +77,11 @@
 			;
 			try{
 				if(canvas['getContext'] && !!canvas['getContext']('2d')){
-					renderer = mapapi['canvasRenderer'];
+					renderer = mapapi['renderers']['canvas'];
 				}
 			}catch(e){}
 			if(renderer == undefined){
-				renderer = mapapi['google3Renderer'];
+				renderer = mapapi['renderers']['google3'];
 			}
 			if(renderer == undefined){
 				throw 'Could not locate any renderers';				

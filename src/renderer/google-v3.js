@@ -46,6 +46,9 @@
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
 		reqAnimSp  = false
 	;
+
+	mapapi['renderers'] = mapapi['renderers'] || {};
+
 	euclid.prototype['fromLatLngToPoint'] = function(latlng, opt){
 		var point = opt || new gridPoint(0,0);
 		point['x'] = latlng['lng']() / this.hscale;
@@ -202,7 +205,6 @@
 		}
 	}
 
-
 	google3.prototype = new renderer;
 	google3.prototype['constructor'] = google3;
 
@@ -320,5 +322,6 @@
 		}
 		return new mapapi['bounds'](obj['GLatLng2gridPoint'](bounds['getSouthWest']()), obj['GLatLng2gridPoint'](bounds['getNorthEast']()));
 	}
-	mapapi['google3Renderer'] = google3;
+
+	mapapi['renderers']['google3'] = google3;
 })(window);
