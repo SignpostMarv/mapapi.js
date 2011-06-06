@@ -140,8 +140,8 @@
 			}catch(e){
 				if(e['name'] != 'NS_ERROR_DOM_INDEXEDDB_UNKNOWN_ERR'){
 					throw e;
-				}else{
-					alert('IndexedDB failure. Are you running locally in Firefox? Try debugging in chrome, or load on a localhost web server');
+				}else if(window['console'] != undefined){
+					console.log('IndexedDB failure. Are you running locally in Firefox? Try debugging in chrome, or load on a localhost web server');
 				}
 			}
 		}
