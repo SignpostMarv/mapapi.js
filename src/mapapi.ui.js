@@ -32,8 +32,10 @@
 		mapapi        = window['mapapi'],
 		gridPoint     = mapapi['gridPoint'],
 		bounds        = mapapi['bounds'],
-		addClass      = mapapi['utils'] ? mapapi['utils']['addClass'] : undefined,
-		delClass      = mapapi['utils'] ? mapapi['utils']['delClass'] : undefined
+		utils         = mapapi['utils'],
+		addClass      = utils ? utils['addClass'] : undefined,
+		delClass      = utils ? utils['delClass'] : undefined,
+		empty         = utils ? utils['empty']    : undefined
 	;
 
 	function extend(a,b){
@@ -93,9 +95,7 @@
 		}else if(!(renderer instanceof mapapi['renderer'])){
 			throw 'Specified renderer is not an instance of mapapi.renderer';
 		}
-		while(container['hasChildNodes']()){
-			container['removeChild'](container['firstChild']);
-		}
+		empty(container);
 		container['appendChild'](rendererNode);
 		container['appendChild'](sidebars);
 
