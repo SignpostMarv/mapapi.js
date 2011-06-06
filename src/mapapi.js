@@ -66,6 +66,12 @@
 						}
 					}
 					return undefined;
+				},
+				'empty' : function(node){
+					while(node['hasChildNodes']()){
+						node['removeChild'](node['firstChild']);
+					}
+					return node;
 				}
 			},
 			'gridPoint' : function(x, y){
