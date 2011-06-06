@@ -82,7 +82,7 @@
 		obj.gridConfig = gridConf;
 
 		obj['contentNode']   = document.createElement('canvas');
-		obj.vendorContent = obj['contentNode']['getContext']('2d');
+		obj['vendorContent'] = obj['contentNode']['getContext']('2d');
 		
 
 		obj['contentNode']['addEventListener']('click', function(e){
@@ -99,27 +99,53 @@
 		}, false);
 
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-canvas');
-		mapapi['renderer'].call(obj, options);
+		mapapi['renderer'].call(obj);
 
-		obj['options']['fps'] = Math.max(1, options['fps'] || 30);
-		obj['options']['maxZoom'] = gridConf['maxZoom'];
+		options['minZoom'] = Math.min(gridConf['maxZoom'], options['minZoom'] || 0);
+		options['maxZoom'] = Math.max(gridConf['maxZoom'], options['maxZoom'] || 0);
 
-		obj.grid_images = {};
+		options['zoom']  = options['zoom'] || 0;
+		options['focus'] = options['focus'] || new gridPoint(0,0);
 
 		obj.tileSource = gridConf['tileSources'][0];
 
-		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
-		obj['smoothZoom'](obj['options']['smoothZoom']);
-		obj['dblclickZoom'](obj['options']['dblclickZoom']);
-		obj['zoom'](0);
-		obj['focus'](0, 0);
+		obj['options'](options);
+
+		obj.grid_images = {};
 
 		obj.dirty = true;
-		obj.draw(obj['options']['fps']);
+		obj.draw(obj['opts']['fps']);
 	};
 
 	canvas.prototype = new renderer;
 	canvas.prototype['constructor'] = canvas;
+	canvas.prototype['name'] = '2D Canvas';
+
+	canvas.prototype['options'] = function(options){
+		renderer.prototype['options']['call'](this, options);
+		var
+			hasFunc = ['fps'],
+			checkFunc
+		;
+		for(var i=0;i<hasFunc.length;++i){
+			var
+				checkFunc = hasFunc[i]
+			;
+			if(options[checkFunc] != undefined){
+				obj[checkFunc](options[checkFunc]);
+			}
+		}
+	}
+
+	canvas.prototype['fps'] = function(value){
+		if(typeof value == 'number'){
+			var
+				opts = this['opts']
+			;
+			opts['fps'] = Math.max(1, value);
+		}
+		return opts['fps'];
+	}
 
 	canvas.prototype.imageQueued = function(x, y, zoom){
 		var
@@ -194,7 +220,7 @@
 		obj.lastsize   = new mapapi['size'](obj['contentNode']['clientWidth'], obj['contentNode']['clientHeight']);
 		if(obj.dirty){
 			var
-				ctx     = obj.vendorContent,
+				ctx     = obj['vendorContent'],
 				canvas  = ctx.canvas
 			;
 			canvas.width = canvas.clientWidth;
@@ -263,14 +289,6 @@
 		return renderer.prototype['focus'].call(obj);
 	}
 
-	canvas.prototype['zoom'] = function(value){
-		var
-			obj  = this,
-			zoom = renderer.prototype['zoom'].call(obj, value)
-		;
-		return zoom;
-	}
-
 	canvas.prototype['panTo'] = function(pos, y){
 		if(typeof pos == 'number'){
 			pos = new gridPoint(pos, y);
@@ -284,7 +302,7 @@
 	canvas.prototype['scrollWheelZoom'] = function(flag){
 		var
 			obj        = this,
-			opts       = obj['options'],
+			opts       = obj['opts'],
 			zoomStuffs = function(e){
 				var d=0;
 				if(!e){
@@ -340,7 +358,7 @@
 	canvas.prototype['draggable'] = function(flag){
 		var
 			obj  = this,
-			opts = obj['options'],
+			opts = obj['opts'],
 			dragstart_pos     = undefined,
 			mousedown_handler = function(e){
 				var
@@ -396,7 +414,7 @@
 	canvas.prototype['dblclickZoom'] = function(flag){
 		var
 			obj  = this,
-			opts = obj['options'],
+			opts = obj['opts'],
 			dblclickzoom = function(e){
 				var
 					x     = e['clientX'],

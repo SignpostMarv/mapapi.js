@@ -29,7 +29,8 @@
 		mapapi      = window['mapapi'],
 		gridPoint   = mapapi['gridPoint'],
 		bounds      = mapapi['bounds'],
-		size       = mapapi['size']
+		size        = mapapi['size'],
+		empty       = mapapi['utils']['empty']
 	;
 	if(EventTarget == undefined){
 		throw 'EventTarget not loaded';
@@ -68,26 +69,44 @@
 /**
 *	@constructor
 */
-	function renderer(options){
+	function renderer(){
 		var
 			obj        = this
 		;
-		EventTarget['call'](this);		
+		EventTarget['call'](this);
 
-		obj['options'] = {};
+		obj['opts'] = {};
+		obj['_focus'] = new gridPoint(0,0);
+	}
 
+	renderer.prototype = new EventTarget();
+	renderer.prototype['constructor'] = renderer;
+
+	renderer.prototype['options'] = function(options){
 		var
-			options         = options || {},
-			opts            = obj['options'],
-			minZoom         = obj.minZoom(options['minZoom'] || 0),
-			maxZoom         = obj.maxZoom(options['maxZoom'] || 0),
-			panUnitUD       = obj.panUnitUD(options['panUnitUD'] || 1),
-			panUnitLR       = obj.panUnitLR(options['panUnitLR'] || 1),
-			container       = options['container']
+			obj       = this,
+			options   = options || {},
+			opts      = obj['opts'],
+			container = options['container'],
+			hasFunc   = ['minZoom', 'maxZoom', 'scrollWheelZoom', 'smoothZoom', 'draggable', 'dblclickZoom', 'zoom', 'focus', 'panUnitLR', 'panUnitUD'],
+			checkFunc
 		;
-		opts['scrollWheelZoom'] = (options['scrollWheelZoom'] || 0);
-		opts['smoothZoom']      = (options['smoothZoom'] || 1);
-		opts['dblclickZoom']    = (options['dblclickZoom'] || 1);
+
+		console.log(options['minZoom']);
+
+		options['minZoom']   = options['minZoom']   || 0;
+		options['maxZoom']   = options['maxZoom']   || 0;
+		options['panUnitLR'] = options['panUnitLR'] || 0;
+		options['panUnitUD'] = options['panUnitUD'] || 0;
+
+		for(var i=0;i<hasFunc.length;++i){
+			var
+				checkFunc = hasFunc[i]
+			;
+			if(options[checkFunc] != undefined){
+				obj[checkFunc](options[checkFunc]);
+			}
+		}
 
 		obj['addListener']('drag', dragpan);
 
@@ -99,22 +118,15 @@
 				if(obj['contentNode']){
 					obj['contentNode']['style']['width']  = '100%';
 					obj['contentNode']['style']['height'] = '100%';
-					while(container['hasChildNodes']()){
-						container['removeChild'](container['firstChild']);
-					}
-					container['appendChild'](obj['contentNode']);
+					empty(container)['appendChild'](obj['contentNode']);
 				}
 			}
 		}
-		this['_focus'] = new gridPoint(0,0);
 	}
-
-	renderer.prototype = new EventTarget();
-	renderer.prototype['constructor'] = renderer;
 
 	renderer.prototype['minZoom'] = function(value){
 		var
-			opts = this['options']
+			opts = this['opts']
 		;
 		if(value != undefined){
 			opts['minZoom'] = Math.max(0, value);
@@ -124,7 +136,7 @@
 
 	renderer.prototype['maxZoom'] = function(value){
 		var
-			opts = this['options']
+			opts = this['opts']
 		;
 		if(value != undefined){
 			opts['maxZoom'] = Math.max(this.minZoom() + 1, value);
@@ -135,17 +147,17 @@
 	renderer.prototype['zoom'] = function(value){
 		var
 			obj  = this,
-			opts = obj['options']
+			opts = obj['opts']
 		;
 		if(value != undefined){
-			opts['zoom'] = Math.min(Math.max(value, obj.minZoom()), obj.maxZoom());
+			opts['zoom'] = Math.min(Math.max(value, obj['minZoom']()), obj['maxZoom']());
 		}
 		return opts['zoom'];
 	}
 
 	renderer.prototype['panUnitUD'] = function(value){
 		var
-			opts = this['options']
+			opts = this['opts']
 		;
 		if(value){
 			opts['panUnitUD'] = Math.max(value, 1);
@@ -155,7 +167,7 @@
 
 	renderer.prototype['panUnitLR'] = function(value){
 		var
-			opts = this['options']
+			opts = this['opts']
 		;
 		if(value){
 			opts['panUnitLR'] = Math.max(value, 1);
@@ -202,7 +214,7 @@
 
 	renderer.prototype['scrollWheelZoom'] = function(flag){
 		var
-			opts = this['options']
+			opts = this['opts']
 		;
 		if(flag != undefined){
 			opts['scrollWheelZoom'] = !!flag;
@@ -213,7 +225,7 @@
 	renderer.prototype['smoothZoom'] = function(flag){
 		var
 			obj  = this,
-			opts = obj['options']
+			opts = obj['opts']
 		;
 		if(flag != undefined){
 			opts['smoothZoom'] = !!flag;
@@ -234,17 +246,20 @@
 
 	renderer.prototype['focus'] = function(pos, zoom, a){ // should return an instance of mapapi.gridPoint
 		if(typeof pos == 'number'){
-			pos = new mapapi['gridPoint'](pos, zoom);
+			pos  = new mapapi['gridPoint'](pos, zoom);
 			zoom = this['zoom']();
 		}
 		if(zoom != undefined){
 			this['zoom'](zoom);
 		}
+		var
+			opts = this['opts']
+		;
 		if(pos instanceof mapapi['gridPoint']){ // implementations should do something to update the renderer to the focal point
-			this['_focus'] = pos;
+			opts['focus'] = pos;
 			this['fire']('focus_changed', {'pos':pos, 'withinBounds' : this['bounds']()['isWithin'](pos)});
 		}
-		return this['_focus'];
+		return opts['focus'];
 	}
 
 	renderer.prototype['px2point'] = function(x, y){
@@ -288,8 +303,8 @@
 
 	renderer.prototype['dblclickZoom'] = function(flag){
 		var
-			obj          = this,
-			opts         = obj['options']
+			obj  = this,
+			opts = obj['opts']
 		;
 		if(flag != undefined){
 			opts['dblclickZoom'] = !!flag;

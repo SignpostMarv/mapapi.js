@@ -107,7 +107,7 @@
 		if(obj.gridConfig['tileSources'][0]['options']['backgroundColor']){
 			options['backgroundColor'] = obj.gridConfig['tileSources'][0]['options']['backgroundColor'];
 		}
-		options['scrollwheel']        = obj['options']['scrollWheelZoom'] || !0;
+		options['scrollwheel']        = obj['opts']['scrollWheelZoom'] || !0;
 		options['mapTypeControl']     = options['mapTypeControl']         || !1;
 		options['overviewMapControl'] = options['overviewMapControl']     || !1;
 		options['panControl']         = options['panControl']             || !1;
@@ -118,15 +118,17 @@
 
 		options['disableDoubleClickZoom'] = true;
 
-		obj.vendorContent = new google_maps['Map'](obj['contentNode'], options);
+		obj['vendorContent'] = new google_maps['Map'](obj['contentNode'], options);
 
-		google_maps['event']['addListener'](obj.vendorContent, 'click', function(e){
+		obj['options'](options);
+
+		google_maps['event']['addListener'](obj['vendorContent'], 'click', function(e){
 			obj['fire']('click', {'pos': obj['GLatLng2gridPoint'](e['latLng'])});
 		});
-		google_maps['event']['addListener'](obj.vendorContent, 'bounds_changed', function(){
+		google_maps['event']['addListener'](obj['vendorContent'], 'bounds_changed', function(){
 			obj['fire']('bounds_changed', {'bounds': obj['bounds']()});
 		});
-		google_maps['event']['addListener'](obj.vendorContent, 'center_changed', function(){
+		google_maps['event']['addListener'](obj['vendorContent'], 'center_changed', function(){
 			var
 				pos    = obj['focus'](),
 				bounds = obj['bounds']()
@@ -137,8 +139,8 @@
 			obj['fire']('focus_changed', {'pos':pos, 'withinBounds' : bounds['isWithin'](pos)});
 		});
 
-		obj['scrollWheelZoom'](obj['options']['scrollWheelZoom']);
-		obj['smoothZoom'](obj['options']['smoothZoom']);
+		obj['scrollWheelZoom'](obj['opts']['scrollWheelZoom']);
+		obj['smoothZoom'](obj['opts']['smoothZoom']);
 
 		var
 			firstMapType = false,
@@ -175,21 +177,21 @@
 		}
 		for(var i in mapTypes){
 			firstMapType = firstMapType ? firstMapType : label;
-			obj.vendorContent['mapTypes']['set'](i,mapTypes[i]);
+			obj['vendorContent']['mapTypes']['set'](i,mapTypes[i]);
 		}
-		obj.vendorContent['setOptions']({
+		obj['vendorContent']['setOptions']({
 			'mapTypeIds' : mapTypeIds,
 			'mapTypeControlOptions' : {
 				'mapTypeIds' : mapTypeIds
 			}
 		});
 		if(firstMapType){
-			obj.vendorContent['setMapTypeId'](firstMapType);
+			obj['vendorContent']['setMapTypeId'](firstMapType);
 		}
 
 		obj.tileSource = gridConf['tileSources'][0];
 
-		obj['dblclickZoom'](obj['options']['dblclickZoom']);
+		obj['dblclickZoom'](obj['opts']['dblclickZoom']);
 		if(reqAnim){
 			function a(){
 				obj['doAnimation']();
@@ -207,6 +209,12 @@
 
 	google3.prototype = new renderer;
 	google3.prototype['constructor'] = google3;
+	google3.prototype['name'] = 'Google Maps v3';
+
+	google3.prototype['options'] = function(options){
+		renderer.prototype['options']['call'](this, options);
+		this['vendorContent']['setOptions'](options);
+	}
 
 	google3.prototype.convertZoom = function(zoom){
 		return (this.gridConfig['maxZoom'] + 1) - zoom - 1;
@@ -237,18 +245,18 @@
 		if(typeof pos == 'number'){
 			pos = new gridPoint(pos, y);
 		}
-		this.vendorContent['panTo'](this.gridPoint2GLatLng(pos));
+		this['vendorContent']['panTo'](this.gridPoint2GLatLng(pos));
 	}
 
 	google3.prototype['zoom'] = function(zoom){
-		if(this.vendorContent == undefined){
+		if(this['vendorContent'] == undefined){
 			return 0;
 		}
 		if(zoom != undefined){
-			this.vendorContent['setZoom'](this.convertZoom(zoom));
+			this['vendorContent']['setZoom'](this.convertZoom(zoom));
 			this['fire']('bounds_changed', {'bounds': this['bounds']()});
 		}
-		return this.convertZoom(this.vendorContent['getZoom']());
+		return this.convertZoom(this['vendorContent']['getZoom']());
 	}
 	google3.prototype['focus'] = function(pos, zoom, a){
 		if(typeof pos == 'number'){
@@ -256,44 +264,44 @@
 			zoom = a;
 		}
 		if(pos instanceof gridPoint){
-			this.vendorContent['setCenter'](this.gridPoint2GLatLng(pos));
+			this['vendorContent']['setCenter'](this.gridPoint2GLatLng(pos));
 		}
 		if(zoom != undefined){
 			this['zoom'](zoom);
 		}
-		return this['GLatLng2gridPoint'](this.vendorContent['getCenter']());
+		return this['GLatLng2gridPoint'](this['vendorContent']['getCenter']());
 	}
 
 	google3.prototype['scrollWheelZoom'] = function(flag){
 		var
 			obj  = this,
-			opts = obj['options']
+			opts = obj['opts']
 		;
 		if(flag != undefined){
 			flag = !!flag;
 			opts['scrollWheelZoom'] = flag;
-			obj.vendorContent['setOptions']({'scrollwheel':flag});
+			obj['vendorContent']['setOptions']({'scrollwheel':flag});
 		}
-		return obj.vendorContent['scrollwheel'];
+		return obj['vendorContent']['scrollwheel'];
 	}
 
 	google3.prototype['draggable'] = function(flag){
 		var
 			obj  = this,
-			opts = obj['options']
+			opts = obj['opts']
 		;
 		if(flag != undefined){
 			flag = !!flag;
 			opts['draggable'] = flag;
-			obj.vendorContent['setOptions']({'draggable':flag});
+			obj['vendorContent']['setOptions']({'draggable':flag});
 		}
-		return obj.vendorContent['draggable'];
+		return obj['vendorContent']['draggable'];
 	}
 
 	google3.prototype['dblclickZoom'] = function(flag){
 		var
 			obj  = this,
-			opts = obj['options'],
+			opts = obj['opts'],
 			foo = function(e){
 				obj['fire']('dblclick', {
 					'pos' : obj.GLatLng2gridPoint(e.latLng)
