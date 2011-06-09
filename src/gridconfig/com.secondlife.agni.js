@@ -70,18 +70,6 @@
 
 	var
 		pos2region_pool = 0,
-		getapivarparts  = 'abcdefghij',
-		getapivar       = function(){
-			var
-				num = ++pos2region_pool,
-				result = ''
-			;
-			while(num > 0){
-				result += getapivarparts[num % 10]
-				num = Math.floor(num / 10);
-			}
-			return result;
-		},
 		agni            = new gridConfig({
 			'namespace'   : 'com.secondlife.agni',
 			'vendor'      : 'Linden Lab',
@@ -109,7 +97,7 @@
 					}
 					var
 						script = document['createElement']('script'),
-						_var   = 'com_secondlife_agni_posToRegion_' + getapivar()
+						_var   = 'com_secondlife_agni_posToRegion_' + ((++pos2region_pool) + '')['replace'](/\d/g,function(a){ return 'ABCDEFGHIJ'[a]; })
 					;
 					function done(){
 						if(window[_var] == undefined){
@@ -178,7 +166,6 @@
 			}
 		})
 	;
-	getapivarparts = getapivarparts.split('');
 
 	mapapi['gridConfigs']['com.secondlife.agni'] = agni;
 })(window);
