@@ -92,8 +92,6 @@
 			checkFunc
 		;
 
-		console.log(options['minZoom']);
-
 		options['minZoom']   = options['minZoom']   || 0;
 		options['maxZoom']   = options['maxZoom']   || 0;
 		options['panUnitLR'] = options['panUnitLR'] || 0;
