@@ -84,15 +84,15 @@
 				this['height'] = Math.max(0, height || 0);
 			},
 			'bounds' : function(sw, ne){
-				if((sw instanceof mapapi['gridPoint']) == false){
+				if((sw instanceof gridPoint) == false){
 					if(typeof sw == 'object' && sw['x'] != undefined && sw['y'] != undefined){
-						sw = new mapapi['gridPoint'](sw['x'], sw['y']);
+						sw = new gridPoint(sw['x'], sw['y']);
 					}else{
 						throw 'South-West point should be an instance of mapapi.gridPoint';
 					}
-				}else if((ne instanceof mapapi['gridPoint']) == false){
+				}else if((ne instanceof gridPoint) == false){
 					if(typeof ne == 'object' && ne['x'] != undefined && sw['y'] != undefined){
-						ne = new mapapi['gridPoint'](ne['x'], ne['y']);
+						ne = new gridPoint(ne['x'], ne['y']);
 					}else{
 						throw 'North-East point should be an instance of mapapi.gridPoint';
 					}
@@ -111,6 +111,8 @@
 				this['ne'] = ne;
 			}
 		},
+		gridPoint       = mapapi['gridPoint'],
+		bounds          = mapapi['bounds'],
 		windowDiscovery = mapapi['utils']['windowDiscovery']
 	;
 
@@ -118,8 +120,8 @@
 	window['IDBTransaction'] = windowDiscovery(['IDBTransaction', 'webkitIDBTransaction']);
 	window['IDBObjectStore'] = windowDiscovery(['IDBObjectStore', 'webkitIDBObjectStore']);
 
-	mapapi['bounds'].prototype['isWithin'] = function(x, y){
-		if(x instanceof mapapi['gridPoint']){
+	bounds.prototype['isWithin'] = function(x, y){
+		if(x instanceof gridPoint){
 			y = x['y'];
 			x = x['x'];
 		}
@@ -130,14 +132,49 @@
 		return (x >= sw['x'] && x <= ne['x'] && y >= sw['y'] && y <= ne['y']);
 	}
 
-	mapapi['bounds'].prototype['equals'] = function(bounds){
+	bounds.prototype['equals'] = function(value){
 		var
 			obj = this
 		;
-		if(bounds instanceof mapapi['bounds']){
-			return (obj['sw']['x'] == bounds['sw']['x'] && obj['sw']['y'] == bounds['sw']['y'] && obj['ne']['x'] == bounds['ne']['x'] && obj['ne']['y'] == bounds['ne']['y']);
+		if(value instanceof bounds){
+			return (obj['sw']['x'] == value['sw']['x'] && obj['sw']['y'] == value['sw']['y'] && obj['ne']['x'] == value['ne']['x'] && obj['ne']['y'] == value['ne']['y']);
 		}
 		return false;
+	}
+
+	bounds.prototype['intersects'] = function(value,antirecursive){
+		if(antirecursive != true){
+			antirecursive = false;
+		}
+		if(value instanceof bounds){
+			if(
+				this['isWithin'](value['ne']) ||
+				this['isWithin'](value['sw']) ||
+				this['isWithin'](new gridPoint(value['sw']['x'], value['ne']['y'])) ||
+				this['isWithin'](new gridPoint(value['ne']['x'], value['sw']['y']))
+			){
+				return true;
+			}/*else if(
+				(value['ne']['y'] < this['ne']['y'] || value['sw']['y'] > this['sw']['y']) &&
+				(value['ne']['x'] > this['sw']['x'] || value['sw']['x'] < this['ne']['x'])
+			){
+				return true;
+			}*/else if(antirecursive == false){
+				return value['intersects'](this, true);
+			}
+		}
+		return false;
+	}
+
+	gridPoint['fuzzy'] = function(value){
+		if(!(value instanceof gridPoint)){
+			if(typeof value['x'] == 'number' && typeof value['y'] == 'number'){
+				value = new gridPoint(value['x'], value['y']);
+			}else{
+				throw 'value was not an instance of mapapi.gridPoint and was not an object with appropriate properties';
+			}
+		}
+		return value;
 	}
 
 	window['mapapi'] = mapapi;
