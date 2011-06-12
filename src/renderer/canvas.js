@@ -40,6 +40,7 @@
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
 		reqAnimSp  = false,
 		shape      = mapapi['shape'],
+		poly       = shape != undefined ? shape['polygon']   : undefined,
 		rectangle  = shape != undefined ? shape['rectangle'] : undefined
 	;
 
@@ -273,22 +274,36 @@
 				;
 				for(var i=0;i<shapes['length'];++i){
 					currentShape = shapes[i];
-					if(currentShape instanceof shape){
+					if(currentShape instanceof shape && currentShape['intersects'](sbounds)){
+						ctx['fillStyle'] = currentShape['fillStyle']();
+						if(currentShape['lineWidth']() > 0){
+							ctx['strokeStyle'] = currentShape['strokeStyle']();
+							ctx['lineWidth'] = currentShape['lineWidth']() / tWidth;
+						}
 						if(currentShape instanceof rectangle){
-							if(currentShape['bounds']['intersects'](sbounds)){
-								ctx['fillStyle'] = currentShape['fillStyle']();
-								var
-									rectX = currentShape['bounds']['sw']['x'],
-									rectY = currentShape['bounds']['ne']['y'],
-									rectW = currentShape['bounds']['ne']['x'] - rectX,
-									rectH = rectY - currentShape['bounds']['sw']['y'],
-									rectY = -rectY + 1
-								;
-								ctx['fillRect'](rectX, rectY, rectW, rectH);
+							var
+								rectX = currentShape['bounds']['sw']['x'],
+								rectY = currentShape['bounds']['ne']['y'],
+								rectW = currentShape['bounds']['ne']['x'] - rectX,
+								rectH = rectY - currentShape['bounds']['sw']['y'],
+								rectY = -rectY + 1
+							;
+							ctx['fillRect'](rectX, rectY, rectW, rectH);
+							if(currentShape['lineWidth']() > 0){
+								ctx['strokeRect'](rectX, rectY, rectW, rectH);
+							}
+						}else if(currentShape instanceof poly){
+							var coords = currentShape['coords']();
+							if(coords['length'] >= 3){
+								ctx['beginPath']();
+								ctx['moveTo'](coords[0]['x'], -coords[0]['y'] + 1);
+								for(var i=1;i<coords['length'];++i){
+									ctx['lineTo'](coords[i]['x'], -coords[i]['y'] + 1);
+								}
+								ctx['closePath']();
+								ctx['fill']();
 								if(currentShape['lineWidth']() > 0){
-									ctx['strokeStyle'] = currentShape['strokeStyle']();
-									ctx['lineWidth'] = currentShape['lineWidth']() / tWidth;
-									ctx['strokeRect'](rectX, rectY, rectW, rectH);
+									ctx['stroke']();
 								}
 							}
 						}
