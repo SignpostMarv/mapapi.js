@@ -278,7 +278,7 @@
 						ctx['fillStyle'] = currentShape['fillStyle']();
 						if(currentShape['lineWidth']() > 0){
 							ctx['strokeStyle'] = currentShape['strokeStyle']();
-							ctx['lineWidth'] = currentShape['lineWidth']() / tWidth;
+							ctx['lineWidth'] = (currentShape['lineWidth']() / tWidth) / zoom_b;
 						}
 						if(currentShape instanceof rectangle){
 							var
