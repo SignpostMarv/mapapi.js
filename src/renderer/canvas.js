@@ -38,7 +38,9 @@
 		bounds     = mapapi['bounds'],
 		size       = mapapi['size'],
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
-		reqAnimSp  = false
+		reqAnimSp  = false,
+		shape      = mapapi['shape'],
+		rectangle  = shape != undefined ? shape['rectangle'] : undefined
 	;
 
 	mapapi['renderers'] = mapapi['renderers'] || {};
@@ -242,7 +244,8 @@
 				tHeight = size['height'],
 				images  = [],
 				startX  = cbounds['sw']['x'] - (cbounds['sw']['x'] % zoom_b),
-				startY  = cbounds['sw']['y'] - (cbounds['sw']['y'] % zoom_b)
+				startY  = cbounds['sw']['y'] - (cbounds['sw']['y'] % zoom_b),
+				sbounds = new bounds(new gridPoint(startX, startY), new gridPoint(cbounds['ne']['x'], cbounds['ne']['y'])) 
 			;
 			ctx.fillStyle = obj['tileSource']['options']['backgroundColor'];
 			ctx.fillRect(0,0, cWidth, cHeight);
@@ -259,6 +262,36 @@
 							img['_mapapi'].x,
 							-img['_mapapi'].y,
 							zoom_b, zoom_b);
+					}
+				}
+			}
+
+			if(shape != undefined){
+				var
+					shapes = obj['shapes'](),
+					currentShape
+				;
+				for(var i=0;i<shapes['length'];++i){
+					currentShape = shapes[i];
+					if(currentShape instanceof shape){
+						if(currentShape instanceof rectangle){
+							if(currentShape['bounds']['intersects'](sbounds)){
+								ctx['fillStyle'] = currentShape['fillStyle']();
+								var
+									rectX = currentShape['bounds']['sw']['x'],
+									rectY = currentShape['bounds']['ne']['y'],
+									rectW = currentShape['bounds']['ne']['x'] - rectX,
+									rectH = rectY - currentShape['bounds']['sw']['y'],
+									rectY = -rectY + 1
+								;
+								ctx['fillRect'](rectX, rectY, rectW, rectH);
+								if(currentShape['lineWidth']() > 0){
+									ctx['strokeStyle'] = currentShape['strokeStyle']();
+									ctx['lineWidth'] = currentShape['lineWidth']() / tWidth;
+									ctx['strokeRect'](rectX, rectY, rectW, rectH);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -436,6 +469,22 @@
 			}
 		}
 		return opts['dblclickZoom'];
+	}
+
+	canvas.prototype['addShape'] = function(value){
+		var
+			ret = renderer.prototype['addShape']['call'](this, value)
+		;
+		this['dirty'] = this['dirty'] ? !0 : ret;
+		return ret;
+	}
+
+	canvas.prototype['removeShape'] = function(value){
+		var
+			ret = renderer.prototype['removeShape']['call'](this, value)
+		;
+		this['dirty'] = this['dirty'] ? !0 : ret;
+		return ret;
 	}
 
 	mapapi['renderers']['canvas'] = canvas;

@@ -8,6 +8,7 @@ In March 2010, an issue was created in the Second Life public issue tracker: htt
 WEB-1560 was a formal request for Linden Lab to apply an open source license to slmapapi.js, and in January 2011 an MIT license was approved.
 
 ## Examples
+* [Poly Shapes](http://signpostmarv.github.com/mapapi.js/examples/shape.html) (mapapi.shape is currently only implemented on the canvas renderer)
 
 ### Renderers
 * [Canvas](http://signpostmarv.github.com/mapapi.js/examples/renderer-canvas.html)

@@ -30,7 +30,8 @@
 		gridPoint   = mapapi['gridPoint'],
 		bounds      = mapapi['bounds'],
 		size        = mapapi['size'],
-		empty       = mapapi['utils']['empty']
+		empty       = mapapi['utils']['empty'],
+		shape       = mapapi['shape']
 	;
 	if(EventTarget == undefined){
 		throw 'EventTarget not loaded';
@@ -75,7 +76,7 @@
 		;
 		EventTarget['call'](this);
 
-		obj['opts'] = {};
+		obj['opts'] = {'shapes':[]};
 		obj['_focus'] = new gridPoint(0,0);
 	}
 
@@ -438,6 +439,33 @@
 			tHeight = (obj['tileSource']['size']['height'] * zoom_a) / zoom_b
 		;
 		return new size(tWidth, tHeight);
+	}
+
+	renderer.prototype['addShape'] = function(value){ // bool return indicates whether shape was added
+		if(shape != undefined && value instanceof shape){
+			if(this['opts']['shapes']['indexOf'](value) < 0){
+				this['opts']['shapes']['push'](value);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	renderer.prototype['removeShape'] = function(value){
+		if(shape != undefined && value instanceof shape){
+			var
+				pos = this['opts']['shapes']['indexOf'](value)
+			;
+			if(pos >= 0){
+				this['opts']['shapes']['splice'](pos,1);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	renderer.prototype['shapes'] = function(){
+		return this['opts']['shapes'];
 	}
 
 	mapapi['renderer'] = renderer;

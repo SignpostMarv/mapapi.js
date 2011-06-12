@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mapapi.shape</title>
+<meta charset="UTF-8" />
+<script src="../src/EventTarget.js"></script>
+<script src="../src/mapapi.js"></script>
+<script src="../src/mapapi.shape.js"></script>
+<script src="../src/mapapi.ui.js"></script>
+<script src="../src/ui/minimalist.js"></script>
+<script src="../src/mapapi.renderer.js"></script>
+<script src="../src/mapapi.tileSource.js"></script>
+<script src="../src/mapapi.gridConfig.js"></script>
+<script src="../src/gridconfig/com.secondlife.agni.js"></script>
+<script src="../src/renderer/canvas.js"></script>
+<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script src="../src/renderer/google-v3.js"></script>
+<style>
+html, .mapapi-ui{
+	height: 100% ;
+}
+</style>
+<script>
+window.onload = function(){
+	var
+		mapui = new mapapi.minimalistUI({
+			gridConfig : mapapi.gridConfigs['com.secondlife.agni']
+		}),
+		map   = mapui.renderer,
+		square = new mapapi.shape.square({ // coordinates are specified as an array
+			'coords':[ // squares & rectangles need only two entries, only the first two will be used
+				{'x':1000, 'y':1000}, // south-west corner
+				{'x':1001, 'y':1001}
+			]
+		}),
+		strokeFail1 = new mapapi.shape.square({
+			'coords':[
+				{'x':999, 'y':999},
+				{'x':1000, 'y':1000}
+			],
+			'fillStyle': 'rgba(255,0,0,.5)', // if the fill style is not specified, a default white is provided
+			'strokeStyle' : 'rgb(0,255,0)' // no stroke will be drawn, as the line width defaults to zero
+		}),
+		strokeFail2 = new mapapi.shape.square({
+			'coords'      : [
+				{'x':1001, 'y':999},
+				{'x':1002, 'y':1000}
+			],
+			'fillStyle'   : 'rgba(0,255,0,.5)',
+			'strokeStyle' : 'rgb(0,255,0)',
+			'lineWidth'   : -1 // this also won't work, since the line needs to be greater than zero
+		}),
+		strokeSuccess = new mapapi.shape.square({
+			'coords'      : [
+				{'x':1000, 'y':999},
+				{'x':1001, 'y':1000}
+			],
+			'fillStyle'   : 'rgba(0,0,255,.5)',
+			'strokeStyle' : 'rgba(0,0,255,1)',
+			'lineWidth'   : 10
+		})
+	;
+	map.scrollWheelZoom(true);
+	map.smoothZoom(true);
+	map.draggable(true);
+	map.focus(1000.5,1000.5,0);
+	map.addShape(square);
+	map.addShape(strokeFail1);
+	map.addShape(strokeFail2);
+	map.addShape(strokeSuccess);
+
+	setTimeout(function(){
+		map.removeShape(square); // this is how to turn display off
+	}, 5000);
+};
+</script>
+</head>
+<body>
+</body>
+</html>
