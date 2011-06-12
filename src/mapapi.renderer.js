@@ -441,27 +441,39 @@
 		return new size(tWidth, tHeight);
 	}
 
-	renderer.prototype['addShape'] = function(value){ // bool return indicates whether shape was added
-		if(shape != undefined && value instanceof shape){
-			if(this['opts']['shapes']['indexOf'](value) < 0){
-				this['opts']['shapes']['push'](value);
-				return true;
+	renderer.prototype['addShape'] = function(){ // bool return indicates whether shape was added
+		var
+			ret = false
+		;
+		if(shape != undefined){
+			for(var i=0;i<arguments.length;++i){
+				if(arguments[i] instanceof shape && this['opts']['shapes']['indexOf'](arguments[i]) < 0){
+					ret = true;
+					this['opts']['shapes']['push'](arguments[i]);
+				}
 			}
 		}
-		return false;
+		return ret;
 	}
 
-	renderer.prototype['removeShape'] = function(value){
-		if(shape != undefined && value instanceof shape){
-			var
-				pos = this['opts']['shapes']['indexOf'](value)
-			;
-			if(pos >= 0){
-				this['opts']['shapes']['splice'](pos,1);
-				return true;
+	renderer.prototype['removeShape'] = function(){
+		var
+			ret = false
+		;
+		if(shape != undefined){
+			for(var i=0;i<arguments.length;++i){
+				if(arguments[i] instanceof shape){
+					var
+						pos = this['opts']['shapes']['indexOf'](arguments[i])
+					;
+					if(pos >= 0){
+						ret = true;
+						this['opts']['shapes']['splice'](pos,1);
+					}
+				}
 			}
 		}
-		return false;
+		return ret;
 	}
 
 	renderer.prototype['shapes'] = function(){

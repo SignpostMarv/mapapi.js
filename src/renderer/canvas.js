@@ -41,7 +41,8 @@
 		reqAnimSp  = false,
 		shape      = mapapi['shape'],
 		poly       = shape != undefined ? shape['polygon']   : undefined,
-		rectangle  = shape != undefined ? shape['rectangle'] : undefined
+		rectangle  = shape != undefined ? shape['rectangle'] : undefined,
+		line       = shape != undefined ? shape['line'] : undefined
 	;
 
 	mapapi['renderers'] = mapapi['renderers'] || {};
@@ -270,15 +271,21 @@
 			if(shape != undefined){
 				var
 					shapes = obj['shapes'](),
-					currentShape
+					currentShape,lineWidth
 				;
 				for(var i=0;i<shapes['length'];++i){
+					lineWidth = false;
 					currentShape = shapes[i];
 					if(currentShape instanceof shape && currentShape['intersects'](sbounds)){
-						ctx['fillStyle'] = currentShape['fillStyle']();
-						if(currentShape['lineWidth']() > 0){
+						if(currentShape['fillStyle'] != undefined){
+							ctx['fillStyle'] = currentShape['fillStyle']();
+						}
+						lineWidth = currentShape['lineWidth']();
+						if(lineWidth > 0){
 							ctx['strokeStyle'] = currentShape['strokeStyle']();
-							ctx['lineWidth'] = (currentShape['lineWidth']() / tWidth) / zoom_b;
+							ctx['lineWidth'] = lineWidth = (lineWidth / tWidth) / zoom_b;
+						}else{
+							lineWidth = false;
 						}
 						if(currentShape instanceof rectangle){
 							var
@@ -289,7 +296,7 @@
 								rectY = -rectY + zoom_b;
 							;
 							ctx['fillRect'](rectX, rectY, rectW, rectH);
-							if(currentShape['lineWidth']() > 0){
+							if(lineWidth > 0){
 								ctx['strokeRect'](rectX, rectY, rectW, rectH);
 							}
 						}else if(currentShape instanceof poly){
@@ -297,14 +304,26 @@
 							if(coords['length'] >= 3){
 								ctx['beginPath']();
 								ctx['moveTo'](coords[0]['x'], -coords[0]['y'] + zoom_b);
-								for(var i=1;i<coords['length'];++i){
-									ctx['lineTo'](coords[i]['x'], -coords[i]['y'] + zoom_b);
+								for(var j=1;j<coords['length'];++j){
+									ctx['lineTo'](coords[j]['x'], -coords[j]['y'] + zoom_b);
 								}
 								ctx['closePath']();
 								ctx['fill']();
-								if(currentShape['lineWidth']() > 0){
+								if(lineWidth > 0){
 									ctx['stroke']();
 								}
+							}
+						}else if(currentShape instanceof line && lineWidth > 0){
+							var
+								coords = currentShape['coords']()
+							;
+							if(coords['length'] >= 2){
+								ctx['beginPath']();
+								ctx['moveTo'](coords[0]['x'], -coords[0]['y'] + zoom_b);
+								for(var j=1;j<coords['length'];++j){
+									ctx['lineTo'](coords[j]['x'], -coords[j]['y'] + zoom_b);
+								}
+								ctx['stroke']();
 							}
 						}
 					}
@@ -486,17 +505,17 @@
 		return opts['dblclickZoom'];
 	}
 
-	canvas.prototype['addShape'] = function(value){
+	canvas.prototype['addShape'] = function(){
 		var
-			ret = renderer.prototype['addShape']['call'](this, value)
+			ret = renderer.prototype['addShape']['apply'](this, arguments)
 		;
 		this['dirty'] = this['dirty'] ? !0 : ret;
 		return ret;
 	}
 
-	canvas.prototype['removeShape'] = function(value){
+	canvas.prototype['removeShape'] = function(){
 		var
-			ret = renderer.prototype['removeShape']['call'](this, value)
+			ret = renderer.prototype['removeShape']['apply'](this, arguments)
 		;
 		this['dirty'] = this['dirty'] ? !0 : ret;
 		return ret;

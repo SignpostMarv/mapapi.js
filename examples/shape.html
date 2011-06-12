@@ -64,32 +64,47 @@ window.onload = function(){
 	map.smoothZoom(true);
 	map.draggable(true);
 	map.focus(1000.5,1000.5,0);
-	map.addShape(square);
-	map.addShape(strokeFail1);
-	map.addShape(strokeFail2);
-	map.addShape(strokeSuccess);
+
+	map.addShape( // add as many shapes as you want
+		square,
+		strokeFail1,
+		strokeFail2,
+		strokeSuccess,
+		new mapapi.shape.line({
+			'lineWidth' : 5,
+			'coords'    : [
+				{'x':999   , 'y':1000  },
+				{'x':999.5 , 'y':1000.5},
+				{'x':1000.5, 'y':1001  },
+				{'x':1001.5, 'y':1000.5},
+				{'x':1002  , 'y':1000  }
+			]
+		})
+	);
 
 	setTimeout(function(){
 		map.removeShape(square); // this is how to turn display off
-		map.addShape(new mapapi.shape.polygon({
-			'coords' : [
-				{'x':1000, 'y':1000},
-				{'x':1001, 'y':1000},
-				{'x':1000.5, 'y':1001}
-			]
-		}));
-		map.addShape(new mapapi.shape.polygon({
-			'coords' : [
-				{'x':1000, 'y':1000},
-				{'x':1000.5, 'y':1001},
-				{'x':1001, 'y':1000},
-				{'x':1001, 'y':1001},
-				{'x':1000, 'y':1001}
-			],
-			'fillStyle'  : 'rgba(0,0,0,.5)',
-			'strokeStyle': 'rgba(0,0,0,.7)',
-			'lineWidth'  : 3
-		}));
+		map.addShape(
+			new mapapi.shape.polygon({
+				'coords' : [
+					{'x':1000, 'y':1000},
+					{'x':1001, 'y':1000},
+					{'x':1000.5, 'y':1001}
+				]
+			}),
+			new mapapi.shape.polygon({
+				'coords' : [
+					{'x':1000, 'y':1000},
+					{'x':1000.5, 'y':1001},
+					{'x':1001, 'y':1000},
+					{'x':1001, 'y':1001},
+					{'x':1000, 'y':1001}
+				],
+				'fillStyle'  : 'rgba(0,0,0,.5)',
+				'strokeStyle': 'rgba(0,0,0,.7)',
+				'lineWidth'  : 3
+			})
+		);
 	}, 5000);
 };
 </script>

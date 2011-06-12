@@ -42,13 +42,18 @@
 
 	function shape(options){
 		EventTarget['call'](this);
-		this['opts'] = {'fillStyle':'rgba(255,255,255,0.5)', 'strokeStyle':'rgb(255,255,255)', 'lineWidth':0};
+		this['opts'] = {};
+		for(var i in this['defaultOpts']){
+			this['opts'][i] = this['defaultOpts'][i];
+		}
 		if(options != undefined){
 			this['options'](options);
 		}
 	}
 
 	extend(shape, EventTarget);
+
+	shape.prototype['defaultOpts'] = {'fillStyle':'rgba(255,255,255,0.5)', 'strokeStyle':'rgb(255,255,255)', 'lineWidth':0};
 
 	shape.prototype['options'] = function(options){
 		options = options || {};
@@ -258,4 +263,67 @@
 	}
 
 	shape['square'] = square;
+
+	function line(options){
+		shape['call'](this, options);
+	}
+
+	extend(line, shape);
+
+	line.prototype['defaultOpts'] = {'strokeStyle':'rgb(255,255,255)', 'lineWidth':1};
+
+	line.prototype['options'] = function(options){
+		var
+			options     = options || {},
+			coords      = options['coords'],
+			strokeStyle = options['strokeStyle'],
+			lineWidth   = options['lineWidth']
+		;
+		if(options['coords'] != undefined){
+			if(coords instanceof Array){
+				if(coords['length'] >= 2){
+					for(var i=0;i<coords['length'];++i){
+						coords[i] = gridPoint['fuzzy'](coords[i]);
+					}
+					this['opts']['coords'] = coords;
+					this['fire']('changedcoords');
+				}else{
+					throw 'mapapi.shape.line requires two or more coordinates';
+				}
+			}else{
+				throw 'mapapi.shape.line requires coordinates be passed as an array';
+			}
+		}
+		if(typeof strokeStyle == 'string'){
+			var diff = this['opts']['strokeStyle'] != strokeStyle;
+			this['opts']['strokeStyle'] = strokeStyle;
+			if(diff){
+				this['fire']('changedstrokestyle');
+			}
+		}
+		if(typeof lineWidth == 'number'){
+			lineWidth = Math.max(0,lineWidth);
+			var diff = this['opts']['lineWidth'] != lineWidth;
+			this['opts']['lineWidth'] = lineWidth;
+			if(diff){
+				this['fire']('changedlinewidth');
+			}
+		}
+	}
+
+	line.prototype['intersects'] = function(value){
+		if(value instanceof bounds){
+			var
+				coords = this['coords']()
+			;
+			for(var i=0;i<coords['length'];++i){
+				if(value['isWithin'](coords[i])){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	shape['line'] = line;
 })(window);
