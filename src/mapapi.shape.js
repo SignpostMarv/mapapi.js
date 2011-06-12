@@ -98,6 +98,13 @@
 		return Math.max(0, this['opts']['lineWidth']);
 	}
 
+	shape.prototype['intersects'] = function(value){
+		if(value instanceof bounds && this['bounds'] instanceof bounds){
+			return this['bounds']['intersects'](value);
+		}
+		return false;
+	}
+
 	mapapi['shape'] = shape;
 
 	function poly(options){
@@ -119,6 +126,19 @@
 				for(var i=0;i<coords['length'];++i){
 					coords[i] = gridPoint['fuzzy'](coords[i]);
 				}
+				var
+					swx = coords[0]['x'],
+					swy = coords[0]['y'],
+					nex = coords[0]['x'],
+					ney = coords[0]['y']
+				;
+				for(var i=1;i<coords['length'];++i){
+					swx = (coords[i]['x'] < swx)  ? coords[i]['x'] : swx;
+					swy = (coords[i]['y'] < swy)  ? coords[i]['y'] : swy;
+					nex = (coords[i]['x'] > nex)  ? coords[i]['x'] : nex;
+					ney = (coords[i]['y'] > ney)  ? coords[i]['y'] : ney;
+				}
+				this['bounds'] = new bounds(new gridPoint(swx, swy), new gridPoint(nex, ney));
 				this['opts']['coords'] = coords;
 				this['fire']('changedcoords');
 			}else{
@@ -192,7 +212,6 @@
 						ne = bar;
 					}
 					options['coords'] = [sw, ne];
-					this['bounds'] = new bounds(sw, ne);
 				}else{
 					throw 'When supplying mapapi.shape.rectangle::options with an Array for the coordinates, there should only be two entries';
 				}
