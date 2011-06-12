@@ -286,7 +286,7 @@
 								rectY = currentShape['bounds']['ne']['y'],
 								rectW = currentShape['bounds']['ne']['x'] - rectX,
 								rectH = rectY - currentShape['bounds']['sw']['y'],
-								rectY = -rectY + 1
+								rectY = -rectY + zoom_b;
 							;
 							ctx['fillRect'](rectX, rectY, rectW, rectH);
 							if(currentShape['lineWidth']() > 0){
@@ -296,9 +296,9 @@
 							var coords = currentShape['coords']();
 							if(coords['length'] >= 3){
 								ctx['beginPath']();
-								ctx['moveTo'](coords[0]['x'], -coords[0]['y'] + 1);
+								ctx['moveTo'](coords[0]['x'], -coords[0]['y'] + zoom_b);
 								for(var i=1;i<coords['length'];++i){
-									ctx['lineTo'](coords[i]['x'], -coords[i]['y'] + 1);
+									ctx['lineTo'](coords[i]['x'], -coords[i]['y'] + zoom_b);
 								}
 								ctx['closePath']();
 								ctx['fill']();
