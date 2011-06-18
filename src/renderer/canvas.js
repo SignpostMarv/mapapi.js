@@ -271,13 +271,13 @@
 
 			if(shape != undefined){
 				var
-					shapes = obj['shapes'](),
+					shapes = obj['shapes']()['intersects'](sbounds),
 					currentShape,lineWidth
 				;
 				for(var i=0;i<shapes['length'];++i){
 					lineWidth = false;
 					currentShape = shapes[i];
-					if(currentShape instanceof shape && currentShape['intersects'](sbounds)){
+					if(currentShape instanceof shape){
 						if(currentShape['fillStyle'] != undefined){
 							ctx['fillStyle'] = currentShape['fillStyle']();
 						}
@@ -454,8 +454,11 @@
 					obj['dragging'] = true;
 				}, 100);
 			},
-			mouseup_handler   = function(){
+			mouseup_handler   = function(e){
 				clearTimeout(obj.mousedown_timer);
+				if(!obj['dragging']){
+					obj['fire']('click',{'pos':obj['px2point'](e['clientX'] - this['offsetLeft'], e['clientY'] - this['offsetTop'])});
+				}
 				obj.mousedown_timer = setTimeout(function(){
 					obj['dragging'] = false;
 				}, 100);

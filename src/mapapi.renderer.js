@@ -76,7 +76,7 @@
 		;
 		EventTarget['call'](this);
 
-		obj['opts'] = {'shapes':[]};
+		obj['opts'] = {'shapes':new mapapi['shapeManager']};
 		obj['_focus'] = new gridPoint(0,0);
 	}
 
@@ -108,6 +108,9 @@
 		}
 
 		obj['addListener']('drag', dragpan);
+		obj['addListener']('click', function(e){
+			opts['shapes']['click'](e['pos']);
+		});
 
 		if(container){
 			if(!container['appendChild']){

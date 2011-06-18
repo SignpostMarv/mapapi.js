@@ -112,6 +112,54 @@
 
 	mapapi['shape'] = shape;
 
+	function shapeManager(){
+		Array['call'](this);
+	}
+
+	extend(shapeManager, Array);
+
+	shapeManager.prototype['push'] = function(){
+		for(var i=0;i<arguments['length'];++i){
+			if(!(arguments[i] instanceof shape)){
+				throw 'Arguments of mapapi.shapeManager::push() should be instances of mapapi.shape';
+			}
+		}
+		Array.prototype['push']['apply'](this, arguments);
+	}
+
+	shapeManager.prototype['intersects'] = function(value){
+		if(value instanceof bounds){
+			var
+				shpmngr = new this['constructor']
+			;
+			for(var i=0;i<this['length'];++i){
+				if(this[i]['intersects'](value)){
+					shpmngr['push'](this[i]);
+				}
+			}
+			return shpmngr;
+		}else{
+			throw 'Intersection argument must be an instance of mapapi.bounds';
+		}
+	}
+
+	shapeManager.prototype['click'] = function(value){
+		var
+			value = gridPoint['fuzzy'](value),
+			ret
+		;
+		for(var i=0;i<this['length'];++i){
+			if(this[i]['clickable']() && this[i]['withinShape'](value)){
+				ret = this[i]['fire']('click',{'pos':value});
+				if(ret != undefined && ret == false){
+					break;
+				}
+			}
+		}
+	}
+
+	mapapi['shapeManager'] = shapeManager;
+
 	function poly(options){
 		shape['call'](this, options);
 	}
@@ -170,6 +218,9 @@
 			if(diff){
 				this['fire']('changedlinewidth');
 			}
+		}
+		if(options['clickable'] != undefined){
+			this['opts']['clickable'] = !!options['clickable'];
 		}
 	}
 
@@ -309,6 +360,9 @@
 				this['fire']('changedlinewidth');
 			}
 		}
+		if(options['clickable'] != undefined){
+			this['opts']['clickable'] = !!options['clickable'];
+		}
 	}
 
 	line.prototype['intersects'] = function(value){
@@ -380,6 +434,9 @@
 			if(diff){
 				this['fire']('changedlinewidth');
 			}
+		}
+		if(options['clickable'] != undefined){
+			this['opts']['clickable'] = !!options['clickable'];
 		}
 	}
 

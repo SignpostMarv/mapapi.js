@@ -86,6 +86,14 @@ window.onload = function(){
 		})
 	);
 
+	strokeSuccess.addListener('click', function(e){
+		mapui.infoWindow({
+			content  : 'Shapes are clickable!',
+			position : e.pos
+		}).open(mapui);
+	});
+	strokeSuccess.options({'clickable':true});
+
 	setTimeout(function(){
 		map.removeShape(square); // this is how to turn display off
 		map.addShape(
