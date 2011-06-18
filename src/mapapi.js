@@ -177,5 +177,14 @@
 		return value;
 	}
 
+	gridPoint.prototype['equals'] = function(value){
+		return (value instanceof gridPoint && value['x'] == this['x'] && value['y'] == this['y']);
+	}
+
+	gridPoint.prototype['distance'] = function(value){
+		value = gridPoint['fuzzy'](value);
+		return Math.sqrt((Math.pow(this['x'], 2) - Math.pow(value['x'], 2)) + (Math.pow(this['y'], 2) - Math.pow(value['y'], 2)));
+	}
+
 	window['mapapi'] = mapapi;
 })(window);
