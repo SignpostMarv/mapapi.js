@@ -391,16 +391,16 @@
 		var
 			opts        = this['opts'],
 			options     = options || {},
-			pos         = options['pos'],
+			coords      = options['coords'],
 			radius      = options['radius'],
 			strokeStyle = options['strokeStyle'],
 			lineWidth   = options['lineWidth'],
 			diffPos=false,diffRadius=false,diff
 		;
-		if(pos != undefined){
-			pos = gridPoint['fuzzy'](pos);
-			diffPos = !pos['equals'](opts['pos']);
-			opts['pos'] = pos;
+		if(coords != undefined){
+			coords[0] = gridPoint['fuzzy'](coords[0]);
+			diffPos = opts['coords'] == undefined || !pos['equals'](opts['coords'][0]);
+			opts['coords'] = [coords[0]];
 		}
 		if(radius != undefined){
 			if(typeof radius != 'number'){
@@ -440,13 +440,6 @@
 		}
 	}
 
-	circle.prototype['pos'] = function(value){
-		if(value != undefined){
-			this['options']({'pos':value});
-		}
-		return this['opts']['pos'];
-	}
-
 	circle.prototype['radius'] = function(value){
 		if(value != undefined){
 			this['options']({'radius':value});
@@ -463,12 +456,12 @@
 
 	circle.prototype['withinShape'] = function(pos){
 		pos = gridPoint['fuzzy'](pos);
-		return (this['pos']() instanceof gridPoint && typeof this['radius']() == 'number') && (this['pos']()['distance'](pos) <= this['radius']());
+		return (this['coords']()[0] instanceof gridPoint && typeof this['radius']() == 'number') && (this['coords']()[0]['distance'](pos) <= this['radius']());
 	}
 
 	circle.prototype['intersects'] = function(value){
-		if(value instanceof bounds && this['pos']() instanceof gridPoint){
-			if((value instanceof bounds && this['pos']() instanceof gridPoint) && value['isWithin'](this['pos']())){
+		if(value instanceof bounds && this['coords']()[0] instanceof gridPoint){
+			if(value['isWithin'](this['coords']()[0])){
 				return true;
 			}else if(typeof this['radius']() == 'number'){
 				var
