@@ -44,7 +44,13 @@
 			this.vscale   = 90.0  / this.gridConf['size']['height'];
 		},
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
-		reqAnimSp  = false
+		reqAnimSp  = false,
+		shape      = mapapi['shape'],
+		polygon    = shape['polygon'],
+		rectangle  = shape['rectangle'],
+		square     = shape['square'],
+		line       = shape['line'],
+		circle     = shape['circle']
 	;
 
 	mapapi['renderers'] = mapapi['renderers'] || {};
@@ -189,7 +195,7 @@
 			obj['vendorContent']['setMapTypeId'](firstMapType);
 		}
 
-		obj.tileSource = gridConf['tileSources'][0];
+		obj['tileSource'] = gridConf['tileSources'][0];
 
 		obj['dblclickZoom'](obj['opts']['dblclickZoom']);
 		if(reqAnim){
@@ -220,7 +226,7 @@
 		return (this.gridConfig['maxZoom'] + 1) - zoom - 1;
 	}
 
-	google3.prototype.gridPoint2GLatLng = function(pos){
+	google3.prototype['gridPoint2GLatLng'] = function(pos){
 		var
 			size   = this.gridConfig['size'],
 			hscale = 180.0 / size['height'],
@@ -245,7 +251,7 @@
 		if(typeof pos == 'number'){
 			pos = new gridPoint(pos, y);
 		}
-		this['vendorContent']['panTo'](this.gridPoint2GLatLng(pos));
+		this['vendorContent']['panTo'](this['gridPoint2GLatLng'](pos));
 	}
 
 	google3.prototype['zoom'] = function(zoom){
@@ -264,7 +270,7 @@
 			zoom = a;
 		}
 		if(pos instanceof gridPoint){
-			this['vendorContent']['setCenter'](this.gridPoint2GLatLng(pos));
+			this['vendorContent']['setCenter'](this['gridPoint2GLatLng'](pos));
 		}
 		if(zoom != undefined){
 			this['zoom'](zoom);
@@ -329,6 +335,152 @@
 			return undefined;
 		}
 		return new mapapi['bounds'](obj['GLatLng2gridPoint'](bounds['getSouthWest']()), obj['GLatLng2gridPoint'](bounds['getNorthEast']()));
+	}
+
+	function mapapi2google(mapapiShape){
+		if(!mapapiShape){
+			throw 'Shape not specified';
+		}
+		if(mapapiShape.prototype instanceof mapapi['shape']){
+			
+		}
+	}
+
+	function color2hex(){
+		var
+			r = arguments[1] * 1,
+			g = arguments[2] * 1,
+			b = arguments[3] * 1
+		;
+		r = (r < 16) ? '0' + r.toString(16) : r.toString(16);
+		g = (g < 16) ? '0' + g.toString(16) : g.toString(16);
+		b = (b < 16) ? '0' + b.toString(16) : b.toString(16);
+		return '#' + r + g + b;
+	}
+
+	google3.prototype['addShape'] = function(){
+		var
+			supported = [square, rectangle, line, polygon, circle],
+			isSupported = false,
+			mapapiShape,
+			path,
+			rgbRegex  = /^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/,
+			rgbaRegex = /^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\,\s*([0|1]|[0|1]?\.\d+)\s*\)$/,
+			zoom   = this['zoom'](),
+			zoom_a = .5 + (.5 * (1 - (zoom % 1))),
+			zoom_b = 1 << zoom
+		;
+		for(var i=0;i<arguments['length'];++i){
+			mapapiShape = arguments[i];
+			isSupported = false;
+			if(!mapapiShape){
+				throw 'Shape not specified';
+			}else{
+				for(var j=0;j<supported['length'];++j){
+					if(mapapiShape instanceof supported[j] || mapapiShape.prototype instanceof supported[j]){
+						isSupported = true;
+						break;
+					}
+				}
+				if(!isSupported){
+					throw 'A shape in the arguments was not supported';
+				}
+			}
+			var
+				coords = mapapiShape['coords'](),
+				strokeStyle = mapapiShape['strokeStyle'](),
+				fillStyle   = mapapiShape['fillStyle'] ? mapapiShape['fillStyle']() : false,
+				rgb,
+				fillrgb,
+				alpha = 0,
+				fillalpha = 0
+			;
+			function setcolors(){
+				if(rgbRegex['test'](strokeStyle)){
+					rgb = strokeStyle.replace(rgbRegex,color2hex);
+				}else if(rgbaRegex['test'](strokeStyle)){
+					rgb = strokeStyle.replace(rgbaRegex,color2hex);
+					alpha = strokeStyle.replace(rgbaRegex,function(){
+						return arguments[4] * 1;
+					});
+				}
+				if(rgbRegex['test'](fillStyle)){
+					fillrgb = fillStyle.replace(rgbRegex,color2hex);
+				}else if(rgbaRegex['test'](fillStyle)){
+					fillrgb = fillStyle.replace(rgbaRegex,color2hex);
+					fillalpha = fillStyle.replace(rgbaRegex,function(){
+						return arguments[4] * 1;
+					});
+				}
+			}
+
+			if(mapapiShape instanceof line || mapapiShape.prototype instanceof line){
+				path = [];
+				for(var j=0;j<coords['length'];++j){
+					path['push'](this['gridPoint2GLatLng'](coords[j]));
+				}
+				setcolors();
+				mapapiShape['google3'] = new google_maps['Polyline']({
+					'path'          : path,
+					'strokeColor'   : rgb,
+					'strokeOpacity' : alpha,
+					'strokeWidth'   : mapapiShape['lineWidth']()
+				});
+				mapapiShape['google3']['setMap'](this['vendorContent']);
+			}else if(mapapiShape instanceof square || mapapiShape.prototype instanceof square || mapapiShape instanceof rectangle || mapapiShape.prototype instanceof rectangle){
+				path = [coords[0], new gridPoint(coords[0]['x'], coords[1]['y']), coords[1], new gridPoint(coords[1]['x'], coords[0]['y'])];
+				for(var j=0;j<path['length'];++j){
+					path[j] = this['gridPoint2GLatLng'](path[j]);
+				}
+				setcolors();
+				mapapiShape['google3'] = new google_maps['Polygon']({
+					'path'          : path,
+					'strokeColor'   : rgb,
+					'strokeOpacity' : alpha,
+					'fillColor'     : fillrgb,
+					'fillOpacity'   : fillalpha,
+					'strokeWidth'   : mapapiShape['lineWidth']()
+				});
+				mapapiShape['google3']['setMap'](this['vendorContent']);
+			}/*else if(mapapiShape instanceof circle || mapapiShape.prototype instanceof circle){
+				setcolors();
+				mapapiShape['google3'] = new google_maps['Circle']({
+					'center'        : this['gridPoint2GLatLng'](coords[0]),
+					'radius'        : (((obj.tileSource['size']['width'] * zoom_a) / zoom_b) * mapapiShape['radius']()),
+					'strokeColor'   : rgb,
+					'strokeOpacity' : alpha,
+					'fillColor'     : fillrgb,
+					'fillOpacity'   : fillalpha,
+					'strokeWidth'   : mapapiShape['lineWidth']()
+				});
+				mapapiShape['google3']['setMap'](this['vendorContent']);
+			}*/else if(mapapiShape instanceof polygon || mapapiShape.prototype instanceof polygon){
+				path = [];
+				for(var j=0;j<coords['length'];++j){
+					path['push'](this['gridPoint2GLatLng'](coords[j]));
+				}
+				setcolors();
+				mapapiShape['google3'] = new google_maps['Polygon']({
+					'path'          : path,
+					'strokeColor'   : rgb,
+					'strokeOpacity' : alpha,
+					'fillColor'     : fillrgb,
+					'fillOpacity'   : fillalpha,
+					'strokeWidth'   : mapapiShape['lineWidth']()
+				});
+				mapapiShape['google3']['setMap'](this['vendorContent']);
+			}
+		}
+		renderer.prototype['addShape']['apply'](this, arguments);
+	}
+
+	google3.prototype['removeShape'] = function(){
+		for(var i=0;i<arguments['length'];++i){
+			if(arguments[i]['google3'] != undefined){
+				arguments[i]['google3']['setMap'](null);
+			}
+		}
+		renderer.prototype['removeShape']['apply'](this, arguments);
 	}
 
 	mapapi['renderers']['google3'] = google3;
