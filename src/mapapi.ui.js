@@ -92,8 +92,13 @@
 				'container'  : rendererNode,
 				'gridConfig' : gridConfig
 			});
-		}else if(!(renderer instanceof mapapi['renderer'])){
+		}else if(!(renderer.prototype instanceof mapapi['renderer'])){
 			throw 'Specified renderer is not an instance of mapapi.renderer';
+		}else{
+			renderer = new renderer({
+				'container' : rendererNode,
+				'gridConfig' : gridConfig
+			});
 		}
 		empty(container);
 		container['appendChild'](rendererNode);

@@ -58,6 +58,7 @@
 	reqAnim = reqAnimSp ? reqAnim : false;
 
 	function canvas(options){
+		renderer['call'](this, options);
 		var supported = document.createElement('canvas');
 		if(supported){
 			supported = (supported['getContext'] && supported['getContext']('2d'));
@@ -328,7 +329,7 @@
 							}
 						}else if(currentShape instanceof circle){
 							var
-								currentShapePos = currentShape['pos'](),
+								currentShapePos = currentShape['coords']()[0],
 								currentShapeRadius = currentShape['radius']()
 							;
 							if(currentShapePos instanceof gridPoint && currentShapeRadius > 0){
