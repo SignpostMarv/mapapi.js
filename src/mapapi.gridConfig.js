@@ -61,7 +61,7 @@
 							}
 						}
 						function b(){
-							db['transaction']('pos2region', IDBTransaction['READ'])['objectStore']('pos2region')['delete'](deleteThese[i++])['onsuccess'] = a;
+							db['transaction']('pos2region', IDBTransaction['READ_WRITE'])['objectStore']('pos2region')['delete'](deleteThese[i++])['onsuccess'] = a;
 						}
 						a();
 					}
