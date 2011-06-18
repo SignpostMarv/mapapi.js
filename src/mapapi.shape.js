@@ -326,4 +326,108 @@
 	}
 
 	shape['line'] = line;
+
+	function circle(options){
+		shape['call'](this, options);
+	}
+
+	extend(circle, shape);
+
+	circle.prototype['options'] = function(options){
+		var
+			opts        = this['opts'],
+			options     = options || {},
+			pos         = options['pos'],
+			radius      = options['radius'],
+			strokeStyle = options['strokeStyle'],
+			lineWidth   = options['lineWidth'],
+			diffPos=false,diffRadius=false,diff
+		;
+		if(pos != undefined){
+			pos = gridPoint['fuzzy'](pos);
+			diffPos = !pos['equals'](opts['pos']);
+			opts['pos'] = pos;
+		}
+		if(radius != undefined){
+			if(typeof radius != 'number'){
+				throw 'radius should be specified as a number';
+			}else if(radius <= 0){
+				throw 'radius should be greater than zero';
+			}
+			diffRadius = radius != opts['radius'];
+			opts['radius'] = radius;
+		}
+		if(diffPos || diffRadius){
+			this['fire']('changedcoords');
+		}
+		if(typeof fillStyle == 'string'){
+			var diff = this['opts']['fillStyle'] != fillStyle;
+			this['opts']['fillStyle'] = fillStyle;
+			if(diff){
+				this['fire']('changedfillstyle');
+			}
+		}
+		if(typeof strokeStyle == 'string'){
+			var diff = this['opts']['strokeStyle'] != strokeStyle;
+			this['opts']['strokeStyle'] = strokeStyle;
+			if(diff){
+				this['fire']('changedstrokestyle');
+			}
+		}
+		if(typeof lineWidth == 'number'){
+			var diff = this['opts']['lineWidth'] != Math.max(0,lineWidth);
+			this['opts']['lineWidth'] = Math.max(0,lineWidth);
+			if(diff){
+				this['fire']('changedlinewidth');
+			}
+		}
+	}
+
+	circle.prototype['pos'] = function(value){
+		if(value != undefined){
+			this['options']({'pos':value});
+		}
+		return this['opts']['pos'];
+	}
+
+	circle.prototype['radius'] = function(value){
+		if(value != undefined){
+			this['options']({'radius':value});
+		}
+		return this['opts']['radius'];
+	}
+
+	circle.prototype['fillStyle'] = function(value){
+		if(value != undefined){
+			this['options']({'fillStyle':value});
+		}
+		return this['opts']['fillStyle'];
+	}
+
+	circle.prototype['withinShape'] = function(pos){
+		pos = gridPoint['fuzzy'](pos);
+		return (this['pos']() instanceof gridPoint && typeof this['radius']() == 'number') && (this['pos']()['distance'](pos) <= this['radius']());
+	}
+
+	circle.prototype['intersects'] = function(value){
+		if(value instanceof bounds && this['pos']() instanceof gridPoint){
+			if((value instanceof bounds && this['pos']() instanceof gridPoint) && value['isWithin'](this['pos']())){
+				return true;
+			}else if(typeof this['radius']() == 'number'){
+				var
+					sw = value['sw'],
+					ne = value['ne'],
+					distanceTests = [sw,ne,{'x':sw['x'], 'y':ne['y']}, {'x':ne['x'], 'y':sw['y']}]
+				;
+				for(var i=0;i<distanceTests.length;++i){
+					if(this['withinShape'](distanceTests[i])){
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	shape['circle'] = circle;
 })(window);

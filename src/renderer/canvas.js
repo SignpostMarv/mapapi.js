@@ -42,7 +42,8 @@
 		shape      = mapapi['shape'],
 		poly       = shape != undefined ? shape['polygon']   : undefined,
 		rectangle  = shape != undefined ? shape['rectangle'] : undefined,
-		line       = shape != undefined ? shape['line'] : undefined
+		line       = shape != undefined ? shape['line']      : undefined,
+		circle     = shape != undefined ? shape['circle']    : undefined
 	;
 
 	mapapi['renderers'] = mapapi['renderers'] || {};
@@ -324,6 +325,20 @@
 									ctx['lineTo'](coords[j]['x'], -coords[j]['y'] + zoom_b);
 								}
 								ctx['stroke']();
+							}
+						}else if(currentShape instanceof circle){
+							var
+								currentShapePos = currentShape['pos'](),
+								currentShapeRadius = currentShape['radius']()
+							;
+							if(currentShapePos instanceof gridPoint && currentShapeRadius > 0){
+								ctx['beginPath']();
+								ctx['arc'](currentShapePos['x'], -currentShapePos['y'] + zoom_b, currentShapeRadius, 0, Math.PI * 2, true);
+								ctx['closePath']();
+								ctx['fill']();
+								if(lineWidth > 0){
+									ctx['stroke']();
+								}
 							}
 						}
 					}
