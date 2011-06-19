@@ -32,7 +32,8 @@
 		console        = window['console'],
 		gridConfig     = mapapi['gridConfig'],
 		tileSource     = mapapi['tileSource'],
-		size           = mapapi['size']
+		size           = mapapi['size'],
+		gridPoint      = mapapi['gridPoint']
 	;
 
 	mapapi['gridConfigs'] = mapapi['gridConfigs'] || {};
@@ -70,6 +71,7 @@
 
 	var
 		pos2region_pool = 0,
+		region2pos_pool = 0,
 		agni            = new gridConfig({
 			'namespace'   : 'com.secondlife.agni',
 			'vendor'      : 'Linden Lab',
@@ -129,7 +131,7 @@
 							agni['APIcache']['pos2region'][Math.floor(p['x'])]                     = agni['APIcache']['pos2region'][Math.floor(p['x'])] || {};
 							agni['APIcache']['pos2region'][Math.floor(p['x'])][Math.floor(p['y'])] = window[_var] + '';
 							script['parentNode']['removeChild'](script);
-						}				
+						}
 					}
 					script['onload'] = done;
 					script['onreadystatechange'] = function(){
@@ -163,6 +165,41 @@
 				}else{
 					noIndexedDB(pos, success, fail);
 				}
+			},
+			'region2pos' : function(region, success, fail){
+				var
+					script = document['createElement']('script'),
+					_var   = 'com_secondlife_agni_regionTopos_' + ((++region2pos_pool) + '')['replace'](/\d/g,function(a){ return 'ABCDEFGHIJ'[a]; })
+				;
+				function done(){
+					if(window[_var] == undefined && fail != undefined){
+						fail('slurl.com API failed to load script variable');
+					}else if(window[_var]['error'] != undefined && fail != undefined){
+						fail('slurl.com API call failed, perhaps your arguments were invalid');
+					}else{
+						var
+							pos = window[_var]
+						;
+						success({'pos':gridPoint['fuzzy'](pos), 'region': region});
+						script['parentNode']['removeChild'](script);
+					}
+				}
+				script['onload'] = done;
+				script['onreadystatechange'] = function(){
+					if(script['readyState'] == 'complete' || script['readyState'] == 'loaded'){
+						done();
+					}
+				}
+				script['onerror'] = function(){
+					if(fail != undefined){
+						fail('Error with script loading the slurl.com API');
+					}
+					setTimeout(function(){
+						script['parentNode']['removeChild'](script);
+					},30000);
+				}
+				script['setAttribute']('src', 'http://slurl.com/get-region-coords-by-name?' + ['var=' + escape(_var), 'sim_name=' + escape(region)].join('&'));
+				document['getElementsByTagName']('head')[0]['appendChild'](script);
 			}
 		})
 	;

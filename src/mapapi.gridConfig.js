@@ -93,6 +93,9 @@
 			obj['API']['pos2region'] = options['pos2region'];
 			obj['APIcache']['pos2region'] = {};
 		}
+		if(options['region2pos'] != undefined){
+			obj['API']['region2pos'] = options['region2pos'];
+		}
 
 		var
 			needsIndexedDB  = false,
@@ -154,6 +157,15 @@
 			throw 'Position should be an instance of mapapi.gridPoint';
 		}
 		this['API']['pos2region'](pos, success, fail);
+	}
+
+	gridConfig.prototype['region2pos'] = function(region, success, fail){
+		if(this['API']['region2pos'] == undefined){
+			throw 'This grid config has no region2pos API';
+		}else if(region == undefined){
+			throw 'Region was not specified';
+		}
+		this['API']['region2pos'](region, success, fail);
 	}
 
 	gridConfig.prototype['apiCacheCheck'] = function(call){
