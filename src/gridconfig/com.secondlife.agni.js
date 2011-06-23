@@ -174,8 +174,10 @@
 				function done(){
 					if(window[_var] == undefined && fail != undefined){
 						fail('slurl.com API failed to load script variable');
-					}else if(window[_var]['error'] != undefined && fail != undefined){
-						fail('slurl.com API call failed, perhaps your arguments were invalid');
+					}else if(window[_var]['error'] != undefined){
+						if(fail != undefined){
+							fail('slurl.com API call failed, perhaps your arguments were invalid');
+						}
 					}else{
 						var
 							pos = window[_var]
