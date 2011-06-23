@@ -89,20 +89,6 @@
 
 		obj['contentNode']   = document.createElement('canvas');
 		obj['vendorContent'] = obj['contentNode']['getContext']('2d');
-		
-
-		obj['contentNode']['addEventListener']('click', function(e){
-			var
-				x     = e['clientX'],
-				y     = e['clientY'],
-				point = obj['px2point'](x - this['offsetLeft'], y - this['offsetTop'])
-			;
-			if(obj['dragging'] != true){
-				obj['fire']('click', {
-					'pos' : point
-				});
-			}
-		}, false);
 
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-canvas');
 		mapapi['renderer'].call(obj);
