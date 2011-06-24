@@ -72,6 +72,9 @@
 						node['removeChild'](node['firstChild']);
 					}
 					return node;
+				},
+				'ctype_digit' : function(value){
+					return /^\d+$/.test(value + '');
 				}
 			},
 			'gridPoint' : function(x, y){
@@ -113,7 +116,8 @@
 		},
 		gridPoint       = mapapi['gridPoint'],
 		bounds          = mapapi['bounds'],
-		windowDiscovery = mapapi['utils']['windowDiscovery']
+		windowDiscovery = mapapi['utils']['windowDiscovery'],
+		ctype_digit     = mapapi['utils']['ctype_digit']
 	;
 
 	window['IndexedDB']      = windowDiscovery(['IndexedDB', 'mozIndexedDB', 'webkitIndexedDB']);
@@ -168,8 +172,8 @@
 
 	gridPoint['fuzzy'] = function(value){
 		if(!(value instanceof gridPoint)){
-			if(typeof value['x'] == 'number' && typeof value['y'] == 'number'){
-				value = new gridPoint(value['x'], value['y']);
+			if(ctype_digit(value['x']) && ctype_digit(value['y'])){
+				value = new gridPoint(value['x'] * 1, value['y'] * 1);
 			}else{
 				throw 'value was not an instance of mapapi.gridPoint and was not an object with appropriate properties';
 			}
