@@ -225,7 +225,7 @@
 				}
 				if(agni['IndexedDB']){
 					var
-						req = agni['IndexedDB']['transaction']('region2pos')['objectStore']('pos2region')['index']('l_region')['get'](region['toLowerCase']())
+						req = agni['IndexedDB']['transaction']('pos2region')['objectStore']('pos2region')['index']('l_region')['get'](region['toLowerCase']())
 					;
 					req['onsuccess'] = function(e){
 						if(e['target']['result']){
