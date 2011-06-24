@@ -128,7 +128,7 @@
 			scripts = head.getElementsByTagName('script'),
 			links   = head.getElementsByTagName('link'),
 			regexp  = /./,
-			uiregex = /mapapi\.ui\.js$/,
+			uiregex = /(mapapi\.ui\.js)$/,
 			exregex = /^https?/,
 			styles  = [],
 			css     = [],
@@ -136,7 +136,8 @@
 			csspathregex,
 			mapuijs,
 			cssfound,
-			newcss
+			newcss,
+			jspath
 		;
 		for(var i=0;i<links.length;++i){
 			if(/\bstylesheet\b/.test(links[i]['rel'])){
@@ -152,6 +153,7 @@
 		if(mapuijs == undefined){
 			throw 'Could not find mapapi.js UI file';
 		}else{
+			jspath = mapuijs['replace'](uiregex,'');
 			for(var i=0;i<ui.prototype.css.length;++i){
 				css.push(ui.prototype.css[i]);
 			}
@@ -165,10 +167,10 @@
 				if(exregex.test(csspath)){
 					regexp.compile('/^' + csspathregex + '$/');
 				}else{
-					regexp.compile('/' + csspathregex + '$/');
+					regexp.compile('^' + jspath.replace(/\./g,'\.').replace(/\//g,'\/') + csspathregex + '$');
 				}
-				for(var j=0;j<styles.length;++i){
-					if(regexp.test(styles[i]['href'])){
+				for(var j=0;j<styles.length;++j){
+					if(regexp.test(styles[j]['href'])){
 						cssfound = true;
 						break;
 					}

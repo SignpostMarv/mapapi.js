@@ -82,7 +82,7 @@
 	minimalistUI.prototype = new mapapiui;
 
 	minimalistUI.prototype.css = [
-		'/ui/minimalist.css'
+		'ui/minimalist.css'
 	];
 
 	mapapi['minimalistUI'] = minimalistUI;
