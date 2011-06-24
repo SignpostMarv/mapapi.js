@@ -151,21 +151,39 @@
 	}
 
 	gridConfig.prototype['pos2region'] = function(pos, success, fail){
+		var
+			error
+		;
 		if(this['API']['pos2region'] == undefined){
-			throw 'This grid config has no pos2region API';
-		}else if(!(pos instanceof mapapi['gridPoint'])){
-			throw 'Position should be an instance of mapapi.gridPoint';
+			error = 'This grid config has no pos2region API';
+		}else if(pos == undefined){
+			error = 'Position was not specified';
 		}
-		this['API']['pos2region'](pos, success, fail);
+		if(error == undefined){
+			this['API']['pos2region'](mapapi['gridPoint']['fuzzy'](pos), success, fail);
+		}else if(fail != undefined){
+			fail(error);
+		}else{
+			throw error;
+		}
 	}
 
 	gridConfig.prototype['region2pos'] = function(region, success, fail){
+		var
+			error
+		;
 		if(this['API']['region2pos'] == undefined){
-			throw 'This grid config has no region2pos API';
+			error = 'This grid config has no region2pos API';
 		}else if(region == undefined){
-			throw 'Region was not specified';
+			error = 'Region was not specified';
 		}
-		this['API']['region2pos'](region, success, fail);
+		if(error == undefined){
+			this['API']['region2pos'](region, success, fail);
+		}else if(fail){
+			fail(error);
+		}else{
+			throw error;
+		}
 	}
 
 	gridConfig.prototype['apiCacheCheck'] = function(call){

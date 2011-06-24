@@ -94,7 +94,9 @@
 						cachecheck = agni['apiCacheCheck']('pos2region', Math.floor(p['x']), Math.floor(p['y']));
 					;
 					if(cachecheck != undefined){
-						s({'pos':p, 'region': cachecheck});
+						if(s){
+							s({'pos':p, 'region': cachecheck});
+						}
 						return;
 					}
 					var
@@ -103,14 +105,20 @@
 					;
 					function done(){
 						if(window[_var] == undefined){
-							f('slurl.com API failed to load script variable');
+							if(f){
+								f('slurl.com API failed to load script variable');
+							}
 						}else if(window[_var]['error'] != undefined){
-							f('slurl.com API call failed, perhaps your arguments were invalid');
+							if(f){
+								f('slurl.com API call failed, perhaps your arguments were invalid');
+							}
 						}else{
 							var
 								region = window[_var] + ''
 							;
-							s({'pos':p, 'region': region});
+							if(s){
+								s({'pos':p, 'region': region,'cache':false});
+							}
 							if(agni['IndexedDB']){
 								var
 									transaction = agni['IndexedDB']['transaction']('pos2region', IDBTransaction['READ_WRITE']),
@@ -140,7 +148,9 @@
 						}
 					}
 					script['onerror'] = function(){
-						f('Error with script loading the slurl.com API');
+						if(f){
+							f('Error with script loading the slurl.com API');
+						}
 						setTimeout(function(){
 							script['parentNode']['removeChild'](script);
 						},30000);
@@ -157,7 +167,9 @@
 							if(console != undefined){
 								console.log('IndexedDB cache hit @ ' + Math.floor(pos['x']) + ',' + Math.floor(pos['y']));
 							}
-							success({'pos':pos, 'region':e['target']['result']['region']});
+							if(success){
+								success({'pos':pos, 'region':e['target']['result']['region'],'cache':'hit'});
+							}
 						}else{
 							noIndexedDB(pos, success, fail);
 						}
@@ -171,37 +183,72 @@
 					script = document['createElement']('script'),
 					_var   = 'com_secondlife_agni_regionTopos_' + ((++region2pos_pool) + '')['replace'](/\d/g,function(a){ return 'ABCDEFGHIJ'[a]; })
 				;
-				function done(){
-					if(window[_var] == undefined && fail != undefined){
-						fail('slurl.com API failed to load script variable');
-					}else if(window[_var]['error'] != undefined){
-						if(fail != undefined){
-							fail('slurl.com API call failed, perhaps your arguments were invalid');
+				function noIndexedDB(r, s, f){
+					function done(){
+						if(window[_var] == undefined){
+							if(f){
+								f('slurl.com API failed to load script variable');
+							}
+						}else if(window[_var]['error'] != undefined){
+							if(f){
+								f('slurl.com API call failed, perhaps your arguments were invalid');
+							}
+						}else{
+							var
+								pos = window[_var]
+							;
+							if(s){
+								s({'pos':gridPoint['fuzzy'](pos), 'region': r, 'cache':false});
+							}
+							if(agni['IndexedDB']){
+								agni['pos2region'](pos);
+							}
+							script['parentNode']['removeChild'](script);
 						}
-					}else{
-						var
-							pos = window[_var]
-						;
-						success({'pos':gridPoint['fuzzy'](pos), 'region': region});
-						script['parentNode']['removeChild'](script);
 					}
-				}
-				script['onload'] = done;
-				script['onreadystatechange'] = function(){
-					if(script['readyState'] == 'complete' || script['readyState'] == 'loaded'){
-						done();
+					script['onload'] = done;
+					script['onreadystatechange'] = function(){
+						if(script['readyState'] == 'complete' || script['readyState'] == 'loaded'){
+							done();
+						}
 					}
-				}
-				script['onerror'] = function(){
-					if(fail != undefined){
-						fail('Error with script loading the slurl.com API');
+					script['onerror'] = function(){
+						if(f){
+							f('Error with script loading the slurl.com API');
+						}
+						setTimeout(function(){
+							script['parentNode']['removeChild'](script);
+						},30000);
 					}
-					setTimeout(function(){
-						script['parentNode']['removeChild'](script);
-					},30000);
+					script['setAttribute']('src', 'http://slurl.com/get-region-coords-by-name?' + ['var=' + escape(_var), 'sim_name=' + escape(r)].join('&'));
+					document['getElementsByTagName']('head')[0]['appendChild'](script);
 				}
-				script['setAttribute']('src', 'http://slurl.com/get-region-coords-by-name?' + ['var=' + escape(_var), 'sim_name=' + escape(region)].join('&'));
-				document['getElementsByTagName']('head')[0]['appendChild'](script);
+				if(agni['IndexedDB']){
+					var
+						req = agni['IndexedDB']['transaction']('region2pos')['objectStore']('pos2region')['index']('l_region')['get'](region['toLowerCase']())
+					;
+					req['onsuccess'] = function(e){
+						if(e['target']['result']){
+							if(console != undefined){
+								console.log('IndexedDB cache hit @ ' + region['toLowerCase']());
+							}
+							var
+								pos = e['target']['result']['pos']['split']('_')
+							;
+							if(success){
+								success({'pos':gridPoint['fuzzy']({'x':pos[0],'y':pos[1]}),'region':e['target']['result']['region'],'cache':'hit'})
+							}
+						}else{
+							noIndexedDB(region, success, fail);
+						}
+					}
+					req['onerror'] = function(e){
+						console.log('IndexedDB cache miss @ ' + region['toLowerCase']());
+						noIndexedDB(region, success, fail);
+					}
+				}else{
+					noIndexedDB(region, success, fail);
+				}
 			}
 		})
 	;
