@@ -32,9 +32,19 @@
 		document    = window['document'],
 		mapapi      = window['mapapi'],
 		SLURL       = window['SLURL'],
-		google      = window['google'],
+		google      = window['google']
+	;
+	if(google == undefined){
+		throw 'Google JS not loaded, check JavaScript permissions';
+	}
+	var
 		google_maps = google['maps'],
-		GLatLng     = google_maps['LatLng'],
+		GLatLng     = google_maps['LatLng']
+	;
+	if(google_maps == undefined || GLatLng == undefined){
+		throw 'Google Maps API not loaded, check JavaScript permissions';
+	}
+	var
 		renderer    = mapapi['renderer'],
 		gridConfig  = mapapi['gridConfig'],
 		gridPoint   = mapapi['gridPoint'],
