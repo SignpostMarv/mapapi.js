@@ -76,6 +76,7 @@
 			'namespace'   : 'com.secondlife.agni',
 			'vendor'      : 'Linden Lab',
 			'name'        : 'Second Life',
+			'description' : 'Linden Lab\'s Agni grid',
 			'label'       : 'Agni',
 			'size'        : new size(1048576, 1048576),
 			'tileSources' : [
