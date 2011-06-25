@@ -81,6 +81,8 @@
 	}
 	minimalistUI.prototype = new mapapiui;
 	minimalistUI.prototype['constructor'] = minimalistUI;
+	minimalistUI.prototype['name'] = 'minimalist';
+	minimalistUI.prototype['description'] = "Provides a minimalist interface to the map.\nUnfinished, made available for feedback.";
 
 	minimalistUI.prototype['css'] = [
 		'ui/minimalist.css'

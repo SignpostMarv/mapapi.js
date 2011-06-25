@@ -38,6 +38,8 @@
 	}
 
 	var
+		localStorage  = window['localStorage'],
+		JSON          = window['JSON'],
 		mapapi = {
 			'utils' : {
 				'addClass' : function(node, className){
@@ -81,6 +83,12 @@
 				},
 				'ctype_digit' : function(value){
 					return /^\d+$/.test(value + '');
+				},
+				'createElement' : function(element){
+					return document['createElement'](element);
+				},
+				'createText'    : function(text){
+					return document['createTextNode'](text);
 				}
 			},
 			'gridPoint' : function(x, y){
@@ -194,6 +202,22 @@
 	gridPoint.prototype['distance'] = function(value){
 		value = gridPoint['fuzzy'](value);
 		return Math.sqrt((Math.pow(this['x'], 2) - Math.pow(value['x'], 2)) + (Math.pow(this['y'], 2) - Math.pow(value['y'], 2)));
+	}
+
+	if(localStorage && JSON){
+		function storage(){
+			this['storage'] = localStorage;
+		}
+
+		storage.prototype['getItem'] = function(item){
+			return JSON['parse'](this['storage']['getItem'](item));
+		}
+
+		storage.prototype['setItem'] = function(item, value){
+			return this['storage']['setItem'](item, JSON.stringify(value));
+		}
+
+		mapapi['storage'] = new storage;
 	}
 
 	window['mapapi'] = mapapi;

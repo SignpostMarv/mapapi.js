@@ -125,6 +125,7 @@
 		'reset.css',
 		'ui.css'
 	];
+
 	ui.prototype['loadCSS'] = function(){
 		var
 			obj     = this,
@@ -253,7 +254,7 @@
 			currentSection = sectionParent['childNodes'][i];
 			if(!currentSection['hasChildNodes']() || currentSection['childNodes'][0]['nodeName']['toLowerCase']() != 'h1'){
 				continue;
-			}else if(currentSection['childNodes'][0]['textContent']['toLowerCase']() == title['toLowerCase']()){
+			}else if(currentSection['childNodes'][0]['textContent'] && currentSection['childNodes'][0]['textContent']['toLowerCase']() == title['toLowerCase']()){
 				found = true;
 				break
 			}
@@ -261,12 +262,14 @@
 		if(!found && create){
 			var
 				currentSection = createElement('li'),
-				sectionTitle   = createElement('h1')
+				sectionTitle   = createElement('h1'),
+				className      = title['replace'](/[^A-z\d]/g,'')['toLowerCase']()
 			;
 			sectionTitle['appendChild'](createText(title));
 			currentSection['appendChild'](sectionTitle);
 			sectionParent['appendChild'](currentSection);
 			currentSection['appendChild'](createElement('ul'));
+			addClass(currentSection, className);
 			currentSection['onclick'] = function(){
 				toggleClass(this['parentNode'], 'toggled');
 			}

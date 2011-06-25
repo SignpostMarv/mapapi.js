@@ -72,6 +72,10 @@
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li{
 	display: inline-block ;
 	position: relative ;
+	margin-left: 1em ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:first-child{
+	margin-left: 0 ;
 }
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > h1{
 	font-size: 1.2em ;
@@ -94,7 +98,7 @@
 	padding-left: 1em ;
 	white-space: pre ;
 }
-.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li:hover, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li.enabled{
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li:hover, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li.enabled, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li.mapapijs > ul > li{
 	text-decoration: none ;
 }
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li.enabled{

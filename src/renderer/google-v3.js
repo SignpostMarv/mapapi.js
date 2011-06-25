@@ -226,6 +226,7 @@
 	google3.prototype = new renderer;
 	google3.prototype['constructor'] = google3;
 	google3.prototype['name'] = 'Google Maps v3';
+	google3.prototype['description'] = 'Uses version 3 of Google\'s Map API to render the map.';
 
 	google3.prototype['options'] = function(options){
 		renderer.prototype['options']['call'](this, options);
