@@ -59,6 +59,12 @@
 						node['className'] = classes['join'](' ')['replace'](/^\s+|\s+$/,'');
 					}
 				},
+				'hasClass' : function(node, className){
+					return !node ? false : ((node['className'] || '')['split'](' ')['indexOf'](className) >= 0 ? true : false);
+				},
+				'toggleClass' : function(node, className){
+					mapapi['utils'][mapapi['utils']['hasClass'](node, className) ? 'delClass' : 'addClass'](node, className);
+				},
 				'windowDiscovery' : function(checkThis){
 					for(var i=0;i<checkThis.length;++i){
 						if(window[checkThis[i]] != undefined){
