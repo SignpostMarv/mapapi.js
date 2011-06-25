@@ -31,7 +31,9 @@
 		mapapi        = window['mapapi'],
 		mapapiui      = (mapapi != undefined) ? mapapi['ui'] : undefined,
 		infoWindow    = mapapi['infoWindow'],
-		addClass      = (mapapi != undefined) ? mapapi['utils']['addClass'] : undefined
+		addClass      = (mapapi != undefined) ? mapapi['utils']['addClass'] : undefined,
+		hasClass      = addClass ? mapapi['utils']['hasClass'] : undefined
+		empty         = addClass ? mapapi['utils']['empty'] : undefined
 	;
 	if(mapapi == undefined){
 		throw 'mapapi.js not loaded';
@@ -46,12 +48,12 @@
 			container     = obj['contentNode'],
 			sidebars      = obj['sidebars'],
 			renderer      = obj['renderer'],
-			zoomcontrol   = createElement('li'),
+			zoomcontrol   = obj['sidebar']('Zoom Control',true),
+			menu          = obj['sidebar']('Menu', true),
 			zoomin        = createElement('p'),
 			zoomout       = createElement('p')
 		;
 		addClass(container, 'mapapi-ui-minimalist');
-		addClass(zoomcontrol, 'zoomcontrol');
 
 		appendChild(zoomin , createText('+'));
 		appendChild(zoomout, createText('–'));
@@ -74,16 +76,49 @@
 			return false;
 		};
 
-
 		appendChild(zoomcontrol, zoomin);
 		appendChild(zoomcontrol, zoomout);
-		appendChild(sidebars, zoomcontrol);
 	}
 	minimalistUI.prototype = new mapapiui;
+	minimalistUI.prototype['constructor'] = minimalistUI;
 
-	minimalistUI.prototype.css = [
+	minimalistUI.prototype['css'] = [
 		'ui/minimalist.css'
 	];
+
+	minimalistUI.prototype['sidebar'] = function(sidebar, create){
+		var
+			result = mapapiui.prototype['sidebar']['apply'](this, arguments),
+			create = !!create,
+			found = false
+		;
+		if(create && sidebar['toLowerCase']() == 'menu'){
+			for(var i=0;i<result['childNodes']['length'];++i){
+				found = hasClass(result['childNodes'][i], 'toggle-menu');
+				if(found){
+					break;
+				}
+			}
+			if(!found){
+				var
+					menuHideShow = createElement('div'),
+					menuMinimised = false
+				;
+				function toggleMenu(){
+					menuMinimised = !menuMinimised;
+					mapapi['utils'][menuMinimised ? 'addClass' : 'delClass'](result, 'minimised');
+					menuHideShow['title'] = menuMinimised ? 'Show' : 'Hide';
+					empty(menuHideShow)['appendChild'](createText(menuMinimised ? '«' : '»'));
+				}
+				addClass(menuHideShow,'toggle-menu');
+				toggleMenu();
+				menuHideShow['onclick'] = toggleMenu;
+				result['appendChild'](menuHideShow);			
+			}
+		}
+		return result;
+	}
+	
 
 	mapapi['minimalistUI'] = minimalistUI;
 

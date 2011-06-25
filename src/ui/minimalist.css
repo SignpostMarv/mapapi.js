@@ -24,23 +24,81 @@
 .mapapi-ui-sidebars {
 	z-index: 200 ;
 }
-.mapapi-ui-minimalist .mapapi-ui-sidebars .zoomcontrol{
+.mapapi-ui-minimalist .mapapi-ui-sidebars .zoomcontrol, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu{
 	position: absolute ;
-	top: 37px;
-	right: 8px ;
-	width: 16px ;
+	top: 37px ;
 	height: 29px ;
 	z-index: 200 ;
 	vertical-align: top ;
-	line-height: 14.5px ;
 	background: #eee ;
-	text-align: center ;
 	font-size: 12px ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .zoomcontrol{
+	right: 8px ;
+	width: 16px ;
+	text-align: center ;
 	text-indent: -4px ;
 	border-radius: 0 8px 8px 0;
 	box-shadow: 0px 2px 4px #000 ;
-	overflow: hidden ;
 	clip:rect(0,20px,33px,0);
+	overflow: hidden ;
+	line-height: 14.5px ;
+}
+
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu{
+	right: 24px ;
+	line-height: 29px ;
+	width: auto ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu.minimised{
+	width: 0 ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul{
+	padding: 0 .25em ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu.minimised > ul{
+	display: none ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu .toggle-menu{
+	position: absolute ;
+	top: 0 ;
+	left: -1em ;
+	z-index: 200 ;
+	padding: 0 4px ;
+	background: #eee ;
+	border-radius: 8px 0 0 8px ;
+	height: 100% ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li{
+	display: inline-block ;
+	position: relative ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > h1{
+	font-size: 1.2em ;
+	font-weight: bolder ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul{
+	display: none ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li.toggled > ul, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover > ul{
+	display: block ;
+	position: absolute ;
+	top: 100% ;
+	right: 0 ;
+	background: #eee ;
+	border-radius: 8px 0 8px 8px ;
+	padding: .25em ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li{
+	text-decoration: line-through ;
+	padding-left: 1em ;
+	white-space: pre ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li:hover, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li.enabled{
+	text-decoration: none ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li.enabled{
+	font-weight: bolder ;
 }
 
 .mapapi-ui-minimalist .mapapi-ui-marker{

@@ -33,9 +33,13 @@
 		gridPoint     = mapapi['gridPoint'],
 		bounds        = mapapi['bounds'],
 		utils         = mapapi['utils'],
-		addClass      = utils ? utils['addClass'] : undefined,
-		delClass      = utils ? utils['delClass'] : undefined,
-		empty         = utils ? utils['empty']    : undefined
+		addClass      = utils ? utils['addClass']    : undefined,
+		delClass      = utils ? utils['delClass']    : undefined,
+		hasClass      = utils ? utils['hasClass']    : undefined,
+		toggleClass   = utils ? utils['toggleClass'] : undefined,
+		empty         = utils ? utils['empty']       : undefined,
+		ctype_digit   = utils ? utils['ctype_digit'] : undefined,
+		trimRegex     = /^\s+|\s+$/g
 	;
 
 	function extend(a,b){
@@ -184,6 +188,92 @@
 				}
 			}
 		}
+	}
+
+	ui.prototype['sidebar'] = function(sidebar,create){
+		if(typeof sidebar != 'string'){
+			throw 'sidebar should be specified as string';
+		}else if(sidebar['replace'](trimRegex,'') == ''){
+			throw 'sidebar name is empty';
+		}
+		var
+			create    = !!create,
+			sidebars  = this['sidebars'],
+			sidebar   = sidebar['replace'](trimRegex, ''),
+			className = sidebar['replace'](/[^A-z\d]/g,'')['toLowerCase']()
+		;
+		for(var i=0;i<sidebars['childNodes']['length'];++i){
+			if(hasClass(sidebars['childNodes'][i],className)){
+				return sidebars['childNodes'][i];
+			}
+		}
+		if(create){
+			var
+				li = createElement('li')
+			;
+			addClass(li, className);
+			sidebars['appendChild'](li);
+			return li;
+		}
+		return false;
+	}
+
+	ui.prototype['section'] = function(sidebar, title, create){
+		var
+			create = !!create,
+			sidebar = this['sidebar'](sidebar, create),
+			sectionParent
+		;
+		if(typeof title != 'string'){
+			throw 'Sidebar section title should be specified as string';
+		}else if(title['replace'](trimRegex,'') == ''){
+			throw 'Sidebar section title was empty';
+		}
+		for(var i=0;i<sidebar['childNodes']['length'];++i){
+			if(sidebar['childNodes'][i]['nodeName']['toLowerCase']() == 'ul'){
+				sectionParent = sidebar['childNodes'][i];
+				break;
+			}
+		}
+		if(sectionParent == undefined){
+			if(!create){
+				return false;
+			}
+			var
+				sectionParent = createElement('ul')
+			;
+			sidebar['appendChild'](sectionParent);
+		}
+		var
+			title = title['replace'](trimRegex,''),
+			found = false,
+			currentSection
+		;
+		for(var i=0;i<sectionParent['childNodes']['length'];++i){
+			currentSection = sectionParent['childNodes'][i];
+			if(!currentSection['hasChildNodes']() || currentSection['childNodes'][0]['nodeName']['toLowerCase']() != 'h1'){
+				continue;
+			}else if(currentSection['childNodes'][0]['textContent']['toLowerCase']() == title['toLowerCase']()){
+				found = true;
+				break
+			}
+		}
+		if(!found && create){
+			var
+				currentSection = createElement('li'),
+				sectionTitle   = createElement('h1')
+			;
+			sectionTitle['appendChild'](createText(title));
+			currentSection['appendChild'](sectionTitle);
+			sectionParent['appendChild'](currentSection);
+			currentSection['appendChild'](createElement('ul'));
+			currentSection['onclick'] = function(){
+				toggleClass(this['parentNode'], 'toggled');
+			}
+		}else if(!found){
+			return false;
+		}
+		return currentSection;
 	}
 
 	mapapi['ui'] = ui;
