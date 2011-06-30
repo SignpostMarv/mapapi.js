@@ -280,6 +280,7 @@
 	}
 
 	mapapi['ui'] = ui;
+	mapapi['userinterfaces'] = {};
 
 	function uiItem(){
 		if(EventTarget == undefined){

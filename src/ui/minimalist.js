@@ -122,7 +122,7 @@
 	}
 	
 
-	mapapi['minimalistUI'] = minimalistUI;
+	mapapi['userinterfaces'][minimalistUI.prototype.name ] = minimalistUI;
 
 
 	function minimalistUIinfoWindow(options){
