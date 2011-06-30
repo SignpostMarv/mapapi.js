@@ -483,5 +483,6 @@
 		return this['opts']['shapes'];
 	}
 
-	mapapi['renderer'] = renderer;
+	mapapi['renderer']  = renderer;
+	mapapi['renderers'] = {};
 })(window);

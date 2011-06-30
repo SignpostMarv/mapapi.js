@@ -46,8 +46,6 @@
 		circle     = shape != undefined ? shape['circle']    : undefined
 	;
 
-	mapapi['renderers'] = mapapi['renderers'] || {};
-
 	for(var i=0;i<reqAnim.length;++i){
 		if(!!window[reqAnim[i]]){
 			reqAnim = window[reqAnim[i]];

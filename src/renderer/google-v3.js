@@ -63,8 +63,6 @@
 		circle     = shape['circle']
 	;
 
-	mapapi['renderers'] = mapapi['renderers'] || {};
-
 	euclid.prototype['fromLatLngToPoint'] = function(latlng, opt){
 		var point = opt || new gridPoint(0,0);
 		point['x'] = latlng['lng']() / this.hscale;
