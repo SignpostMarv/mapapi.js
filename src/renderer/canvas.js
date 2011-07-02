@@ -112,6 +112,11 @@
 	canvas.prototype['name'] = '2D Canvas';
 	canvas.prototype['description'] = 'Uses the 2D canvas API to render the map as a single image.';
 
+	var
+		canvasElement = document['createElement']('canvas')
+	;
+	canvas.prototype['browserSupported'] = canvasElement && canvasElement['getContext'] && canvasElement['getContext']('2d');
+
 	canvas.prototype['options'] = function(options){
 		renderer.prototype['options']['call'](this, options);
 		var

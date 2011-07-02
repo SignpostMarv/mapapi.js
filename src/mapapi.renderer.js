@@ -82,6 +82,7 @@
 
 	renderer.prototype = new EventTarget();
 	renderer.prototype['constructor'] = renderer;
+	renderer.prototype['browserSupported'] = false;
 
 	renderer.prototype['options'] = function(options){
 		var
