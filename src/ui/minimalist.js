@@ -42,22 +42,34 @@
 	}
 
 	minimalistUI = function(options){
-		mapapiui.call(this, options);
+		mapapiui['call'](this, options);
 		var
 			obj           = this,
 			container     = obj['contentNode'],
 			sidebars      = obj['sidebars'],
 			renderer      = obj['renderer'],
-			zoomcontrol   = obj['sidebar']('Zoom Control',true),
-			menu          = obj['sidebar']('Menu', true),
+			menu        = this['addSidebar']('Menu', new mapapiui['sidebar']()),
+			menuHideShow  = createElement('div'),
+			menuMinimised = false,
+			zoomcontrol = this['addSidebar']('Zoom Control', new mapapiui['sidebar']()),
 			zoomin        = createElement('p'),
 			zoomout       = createElement('p')
 		;
-		addClass(container, 'mapapi-ui-minimalist');
 
+		function toggleMenu(){
+			menuMinimised = !menuMinimised;
+			mapapi['utils'][menuMinimised ? 'addClass' : 'delClass'](menu, 'minimised');
+			menuHideShow['title'] = menuMinimised ? 'Show' : 'Hide';
+			empty(menuHideShow)['appendChild'](createText(menuMinimised ? '«' : '»'));
+		}
+		addClass(menuHideShow,'toggle-menu');
+		toggleMenu();
+		menuHideShow['onclick'] = toggleMenu;
+		menu['appendChild'](menuHideShow);
+
+		empty(zoomcontrol);
 		appendChild(zoomin , createText('+'));
 		appendChild(zoomout, createText('–'));
-
 		function changeZoom(level){
 			if(renderer['smoothZoom']() && /MSIE ([0-9]{1,}[\.0-9]{0,})/.test(navigator['userAgent']) == !1){
 				renderer['animate']({
@@ -75,7 +87,6 @@
 			changeZoom(renderer['zoom']() + 1);
 			return false;
 		};
-
 		appendChild(zoomcontrol, zoomin);
 		appendChild(zoomcontrol, zoomout);
 	}

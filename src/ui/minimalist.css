@@ -81,7 +81,7 @@
 	font-size: 1.2em ;
 	font-weight: bolder ;
 }
-.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul{
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul{
 	display: none ;
 }
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li.toggled > ul, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover > ul{
@@ -89,6 +89,16 @@
 	position: absolute ;
 	top: 100% ;
 	right: 0 ;
+	background: #eee ;
+	border-radius: 8px 0 8px 8px ;
+	padding: .25em ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li:hover > ul{
+	display: block ;
+	position: absolute ;
+	top: 8px ;
+	right: 100% ;
+	margin-right: -8px ;
 	background: #eee ;
 	border-radius: 8px 0 8px 8px ;
 	padding: .25em ;

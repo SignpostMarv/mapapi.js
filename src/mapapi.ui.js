@@ -1,4 +1,4 @@
-﻿/**
+/**
 * License and Terms of Use
 *
 * Copyright (c) 2011 SignpostMarv
@@ -27,6 +27,7 @@
 		document      = window['document'],
 		EventTarget   = window['EventTarget'],
 		Image         = window['Image'],
+		Array         = window['Array'],
 		createElement = function(a){ return document['createElement'](a); },
 		createText    = function(a){ return document['createTextNode'](a); },
 		mapapi        = window['mapapi'],
@@ -47,19 +48,22 @@
 		a.prototype['constructor'] = a;
 	}
 
+	var
+		uiID = 0
+	;
 	function ui(options){
 		if(options == undefined){
 			return;
 		}
 		var
-			obj          = this,
-			options      = options || {},
-			container    = options['container'],
-			renderer     = options['renderer'],
-			gridConfig   = options['gridConfig'],
-			markerMngr   = options['markerManager'],
-			rendererNode = createElement('div'),
-			sidebars     = createElement('ul')
+			obj               = this,
+			options           = options || {},
+			container         = options['container'],
+			renderer          = options['renderer'],
+			gridConfig        = options['gridConfig'],
+			markerMngr        = options['markerManager'],
+			rendererNode      = createElement('div'),
+			sidebarsContainer = createElement('ul')
 		;
 		if(markerMngr == undefined){
 			markerMngr = new markerManager;
@@ -106,19 +110,22 @@
 		}
 		empty(container);
 		container['appendChild'](rendererNode);
-		container['appendChild'](sidebars);
+		container['appendChild'](sidebarsContainer);
 
 		addClass(container, 'mapapi-ui');
+		addClass(container, 'mapapi-ui-' + this['name']['toLowerCase']()['replace'](/\s+/g,''));
 		addClass(rendererNode, 'mapapi-ui-renderer');
-		addClass(sidebars, 'mapapi-ui-sidebars');
+		addClass(sidebarsContainer, 'mapapi-ui-sidebars');
 
-		obj['renderer']      = renderer;
-		obj['rendererNode']  = rendererNode;
-		obj['contentNode']   = container;
-		obj['sidebars']      = sidebars;
-		obj['markerManager'] = markerMngr;
+		obj['renderer']          = renderer;
+		obj['rendererNode']      = rendererNode;
+		obj['contentNode']       = container;
+		obj['sidebars']          = {};
+		obj['sidebarsContainer'] = sidebarsContainer;
+		obj['markerManager']     = markerMngr;
+		obj['ID']                = uiID++;
 
-		obj.loadCSS();
+		obj['loadCSS']();
 	}
 
 	ui.prototype['css'] = [
@@ -191,92 +198,74 @@
 		}
 	}
 
-	ui.prototype['sidebar'] = function(sidebar,create){
-		if(typeof sidebar != 'string'){
-			throw 'sidebar should be specified as string';
-		}else if(sidebar['replace'](trimRegex,'') == ''){
+	ui.prototype['addSidebar'] = function(sidebarName, sidebarObj){
+		if(typeof sidebarName != 'string'){
+			throw 'sidebar name should be specified as string';
+		}else if(!(sidebarObj instanceof sidebar)){
+			throw 'sidebar object should be an instanceof mapapi.ui.sidebar';
+		}
+		sidebarName = sidebarName['replace'](trimRegex,'');
+		if(sidebarName == ''){
+			throw 'sidebar name is empty';
+		}
+		if(this['sidebars'][sidebarName['toLowerCase']()] != undefined){
+			throw 'A sidebar with that name has already been assigned';
+		}else{
+			this['sidebars'][sidebarName['toLowerCase']()] = sidebarObj;
+			var
+				DOM = this['sidebar2DOM'](sidebarName, sidebarObj)
+			;
+			this['sidebarsContainer']['appendChild'](DOM);
+			return DOM;
+		}
+	}
+
+	function sectionsAddedListener(e){
+		if(e['sections'] && e['sections'] instanceof Array){
+			for(var i=0;i<e['sections']['length'];++i){
+				if(e['sections'][i] instanceof section){
+					var
+						li         = createElement('li'),
+						h1         = createElement('h1'),
+						ul         = createElement('ul'),
+						subsection = e['sections'][i],
+						text       = subsection['text']()
+					;
+					h1['appendChild'](createText(text));
+					h1['onclick'] = function(){
+						toggleClass(this['parentNode'], 'toggled');
+						subsection['fire']('click');
+					};
+					li['appendChild'](h1);
+					li['appendChild'](ul);
+					addClass(li, text['toLowerCase']()['replace'](/[^A-z\d]+/g,''));
+					subsection['DOM'] = ul;
+					this['DOM']['appendChild'](li);
+					subsection['addListener']('sectionsadded', sectionsAddedListener);
+				}
+			}
+		}
+	}
+	ui.prototype['sidebar2DOM'] = function(sidebarName, sidebarObj){
+		if(typeof sidebarName != 'string'){
+			throw 'sidebar name should be specified as string';
+		}else if(!(sidebarObj instanceof sidebar)){
+			throw 'sidebar object should be an instanceof mapapi.ui.sidebar';
+		}
+		sidebarName = sidebarName['replace'](trimRegex,'');
+		if(sidebarName == ''){
 			throw 'sidebar name is empty';
 		}
 		var
-			create    = !!create,
-			sidebars  = this['sidebars'],
-			sidebar   = sidebar['replace'](trimRegex, ''),
-			className = sidebar['replace'](/[^A-z\d]/g,'')['toLowerCase']()
+			obj = this,
+			li  = createElement('li'),
+			ul  = createElement('ul')
 		;
-		for(var i=0;i<sidebars['childNodes']['length'];++i){
-			if(hasClass(sidebars['childNodes'][i],className)){
-				return sidebars['childNodes'][i];
-			}
-		}
-		if(create){
-			var
-				li = createElement('li')
-			;
-			addClass(li, className);
-			sidebars['appendChild'](li);
-			return li;
-		}
-		return false;
-	}
-
-	ui.prototype['section'] = function(sidebar, title, create){
-		var
-			create = !!create,
-			sidebar = this['sidebar'](sidebar, create),
-			sectionParent
-		;
-		if(typeof title != 'string'){
-			throw 'Sidebar section title should be specified as string';
-		}else if(title['replace'](trimRegex,'') == ''){
-			throw 'Sidebar section title was empty';
-		}
-		for(var i=0;i<sidebar['childNodes']['length'];++i){
-			if(sidebar['childNodes'][i]['nodeName']['toLowerCase']() == 'ul'){
-				sectionParent = sidebar['childNodes'][i];
-				break;
-			}
-		}
-		if(sectionParent == undefined){
-			if(!create){
-				return false;
-			}
-			var
-				sectionParent = createElement('ul')
-			;
-			sidebar['appendChild'](sectionParent);
-		}
-		var
-			title = title['replace'](trimRegex,''),
-			found = false,
-			currentSection
-		;
-		for(var i=0;i<sectionParent['childNodes']['length'];++i){
-			currentSection = sectionParent['childNodes'][i];
-			if(!currentSection['hasChildNodes']() || currentSection['childNodes'][0]['nodeName']['toLowerCase']() != 'h1'){
-				continue;
-			}else if(currentSection['childNodes'][0]['textContent'] && currentSection['childNodes'][0]['textContent']['toLowerCase']() == title['toLowerCase']()){
-				found = true;
-				break
-			}
-		}
-		if(!found && create){
-			var
-				currentSection = createElement('li'),
-				sectionTitle   = createElement('h1'),
-				className      = title['replace'](/[^A-z\d]/g,'')['toLowerCase']()
-			;
-			sectionTitle['appendChild'](createText(title));
-			currentSection['appendChild'](sectionTitle);
-			sectionParent['appendChild'](currentSection);
-			currentSection['appendChild'](createElement('ul'));
-			addClass(currentSection, className);
-			currentSection['onclick'] = function(){
-				toggleClass(this['parentNode'], 'toggled');
-			}
-		}else if(!found){
-			return false;
-		}
-		return currentSection;
+		addClass(li, sidebarName['toLowerCase']()['replace'](/\s+/g,''));
+		li['appendChild'](ul);
+		sidebarObj['DOM'] = ul;
+		sidebarObj['addListener']('sectionsadded', sectionsAddedListener);
+		return li;
 	}
 
 	mapapi['ui'] = ui;
@@ -810,4 +799,101 @@
 	];
 
 	mapapi['numberedMarker'] = numberedMarker;
+
+
+	var
+		sectionID = 0
+	;
+
+	function sidebar(){
+		EventTarget['call'](this);
+		this['sections'] = [];
+		this['DOM']      = undefined;
+		this['ID'] = sectionID++;
+	}
+
+	extend(sidebar, EventTarget);
+
+	sidebar.prototype['addSection'] = function(){
+		var
+			addThese = []
+		;
+		for(var i=0;i<arguments['length'];++i){
+			if(!(arguments[i] instanceof section || (arguments[i].prototype != undefined && arguments[i].prototype instanceof section))){
+				throw 'sub-section should be instanceof mapapi.ui.section';			
+			}else if(this['sections']['indexOf'](arguments[i]) == -1){
+				addThese['push'](arguments[i]);
+			}
+		}
+		if(addThese['length'] > 0){
+			this['sections']['push']['apply'](this['sections'], addThese);
+			this['fire']('sectionsadded',{'sections':addThese});
+		}
+	}
+
+	sidebar.prototype['removeSection'] = function(){
+		var
+			removeThese = [],
+			pos
+		;
+		for(var i=0;i<arguments['length'];++i){
+			if(!(arguments[i] instanceof section || (arguments[i].prototype != undefined && arguments[i].prototype instanceof section))){
+				throw 'sub-section should be instanceof mapapi.ui.section';			
+			}else if(this['sections']['indexOf'](arguments[i]) > -1){
+				removeThese['push'](arguments[i]);
+			}
+		}
+		if(removeThese['length'] > 0){
+			for(var i=0;i<removeThese['length'];++i){
+				this['sections']['splice'](this['sections']['indexOf'](removeThese[i]), 1);
+			}
+			this['fire']('sectionsremoved',{'sections':removeThese});
+		}
+	}
+
+	ui['sidebar'] = sidebar;
+
+	function section(options){
+		sidebar['call'](this);
+		this['opts'] = {};
+		if(options != undefined){
+			if(typeof options == 'string'){
+				options = {'text':options};
+			}
+			this['options'](options);
+		}
+		this['DOM'] = undefined;
+	}
+
+	extend(section, sidebar);
+
+	section.prototype['options'] = function(options){
+		var
+			options = options || {},
+			opts    = this['opts'],
+			text    = options['text']
+		;
+		if(text != undefined){
+			if(text + '' != text){
+				throw 'text should be a string!';
+			}
+			text = text['replace'](/^\s+|\s+$/,'');
+			if(text == ''){
+				throw 'text is empt!';
+			}
+			if(text != opts['text']){
+				this['fire']('changedtext');
+				opts['text'] = text;
+			}
+		}
+	}
+
+	section.prototype['text'] = function(text){
+		if(text != undefined){
+			this['options']({'text':text});
+		}
+		return this['opts']['text'];
+	}
+
+	ui['section'] = section;
 })(window);
