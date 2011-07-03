@@ -51,7 +51,7 @@
 			menu        = this['addSidebar']('Menu', new mapapiui['sidebar']()),
 			menuHideShow  = createElement('div'),
 			menuMinimised = false,
-			zoomcontrol = this['addSidebar']('Zoom Control', new mapapiui['sidebar']()),
+			zoomcontrol   = createElement('li'),
 			zoomin        = createElement('p'),
 			zoomout       = createElement('p')
 		;
@@ -67,7 +67,7 @@
 		menuHideShow['onclick'] = toggleMenu;
 		menu['appendChild'](menuHideShow);
 
-		empty(zoomcontrol);
+		addClass(zoomcontrol, 'zoomcontrol');
 		appendChild(zoomin , createText('+'));
 		appendChild(zoomout, createText('–'));
 		function changeZoom(level){
@@ -89,6 +89,7 @@
 		};
 		appendChild(zoomcontrol, zoomin);
 		appendChild(zoomcontrol, zoomout);
+		appendChild(this['sidebarsContainer'], zoomcontrol);
 	}
 	minimalistUI.prototype = new mapapiui;
 	minimalistUI.prototype['constructor'] = minimalistUI;
