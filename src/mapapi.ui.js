@@ -121,6 +121,7 @@
 		obj['rendererNode']      = rendererNode;
 		obj['contentNode']       = container;
 		obj['sidebars']          = {};
+		obj['sidebarLabels']     = [];
 		obj['sidebarsContainer'] = sidebarsContainer;
 		obj['markerManager']     = markerMngr;
 		obj['ID']                = uiID++;
@@ -208,27 +209,34 @@
 		if(sidebarName == ''){
 			throw 'sidebar name is empty';
 		}
-		if(this['sidebars'][sidebarName['toLowerCase']()] != undefined){
+		var
+			lname = sidebarName['toLowerCase']()
+		;
+		if(this['sidebars'][lname] != undefined){
 			throw 'A sidebar with that name has already been assigned';
 		}else{
-			this['sidebars'][sidebarName['toLowerCase']()] = sidebarObj;
 			var
 				DOM = this['sidebar2DOM'](sidebarName, sidebarObj)
 			;
+			this['sidebars'][lname] = sidebarObj;
+			this['sidebarLabels']['push'](lname);
 			this['sidebarsContainer']['appendChild'](DOM);
 			return DOM;
 		}
 	}
 
 	function sectionsAddedListener(e){
-		if(e['sections'] && e['sections'] instanceof Array){
-			for(var i=0;i<e['sections']['length'];++i){
-				if(e['sections'][i] instanceof section){
+		var
+			sections = e['sections']
+		;
+		if(sections && sections instanceof Array){
+			for(var i=0;i<sections['length'];++i){
+				if(sections[i] instanceof section){
 					var
 						li         = createElement('li'),
 						h1         = createElement('h1'),
 						ul         = createElement('ul'),
-						subsection = e['sections'][i],
+						subsection = sections[i],
 						text       = subsection['text']()
 					;
 					h1['appendChild'](createText(text));
@@ -242,7 +250,21 @@
 					subsection['DOM'] = ul;
 					this['DOM']['appendChild'](li);
 					subsection['addListener']('sectionsadded', sectionsAddedListener);
+					subsection['addListener']('sectionsremoved', sectionsRemovedListener);
 				}
+			}
+		}
+	}
+	function sectionsRemovedListener(e){
+		var
+			sections = e['sections']
+		;
+		if(sections && sections instanceof Array){
+			for(var i=0;i<sections['length'];++i){
+				var
+					DOM = sections[i]['DOM']['parentNode']
+				;
+				DOM['parentNode']['removeChild'](DOM);
 			}
 		}
 	}
@@ -265,7 +287,32 @@
 		li['appendChild'](ul);
 		sidebarObj['DOM'] = ul;
 		sidebarObj['addListener']('sectionsadded', sectionsAddedListener);
+		sidebarObj['addListener']('sectionsremoved', sectionsRemovedListener);
 		return li;
+	}
+
+	ui.prototype['sidebar'] = function(index, disableFallback){
+		if(typeof disableFallback != 'boolean'){
+			disableFallback = false;
+		}else if(typeof index != 'number'){
+			throw 'Sidebar indexes must be specified as integers';
+		}
+		var
+			index        = Math.floor(index),
+			labelLengths = this['sidebarLabels']['length']
+		;
+		if(labelLengths >= 1){
+			if(index < 0){
+				throw 'Negative indexes are not supported';
+			}else if(index >= labelLengths){
+				if(!disableFallback){
+					return this['sidebars'][this['sidebarLabels'][labelLengths - 1]];
+				}
+			}else if(this['sidebarLabels'][index] != undefined){
+				return this['sidebars'][this['sidebarLabels'][index]];
+			}
+		}
+		return false;
 	}
 
 	mapapi['ui'] = ui;
@@ -799,7 +846,6 @@
 	];
 
 	mapapi['numberedMarker'] = numberedMarker;
-
 
 	var
 		sectionID = 0
