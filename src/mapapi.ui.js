@@ -221,6 +221,7 @@
 			this['sidebars'][lname] = sidebarObj;
 			this['sidebarLabels']['push'](lname);
 			this['sidebarsContainer']['appendChild'](DOM);
+			mapapi['events']['fire']('sidebaradded',{'ui':this,'sidebar':sidebarObj,'DOM':DOM,'name':sidebarName});
 			return DOM;
 		}
 	}

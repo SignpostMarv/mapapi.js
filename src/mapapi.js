@@ -38,6 +38,7 @@
 	}
 
 	var
+		EventTarget   = window['EventTarget'],
 		localStorage  = window['localStorage'],
 		JSON          = window['JSON'],
 		mapapi = {
@@ -126,7 +127,8 @@
 				}
 				this['sw'] = sw;
 				this['ne'] = ne;
-			}
+			},
+			'events' : new EventTarget
 		},
 		gridPoint       = mapapi['gridPoint'],
 		bounds          = mapapi['bounds'],
