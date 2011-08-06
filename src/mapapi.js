@@ -190,6 +190,8 @@
 		if(!(value instanceof gridPoint)){
 			if(ctype_digit(value['x']) && ctype_digit(value['y'])){
 				value = new gridPoint(value['x'] * 1, value['y'] * 1);
+			}else if(value instanceof Array && value['length'] == 2 && ctype_digit(value[0]) && ctype_digit(value[1])){
+				value = new gridPoint(value[0] * 1, value[1] * 1);
 			}else{
 				throw 'value was not an instance of mapapi.gridPoint and was not an object with appropriate properties';
 			}
