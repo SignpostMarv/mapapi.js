@@ -85,6 +85,9 @@
 				'ctype_digit' : function(value){
 					return /^\d+$/.test(value + '');
 				},
+				'ctype_float' : function(value){
+					return /^(\d+|\d*\.\d+)$/.test(value + '');
+				},
 				'createElement' : function(element){
 					return document['createElement'](element);
 				},
@@ -133,7 +136,8 @@
 		gridPoint       = mapapi['gridPoint'],
 		bounds          = mapapi['bounds'],
 		windowDiscovery = mapapi['utils']['windowDiscovery'],
-		ctype_digit     = mapapi['utils']['ctype_digit']
+		ctype_digit     = mapapi['utils']['ctype_digit'],
+		ctype_float     = mapapi['utils']['ctype_float']
 	;
 
 	window['IndexedDB']      = windowDiscovery(['IndexedDB', 'mozIndexedDB', 'webkitIndexedDB']);
@@ -188,9 +192,9 @@
 
 	gridPoint['fuzzy'] = function(value){
 		if(!(value instanceof gridPoint)){
-			if(ctype_digit(value['x']) && ctype_digit(value['y'])){
+			if(ctype_float(value['x']) && ctype_float(value['y'])){
 				value = new gridPoint(value['x'] * 1, value['y'] * 1);
-			}else if(value instanceof Array && value['length'] == 2 && ctype_digit(value[0]) && ctype_digit(value[1])){
+			}else if(value instanceof Array && value['length'] == 2 && ctype_float(value[0]) && ctype_float(value[1])){
 				value = new gridPoint(value[0] * 1, value[1] * 1);
 			}else{
 				throw 'value was not an instance of mapapi.gridPoint and was not an object with appropriate properties';
