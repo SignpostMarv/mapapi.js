@@ -144,6 +144,9 @@
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li.enabled{
 	font-weight: bolder ;
 }
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu li.childless:hover > ul {
+	display: none ;
+}
 
 .mapapi-ui-minimalist .mapapi-ui-marker{
 	display: block ;

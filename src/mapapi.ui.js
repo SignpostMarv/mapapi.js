@@ -248,8 +248,10 @@
 					li['appendChild'](h1);
 					li['appendChild'](ul);
 					addClass(li, text['toLowerCase']()['replace'](/[^A-z\d]+/g,''));
+					addClass(li, 'childless');
 					subsection['DOM'] = ul;
 					this['DOM']['appendChild'](li);
+					delClass(this['DOM']['parentNode'], 'childless');
 					subsection['addListener']('sectionsadded', sectionsAddedListener);
 					subsection['addListener']('sectionsremoved', sectionsRemovedListener);
 				}
@@ -258,14 +260,24 @@
 	}
 	function sectionsRemovedListener(e){
 		var
-			sections = e['sections']
+			sections = e['sections'],
+			parents  = []
 		;
 		if(sections && sections instanceof Array){
 			for(var i=0;i<sections['length'];++i){
 				var
-					DOM = sections[i]['DOM']['parentNode']
+					DOM    = sections[i]['DOM']['parentNode'],
+					parent = DOM['parentNode']
 				;
-				DOM['parentNode']['removeChild'](DOM);
+				if(parents['indexOf'](parent) == -1){
+					parents.push(parent);
+				}
+				parent['removeChild'](DOM);
+			}
+			for(var i=0;i<parents.length;++i){
+				if(!parents[i]['hasChildNodes']()){
+					addClass(parents[i], 'childless');
+				}
 			}
 		}
 	}
