@@ -27,7 +27,8 @@
 		EventTarget = window['EventTarget'],
 		mapapi      = window['mapapi'],
 		gridPoint   = mapapi['gridPoint'],
-		bounds      = mapapi['bounds']
+		bounds      = mapapi['bounds'],
+		ctype_digit = mapapi['utils']['ctype_digit']
 	;
 	if(mapapi == undefined){
 		throw 'mapapi.js is not loaded.';
@@ -352,8 +353,8 @@
 				this['fire']('changedstrokestyle');
 			}
 		}
-		if(typeof lineWidth == 'number'){
-			lineWidth = Math.max(0,lineWidth);
+		if(ctype_digit(lineWidth)){
+			lineWidth = Math.max(0,lineWidth * 1);
 			var diff = this['opts']['lineWidth'] != lineWidth;
 			this['opts']['lineWidth'] = lineWidth;
 			if(diff){
