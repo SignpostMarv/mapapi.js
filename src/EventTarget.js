@@ -1,5 +1,7 @@
-//Copyright (c) 2010 Nicholas C. Zakas. All rights reserved.
-//MIT License
+/**
+* @license Copyright (c) 2010 Nicholas C. Zakas. All rights reserved.
+* MIT License
+*/
 (function(window, undefined){
 	function EventTarget(){
 		this['_listeners'] = {};
