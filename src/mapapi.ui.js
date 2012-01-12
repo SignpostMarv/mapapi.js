@@ -141,7 +141,7 @@
 			scripts = head.getElementsByTagName('script'),
 			links   = head.getElementsByTagName('link'),
 			regexp  = /./,
-			uiregex = /(mapapi\.ui\.js)$/,
+			uiregex = /(mapapi\.ui\.js|mapapi-complete.js)$/,
 			exregex = /^https?/,
 			styles  = [],
 			css     = [],
