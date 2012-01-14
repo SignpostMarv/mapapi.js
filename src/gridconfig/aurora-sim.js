@@ -82,27 +82,27 @@
 			throw 'A grid config for that namespace has already been specified.';
 		}
 
-		for(var x in gridLookup){
-			pos2region[x] = {};
-			for(var y in gridLookup[x]){
-				var
-					region = gridLookup[x][y],
-					name   = region['name'] || false,
-					uuid   = region['uuid'] || false
-				;
-				if(name && uuid){
-					pos2region[x][y] = {
-						'name' : name,
-						'uuid' : uuid
-					};
-					region2pos[name.toLowerCase()] = {
-						'name' : name,
-						'uuid' : uuid,
-						'x'    : x,
-						'y'    : y
-					};
+		for(var i in gridLookup){
+			var
+				region    = gridLookup[i],
+				x         = region['x'],
+				y         = region['y'],
+				name      = region['Name'],
+				uuid      = region['UUID'],
+				width     = region['width'],
+				height    = region['height'],
+				regionObj = {
+					'name'   : name,
+					'uuid'   : uuid,
+					'x'      : x,
+					'y'      : y,
+					'width'  : width,
+					'height' : height
 				}
-			}
+			;
+			pos2region[x]                  = pos2region[x] || {};
+			pos2region[x][y]               = regionObj;
+			region2pos[name.toLowerCase()] = regionObj;
 		}
 		
 		var aurorasimTilesource = new tileSource({
