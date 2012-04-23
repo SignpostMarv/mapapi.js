@@ -102,9 +102,9 @@
 				j         = Math['max'](width / 256, 1),
 				k         = Math['max'](height / 256, 1)
 			;
-			for(_x=x;_x<x + j;++_x){
+			for(var _x=x;_x<x + j;++_x){
 				pos2region[_x]                  = pos2region[_x] || {};
-				for(_y=y;_y<y + k;++_y){
+				for(var _y=y;_y<y + k;++_y){
 					pos2region[_x][_y]               = regionObj;
 				}
 			}
@@ -132,10 +132,14 @@
 			x -= x % regions_per_tile_edge;
 			y -= y % regions_per_tile_edge; 
 
-			if(!pos2region[x] || !pos2region[x][y]){
-				return null;
+			for(var _x=x;_x<x+regions_per_tile_edge;++_x){
+				for(var _y=y;_y<y+regions_per_tile_edge;++_y){
+					if(pos2region[_x] && pos2region[_x][_y]){
+						return mapTextureURL.replace('_%x%_', x).replace('_%y%_', y).replace('_%zoom%_', zoom - 1);
+					}
+				}
 			}
-			return mapTextureURL.replace('_%x%_', x).replace('_%y%_', y).replace('_%zoom%_', zoom - 1);
+			return null;
 		}
 
 		var
