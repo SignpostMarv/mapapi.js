@@ -98,10 +98,16 @@
 					'y'      : y,
 					'width'  : width,
 					'height' : height
-				}
+				},
+				j         = Math['max'](width / 256, 1),
+				k         = Math['max'](height / 256, 1)
 			;
-			pos2region[x]                  = pos2region[x] || {};
-			pos2region[x][y]               = regionObj;
+			for(_x=x;_x<x + j;++_x){
+				pos2region[_x]                  = pos2region[_x] || {};
+				for(_y=y;_y<y + k;++_y){
+					pos2region[_x][_y]               = regionObj;
+				}
+			}
 			region2pos[name.toLowerCase()] = regionObj;
 		}
 		
