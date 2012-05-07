@@ -165,7 +165,7 @@
 					;
 					if(pos2region[x] && pos2region[x][y]){
 						success({
-							'pos'    : p,
+							'pos'    : pos,
 							'region' : pos2region[x][y]['name']
 						});
 					}else if(fail != undefined){
