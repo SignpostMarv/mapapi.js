@@ -9,4 +9,12 @@ java -jar ../../compiler.jar --js ../src/mapapi.js --js ../src/mapapi.renderer.j
 java -jar ../../compiler.jar --js ../src/gridconfig/com.secondlife.agni.js --js_output_file ../build/mapapi.gridConfigs.js
 
 java -jar ../../compiler.jar --js ../src/EventTarget.js --js ../src/mapapi.js --js ../src/mapapi.shape.js --js ../src/mapapi.ui.js --js ../src/ui/minimalist.js --js ../src/mapapi.renderer.js --js ../src/mapapi.tileSource.js --js ../src/mapapi.gridConfig.js --js ../src/renderer/canvas.js --js ../src/renderer/google-v3.js --js ../src/gridconfig/aurora-sim.js --js_output_file ../build/mapapi-complete.js
-gzip -cf --best ../build/mapapi-complete.js > ../build/mapapi-complete.js.gz
+if [ -f ../../7za.exe ];
+then
+	if [ -f ../build/mapapi-complete.js.gz ];
+		then rm -f ../build/mapapi-complete.js.gz
+	fi;
+	../../7za.exe a -tgzip ../build/mapapi-complete.js.gz ../build/mapapi-complete.js -mx=9 -mfb=258 -mpass=15
+else
+	gzip -cf --best ../build/mapapi-complete.js > ../build/mapapi-complete.js.gz
+fi;
