@@ -352,12 +352,21 @@
 
 		obj['DOM'] = undefined;
 		obj['addListener']('content_changed', function(){
-			obj['DOM'] = obj['content2DOM']();
-			for(var i=0;i<DOMclasses['length'];++i){
-				addClass(obj['DOM'], DOMclasses[i]);
-			}
-			if(obj['opts']['open'] == true){
-				obj['open'](obj['ui']);
+			if(!obj['DOM']){
+				obj['DOM'] = obj['content2DOM']();
+				for(var i=0;i<DOMclasses['length'];++i){
+					addClass(obj['DOM'], DOMclasses[i]);
+				}
+			}else{
+				for(var i=0;i<obj['DOM']['childNodes']['length'];++i){
+					obj['DOM']['removeChild'](obj['DOM']['childNodes'][i]);
+				}
+				var
+					newDOM = obj['content2DOM']()['childNodes']
+				;
+				for(var i=0;i<newDOM['length'];++i){
+					obj['DOM']['appendChild'](newDOM[i]);
+				}
 			}
 		});
 	}
