@@ -448,7 +448,7 @@
 			mouseup_handler   = function(e){
 				clearTimeout(obj.mousedown_timer);
 				if(!obj['dragging']){
-					obj['fire']('click',{'pos':obj['px2point'](e['clientX'] - this['offsetLeft'], e['clientY'] - this['offsetTop'])});
+					obj['fire']('click',{'pos':obj['px2point'](e['offsetX'] != undefined ? e['offsetX'] : e['pageX'] - e['target']['offsetLeft'], e['offsetY'] != undefined ? e['offsetY'] : e['pageY'] - e['target']['offsetTop'])});
 				}
 				obj.mousedown_timer = setTimeout(function(){
 					obj['dragging'] = false;
