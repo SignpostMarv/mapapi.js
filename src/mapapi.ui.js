@@ -9,10 +9,10 @@
 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 * copies of the Software, and to permit persons to whom the Software is
 * furnished to do so, subject to the following conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -94,7 +94,7 @@
 				renderer = mapapi['renderers']['google3'];
 			}
 			if(renderer == undefined){
-				throw 'Could not locate any renderers';				
+				throw 'Could not locate any renderers';
 			}
 			renderer = new renderer({
 				'container'  : rendererNode,
@@ -888,7 +888,7 @@
 		;
 		for(var i=0;i<arguments['length'];++i){
 			if(!(arguments[i] instanceof section || (arguments[i].prototype != undefined && arguments[i].prototype instanceof section))){
-				throw 'sub-section should be instanceof mapapi.ui.section';			
+				throw 'sub-section should be instanceof mapapi.ui.section';
 			}else if(this['sections']['indexOf'](arguments[i]) == -1){
 				addThese['push'](arguments[i]);
 			}
@@ -906,7 +906,7 @@
 		;
 		for(var i=0;i<arguments['length'];++i){
 			if(!(arguments[i] instanceof section || (arguments[i].prototype != undefined && arguments[i].prototype instanceof section))){
-				throw 'sub-section should be instanceof mapapi.ui.section';			
+				throw 'sub-section should be instanceof mapapi.ui.section';
 			}else if(this['sections']['indexOf'](arguments[i]) > -1){
 				removeThese['push'](arguments[i]);
 			}
