@@ -113,7 +113,9 @@
 		container['appendChild'](sidebarsContainer);
 
 		addClass(container, 'mapapi-ui');
-		addClass(container, 'mapapi-ui-' + this['name']['toLowerCase']()['replace'](/\s+/g,''));
+		if(this['name']){
+			addClass(container, 'mapapi-ui-' + this['name']['toLowerCase']()['replace'](/\s+/g,''));
+		}
 		addClass(rendererNode, 'mapapi-ui-renderer');
 		addClass(sidebarsContainer, 'mapapi-ui-sidebars');
 
