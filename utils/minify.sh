@@ -14,7 +14,12 @@ then
 	if [ -f ../build/mapapi-complete.js.gz ];
 		then rm -f ../build/mapapi-complete.js.gz
 	fi;
+	if [ -f ../build/mapapi.gridConfigs.js.gz ];
+		then rm -f ../build/mapapi.gridConfigs.js.gz
+	fi;
 	../../7za.exe a -tgzip ../build/mapapi-complete.js.gz ../build/mapapi-complete.js -mx=9 -mfb=258 -mpass=15
+	../../7za.exe a -tgzip ../build/mapapi.gridConfigs.js.gz ../build/mapapi.gridConfigs.js -mx=9 -mfb=258 -mpass=15
 else
 	gzip -cf --best ../build/mapapi-complete.js > ../build/mapapi-complete.js.gz
+	gzip -cf --best ../build/mapapi.gridConfigs.js > ../build/mapapi.gridConfigs.js.gz
 fi;
