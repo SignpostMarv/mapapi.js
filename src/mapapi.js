@@ -37,6 +37,22 @@
 		}
 	}
 
+	if (!Array.prototype.forEach) {
+		Array.prototype['forEach'] = function(fn, scope){
+			'use strict';
+			var
+				obj = this,
+				scope = scope || obj,
+				i, len
+			;
+			for(i=0,len = obj['length'];i<len;++i){
+				if(i in obj){
+					fn['call'](scope, obj[i], i, obj);
+				}
+			}
+		};
+	}
+
 	var
 		EventTarget   = window['EventTarget'],
 		localStorage  = window['localStorage'],
