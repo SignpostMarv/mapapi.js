@@ -244,5 +244,31 @@
 		mapapi['storage'] = new storage;
 	}
 
+	var
+		testNode      = window['document']['createElement']('a'),
+		testClassList = testNode && testNode['classList'] ? testNode['classList'] : false,
+		testClassList = testClassList['add'] && testClassList['remove'] && testClassList['contains']
+	;
+	if(testClassList){
+		mapapi['utils']['addClass'] = function(node, className){
+			if((className + '')['indexOf'](' ') > 0){
+				className['split'](' ')['forEach'](function(e){
+					mapapi['utils']['addClass'](node, e);
+				});
+			}else{
+				node['classList']['add'](className);
+			}
+		};
+		mapapi['utils']['delClass'] = function(node, className){
+			node['classList']['remove'](className);
+		};
+		mapapi['utils']['hasClass'] = function(node, className){
+			return node['classList']['contains'](className);
+		};
+		mapapi['utils']['toggleClass'] = function(node, className){
+			return node['classList']['toggle'](className);
+		};
+	}
+
 	window['mapapi'] = mapapi;
 })(window);
