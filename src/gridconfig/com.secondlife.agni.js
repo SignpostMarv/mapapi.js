@@ -27,7 +27,6 @@
 	var
 		document       = window['document'],
 		mapapi         = window['mapapi'],
-		IDBTransaction = window['IDBTransaction'],
 		Date           = window['Date'],
 		console        = window['console'],
 		gridConfig     = mapapi['gridConfig'],
@@ -122,7 +121,7 @@
 							}
 							if(agni['IndexedDB']){
 								var
-									transaction = agni['IndexedDB']['transaction']('pos2region', IDBTransaction['READ_WRITE']),
+									transaction = agni['IndexedDB']['transaction']('pos2region'),
 									objstore    = transaction['objectStore']('pos2region'),
 									req         = objstore['add']({
 										'pos'      : Math.floor(p['x']) + '_' + Math.floor(p['y']),
