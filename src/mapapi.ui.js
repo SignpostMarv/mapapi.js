@@ -294,7 +294,6 @@
 			throw 'sidebar name is empty';
 		}
 		var
-			obj = this,
 			li  = createElement('li'),
 			ul  = createElement('ul')
 		;
