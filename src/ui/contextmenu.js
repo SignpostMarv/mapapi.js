@@ -53,7 +53,7 @@
 				container     = obj['contentNode'],
 				sidebars      = obj['sidebars'],
 				renderer      = obj['renderer'],
-				menu        = this['addSidebar']('Menu', new mapapiui['sidebar']()),
+				menu          = obj['addSidebar']('Menu', new mapapiui['sidebar']()),
 				menuHideShow  = createElement('div'),
 				menuMinimised = false,
 				zoomcontrol   = createElement('li'),
