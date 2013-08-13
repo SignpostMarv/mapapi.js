@@ -67,6 +67,7 @@
 				appendChild(sBarReplacer, sBarOriginal['firstChild']);
 			}
 			sBarOriginal['parentNode']['replaceChild'](sBarReplacer, sBarOriginal);
+			obj['rendererNode']['setAttribute']('contextmenu', menu['id']);
 			mapapi['events']['fire']('uiready',{'ui':obj});
 		}
 	;
@@ -133,7 +134,7 @@
 			className = sidebarName['toLowerCase']()['replace'](/\s+/g,''),
 			menu      = createElement('menu')
 		;
-		menu['setAttribute']('type', 'context');
+		menu['type'] = 'context';
 		menu['id'] = className + '-' + sidebarObj['ID'];
 		addClass(menu, className);
 		sidebarObj['DOM'] = menu;
