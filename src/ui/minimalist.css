@@ -51,6 +51,7 @@
 	width: auto ;
 	box-shadow: 0 2px 4px #000 ;
 	z-index: 300 ;
+	cursor: pointer ;
 }
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu.minimised{
 	width: 0 ;
