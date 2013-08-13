@@ -54,12 +54,19 @@
 				sidebars      = obj['sidebars'],
 				renderer      = obj['renderer'],
 				menu          = obj['addSidebar']('Menu', new mapapiui['sidebar']()),
+				sBarOriginal  = obj['sidebarsContainer'],
+				sBarReplacer  = createElement('div'),
 				menuHideShow  = createElement('div'),
 				menuMinimised = false,
 				zoomcontrol   = createElement('li'),
 				zoomin        = createElement('p'),
 				zoomout       = createElement('p')
 			;
+			sBarReplacer['style']['display'] = 'none';
+			while(sBarOriginal['hasChildNodes']()){
+				appendChild(sBarReplacer, sBarOriginal['firstChild']);
+			}
+			sBarOriginal['parentNode']['replaceChild'](sBarReplacer, sBarOriginal);
 			mapapi['events']['fire']('uiready',{'ui':obj});
 		}
 	;
