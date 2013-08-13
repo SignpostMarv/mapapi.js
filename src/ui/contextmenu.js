@@ -88,7 +88,7 @@
 						subsection = sections[i],
 						thisDOM    = this['DOM']
 					;
-					if(thisDOM != undefined){
+					if(thisDOM != undefined && thisDOM['nodeName'] != 'MENU'){
 						var
 							menu = createElement('menu'),
 							copyOver = []
