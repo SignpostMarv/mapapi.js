@@ -347,15 +347,6 @@
 		return new mapapi['bounds'](obj['GLatLng2gridPoint'](bounds['getSouthWest']()), obj['GLatLng2gridPoint'](bounds['getNorthEast']()));
 	}
 
-	function mapapi2google(mapapiShape){
-		if(!mapapiShape){
-			throw 'Shape not specified';
-		}
-		if(mapapiShape.prototype instanceof mapapi['shape']){
-			
-		}
-	}
-
 	function color2hex(){
 		var
 			r = arguments[1] * 1,
