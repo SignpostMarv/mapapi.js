@@ -21,14 +21,20 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-(function(window, undefined){
-	window['mapapi'] = window['mapapi'] || {};
+(function(undefined){
 	var
-		document     = window['document'],
-		mapapi       = window['mapapi']
+		window      = this,
+		EventTarget = window['EventTarget'],
+		mapapi      = window['mapapi']
 	;
+	if(mapapi == undefined){
+		throw 'mapapi.js is not loaded.';
+	}else if(EventTarget == undefined){
+		throw 'EventTarget is not loaded';
+	}
 
 	var tileSource = function(options){
+		EventTarget['call'](this);
 		var
 			obj        = this,
 			objopts    = (obj['options'] = {}),
@@ -61,10 +67,21 @@
 		objopts['opacity']         = opacity;
 	}
 
-	tileSource.prototype.getTileURL = function(pos, zoom){
+	tileSource.prototype = new EventTarget;
+	tileSource.prototype['constructor'] = tileSource;
+
+	tileSource.prototype['getTileURL'] = function(pos, zoom){
 		return 'data:text/plain,';
+	};
+
+	// child classes must override this method!
+	tileSource.prototype['requestTileURL'] = function(pos, zoom, success, error){
+		error({
+			'pos'    : pos,
+			'zoom'   : zoom,
+			'reason' : 'Not implemented'
+		});
 	}
 
 	mapapi['tileSource'] = tileSource;
-	mapapi['tileSource'].prototype['getTileURL'] = tileSource.prototype.getTileURL;
-})(window);
+})();
