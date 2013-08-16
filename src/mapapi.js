@@ -102,7 +102,7 @@
 					return /^\d+$/.test(value + '');
 				},
 				'ctype_float' : function(value){
-					return /^(\d+|\d*\.\d+)$/.test(value + '');
+					return /^\-?(\d+|\d*\.\d+)$/.test(value + '');
 				},
 				'createElement' : function(element){
 					return document['createElement'](element);
