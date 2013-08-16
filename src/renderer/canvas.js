@@ -249,14 +249,18 @@
 
 			for(var x = startX; x<=cbounds['ne']['x']; x += zoom_b){
 				for(var y = startY; y<=cbounds['ne']['y']; y += zoom_b){
-					var img = obj.getImage(x, y, zoom);
-					if(img['_mapapi'].loaded){
-						ctx.drawImage(
-							img,
-							img['_mapapi'].x,
-							-img['_mapapi'].y,
-							zoom_b, zoom_b);
-					}
+					obj.tileSource['requestTileURL'](
+						{'x' : x, 'y' : y},
+						zoom,
+						function(e){
+							if(obj.bounds()['isWithin'](e['pos']['x'], e['pos']['y'])){
+								ctx.drawImage(e['result'], e['pos']['x'], -e['pos']['y'], zoom_b, zoom_b);
+							}
+						},
+						function(e){
+							console.log(e);
+						}
+					);
 				}
 			}
 

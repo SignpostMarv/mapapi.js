@@ -25,7 +25,8 @@
 	var
 		window      = this,
 		EventTarget = window['EventTarget'],
-		mapapi      = window['mapapi']
+		mapapi      = window['mapapi'],
+		gridPoint   = mapapi ? mapapi['gridPoint'] : undefined
 	;
 	if(mapapi == undefined){
 		throw 'mapapi.js is not loaded.';
@@ -74,13 +75,44 @@
 		return 'data:text/plain,';
 	};
 
+	tileSource.prototype.grid_images = {};
+
 	// child classes must override this method!
 	tileSource.prototype['requestTileURL'] = function(pos, zoom, success, error){
-		error({
-			'pos'    : pos,
-			'zoom'   : zoom,
-			'reason' : 'Not implemented'
-		});
+		var
+			obj     = this,
+			zi      = Math.floor(zoom),
+			zoom_b  = 1 << zi,
+			images  = obj.grid_images,
+			y       = y - (y % zoom_b),
+			x       = x - (x % zoom_b),
+			preload = !!preload
+		;
+		if(!images[zi]){
+			images[zi] = {};
+		}
+		if(!images[zi][x]){
+			images[zi][x] = {};
+		}
+		if(!images[zi][x][y]){
+			images[zi][x][y] = new Image;
+			images[zi][x][y]['onload'] = function(){
+				success({
+					'pos'    : {'x': x, 'y': y},
+					'zoom'   : zoom,
+					'result' : images[zi][x][y]
+				});
+			}
+			images[zi][x][y]['onerror'] = function(e){
+				error({
+					'pos'    : {'x': x, 'y': y},
+					'zoom'   : zoom,
+					'reason' : e
+				});
+				delete images[zi][x][y];
+			}
+			images[zi][x][y]['src'] = obj['getTileURL'](new gridPoint(x, y), zi);
+		}
 	}
 
 	mapapi['tileSource'] = tileSource;

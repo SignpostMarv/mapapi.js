@@ -68,14 +68,6 @@
 		);
 	}
 
-	SecondLifeTileSource['requestTileURL'] = function(pos, zoom, success, error){
-		success({
-			'pos'    : pos,
-			'zoom'   : zoom,
-			'result' : SecondLifeTileSource['getTileURL'](pos, zoom)
-		});
-	}
-
 	var
 		pos2region_pool = 0,
 		region2pos_pool = 0,
