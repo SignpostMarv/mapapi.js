@@ -84,6 +84,9 @@
 			zi      = Math.floor(zoom),
 			zoom_b  = 1 << zi,
 			images  = obj.grid_images,
+			pos     = gridPoint['fuzzy'](pos),
+			x       = pos['x'],
+			y       = pos['y'],
 			y       = y - (y % zoom_b),
 			x       = x - (x % zoom_b),
 			preload = !!preload
