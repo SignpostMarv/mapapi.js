@@ -78,7 +78,7 @@
 	tileSource.prototype.grid_images = {};
 
 	// child classes must override this method!
-	tileSource.prototype['requestTileURL'] = function(pos, zoom, success, error){
+	tileSource.prototype['requestTile'] = function(pos, zoom, success, error){
 		var
 			obj     = this,
 			zi      = Math.floor(zoom),
@@ -100,22 +100,29 @@
 		if(!images[zi][x][y]){
 			images[zi][x][y] = new Image;
 			images[zi][x][y]['onload'] = function(){
-				success({
-					'pos'    : {'x': x, 'y': y},
-					'zoom'   : zoom,
-					'result' : images[zi][x][y]
-				});
+				if(success){
+					success({
+						'pos'    : {'x': x, 'y': y},
+						'zoom'   : zoom,
+						'result' : images[zi][x][y]
+					});
+				}
+				images[zi][x][y]._loaded = true;
 			}
 			images[zi][x][y]['onerror'] = function(e){
-				error({
-					'pos'    : {'x': x, 'y': y},
-					'zoom'   : zoom,
-					'reason' : e
-				});
+				if(error){
+					error({
+						'pos'    : {'x': x, 'y': y},
+						'zoom'   : zoom,
+						'reason' : e
+					});
+				}
 				delete images[zi][x][y];
 			}
 			images[zi][x][y]['src'] = obj['getTileURL'](new gridPoint(x, y), zi);
 		}
+		
+		return (images[zi][x][y]._loaded) ? images[zi][x][y] : false;
 	}
 
 	mapapi['tileSource'] = tileSource;
