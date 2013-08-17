@@ -252,7 +252,12 @@
 					var
 						tile = obj.tileSource['requestTile'](
 							{'x' : x, 'y' : y},
-							zoom
+							zoom,
+							function(e){
+								if(obj.bounds()['isWithin'](e['pos']['x'], e['pos']['y'])){
+									obj.dirty = true;
+								}
+							}
 						)
 					;
 					if(tile){
@@ -262,7 +267,6 @@
 							-y,
 							zoom_b, zoom_b
 						);
-						obj.dirty = true;
 					}
 				}
 			}
