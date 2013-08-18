@@ -41,7 +41,7 @@
 			minZoom         = obj['minZoom'] || 0,
 			maxZoom         = obj['maxZoom'] || 7
 			backgroundColor = obj['backgroundColor'] || '#1d475f',
-			size            = new size(obj['gridWidth'] || 1048576, obj['gridHeight'] || 1048576)
+			size            = new size(obj['gridWidth'] || 1048576, obj['gridHeight'] || 1048576),
 			gridLookup      = obj['gridLookup'] || {},
 			pos2region      = {},
 			region2pos      = {},
