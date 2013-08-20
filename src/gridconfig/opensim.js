@@ -75,6 +75,7 @@
 								'tileSources' : [
 									ts
 								],
+								'maxZoom'    : 7,
 								'pos2region' : function(pos, success, fail){
 									var
 										pos    = gridPoint['fuzzy'](pos);
