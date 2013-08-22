@@ -69,7 +69,8 @@
 						var
 							ts = new tileSource({
 								'copyright' : 'foo',
-								'label'     : 'Land & Objects'
+								'label'     : 'Land & Objects',
+								'maxZoom'   : 7
 							}),
 							opensim = new gridConfig({
 								'tileSources' : [
