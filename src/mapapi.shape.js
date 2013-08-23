@@ -9,10 +9,10 @@
 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 * copies of the Software, and to permit persons to whom the Software is
 * furnished to do so, subject to the following conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -230,6 +230,46 @@
 			this['options']({'fillStyle':value});
 		}
 		return this['opts']['fillStyle'];
+	}
+
+	poly.prototype['withinShape'] = function(pos){
+		var
+			pos    = gridPoint['fuzzy'](pos),
+			obj    = this,
+			coords = obj['opts']['coords'],
+			out    = obj['bounds']['sw']
+		;
+		--out['x'];
+		--out['y'];
+		// transposed from http://stackoverflow.com/a/1968345/1498831
+		var
+			p0_x = out['x'],
+			p0_y = out['y'],
+			p1_x = pos['x'],
+			p1_y = pos['y'],
+			s1_x = p1_x - p0_x,
+			s1_y = p1_y - p0_y,
+			i = 0,
+			s,t
+		;
+		for(var j=0;j<coords['length'];++j){
+			var
+				k    = (j == (coords['length'] - 1)) ? 0 : j + 1,
+				p2_x = coords[j]['x'],
+				p2_y = coords[j]['y'],
+				p3_x = coords[k]['x'],
+				p3_y = coords[k]['y'],
+				s2_x = p3_x - p2_x,
+				s2_y = p3_y - p2_y
+			;
+			s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+			t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+			if(s >= 0 && s <= 1 && t >= 0 && t <= 1){
+				++i;
+			}
+		}
+
+		return (i != 0 && (i % 2) == 1);
 	}
 
 	shape['polygon'] = poly;
