@@ -111,6 +111,16 @@
 		return false;
 	}
 
+	shape['isShape'] = function(e){
+		return (
+			e.prototype instanceof shape ||
+			e instanceof poly ||
+			e instanceof rectangle ||
+			e instanceof square ||
+			e instanceof circle
+		);
+	}
+
 	mapapi['shape'] = shape;
 
 	function shapeManager(){
@@ -424,6 +434,10 @@
 
 	function circle(options){
 		shape['call'](this, options);
+		this['bounds'] = gridPoint['fuzzy']([
+			this['opts']['coords'][0]['x'] - this['opts']['radius'],
+			this['opts']['coords'][0]['y'] - this['opts']['radius']
+		]);
 	}
 
 	extend(circle, shape);

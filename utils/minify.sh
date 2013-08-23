@@ -23,6 +23,7 @@ java -jar ../../compiler.jar \
 	--js ../src/EventTarget.js \
 	--js ../src/mapapi.js \
 	--js ../src/mapapi.shape.js \
+	--js ../src/mapapi.polyregion.js \
 	--js ../src/mapapi.ui.js \
 	--js ../src/ui/minimalist.js \
 	--js ../src/mapapi.renderer.js \
