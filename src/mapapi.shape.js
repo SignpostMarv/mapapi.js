@@ -111,6 +111,16 @@
 		return false;
 	}
 
+	shape['isShape'] = function(e){
+		return (
+			e.prototype instanceof shape ||
+			e instanceof poly ||
+			e instanceof rectangle ||
+			e instanceof square ||
+			e instanceof circle
+		);
+	}
+
 	mapapi['shape'] = shape;
 
 	function shapeManager(){
