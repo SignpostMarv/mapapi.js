@@ -96,6 +96,14 @@
 		if(options['region2pos'] != undefined){
 			obj['API']['region2pos'] = options['region2pos'];
 		}
+		if(
+			options['pos2region'] == undefined &&
+			options['region2pos'] == undefined &&
+			options['polyregion'] != undefined &&
+			options['polyregion'] instanceof mapapi['polyregion']
+		){
+			obj['API'] = options['polyregion']
+		}
 
 		var
 			needsIndexedDB  = false,
