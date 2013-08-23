@@ -102,7 +102,7 @@
 					return /^\d+$/.test(value + '');
 				},
 				'ctype_float' : function(value){
-					return /^(\d+|\d*\.\d+)$/.test(value + '');
+					return /^\-?(\d+|\d*\.\d+)$/.test(value + '');
 				},
 				'createElement' : function(element){
 					return document['createElement'](element);
@@ -224,8 +224,14 @@
 	}
 
 	gridPoint.prototype['distance'] = function(value){
-		value = gridPoint['fuzzy'](value);
-		return Math.sqrt((Math.pow(this['x'], 2) - Math.pow(value['x'], 2)) + (Math.pow(this['y'], 2) - Math.pow(value['y'], 2)));
+		var
+			value = gridPoint['fuzzy'](value),
+			relative = gridPoint['fuzzy']([
+				value['x'] - this['x'],
+				value['y'] - this['y']
+			])
+		;
+		return Math.sqrt(Math.abs(Math.pow(relative['x'], 2) + Math.pow(relative['y'], 2)));
 	}
 
 	if(localStorage && JSON){
