@@ -249,12 +249,10 @@
 			coords = obj['opts']['coords'],
 			out    = obj['bounds']['sw']
 		;
-		--out['x'];
-		--out['y'];
 		// transposed from http://stackoverflow.com/a/1968345/1498831
 		var
-			p0_x = out['x'],
-			p0_y = out['y'],
+			p0_x = out['x'] - 1,
+			p0_y = out['y'] - 1,
 			p1_x = pos['x'],
 			p1_y = pos['y'],
 			s1_x = p1_x - p0_x,
