@@ -57,15 +57,19 @@
 								var
 									ne = spec[i][j]['bounds']['ne'],
 									sw = spec[i][j]['bounds']['sw']
+									tne = bounds[i]['ne'],
+									tsw = bounds[i]['sw']
 								;
-								if(sw < bounds[i]['sw']){
-									bounds[i]['sw'] = sw;
-								}
-								if(ne > bounds[i]['ne']){
+								if(ne['x'] > tne['x'] || ne['y'] > tne['y']){
 									bounds[i]['ne'] = ne;
+								}
+								if(sw['x'] < tsw['x'] || sw['y'] < tsw['y']){
+									bounds[i]['sw'] = sw;
 								}
 							}
 						}
+						bounds[i]['sw'] = gridPoint['fuzzy']([bounds[i]['sw']['x'], bounds[i]['sw']['y']]);
+						bounds[i]['ne'] = gridPoint['fuzzy']([bounds[i]['ne']['x'], bounds[i]['ne']['y']]);
 						lcase[i['toLocaleLowerCase']()] = i;
 					}
 				}
@@ -101,15 +105,11 @@
 		if(this.lcase['hasOwnProperty'](i)){
 			var
 				region = this.lcase[i],
-				bounds = this['bounds'][region],
-				sw     = bounds['sw'],
-				ne     = bounds['ne']
+				bounds = this['bounds'][this.lcase[i]],
+				sw     = bounds['sw']
 			;
 			success({
-				'pos'    : gridPoint['fuzzy']([
-					sw['x'] + ((ne['x'] - sw['x']) / 2.0),
-					sw['y'] + ((ne['y'] - sw['y']) / 2.0)
-				]),
+				'pos'    : gridPoint['fuzzy']([sw['x'], sw['y']]),
 				'region' : region
 			});
 		}else{
@@ -122,14 +122,21 @@
 		;
 		this['pos2region'](pos, function(e){
 			var
-				sw = obj['bounds'][e['region']]['sw']
+				region = e['region'],
+				bounds = obj['bounds'][region],
+				sw     = bounds['sw'],
+				ne     = bounds['ne'],
+				width  = ne['x'] - sw['x'],
+				height = ne['y'] - sw['y'],
+				pWidth = pos['x'] - sw['x'],
+				pHeight = pos['y'] - sw['y']
 			;
 			success({
 				'internal' : gridPoint['fuzzy']([
-					e['pos']['x'] - sw['x'],
-					e['pos']['y'] - sw['y']
+					(pWidth / width) * 1000,
+					(pHeight / height) * 1000
 				]),
-				'pos'    : e['pos'],
+				'pos'    : pos,
 				'region' : e['region']
 			});
 		}, fail);
@@ -149,10 +156,11 @@
 				});
 			}else{
 				var
-					sw = obj['bounds'][e['region']]['sw'],
-					ne = obj['bounds'][e['region']]['ne']
+					bounds = obj['bounds'][e['region']],
+					sw = bounds['sw'],
+					ne = bounds['ne']
 				;
-				if(internal['x'] > ne['x'] || internal['y'] > ne['y']){
+				if(internal['x'] > 1000 || internal['y'] > 1000){
 					fail({
 						'region'   : e['region'],
 						'internal' : internal,
@@ -163,8 +171,8 @@
 						'region'   : e['region'],
 						'internal' : internal,
 						'pos'      : gridPoint['fuzzy']([
-							sw['x'] + internal['x'],
-							sw['y'] + internal['y']
+							e['pos']['x'] + ((ne['x'] - sw['x']) * (internal['x'] / 1000.0)),
+							e['pos']['y'] + ((ne['y'] - sw['y']) * (internal['y'] / 1000.0))
 						])
 					});
 				}
