@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mapapi.shape</title>
+<meta charset="UTF-8" />
+<script src="../src/EventTarget.js"></script>
+<script src="../src/mapapi.js"></script>
+<script src="../src/mapapi.shape.js"></script>
+<script src="../src/mapapi.ui.js"></script>
+<script src="../src/ui/minimalist.js"></script>
+<script src="../src/mapapi.renderer.js"></script>
+<script src="../src/mapapi.tileSource.js"></script>
+<script src="../src/mapapi.gridConfig.js"></script>
+<script src="../src/gridconfig/com.secondlife.agni.js"></script>
+<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script src="../src/renderer/google-v3.js"></script>
+<style>
+html, .mapapi-ui{
+	height: 100% ;
+}
+</style>
+<script>
+window.onload = function(){
+	var
+		mapui = new mapapi.userinterfaces.minimalist({
+			gridConfig : mapapi.gridConfigs['com.secondlife.agni']
+		}),
+		map   = mapui.renderer,
+		randomCoords = [
+			mapapi.gridPoint.fuzzy([1000, 1000]),
+			mapapi.gridPoint.fuzzy([1001, 1001])
+		]
+	;
+	map.scrollWheelZoom(true);
+	map.smoothZoom(true);
+	map.draggable(true);
+	map.focus(1000.5,1000.5,0);
+
+	map.addShape(
+		new mapapi.shape.nCurve({
+			'lineWidth'  : 5,
+			'strokeStyle':'rgb(255,0,0)',
+			'coords'     : [
+				{'x':999   , 'y':1000  },
+				{'x':1002  , 'y':1000  },
+				{'x':1000.5, 'y':1001  }
+			]
+		}),
+		new mapapi.shape.nCurve({
+			'lineWidth' : 5,
+			'strokeStyle':'rgb(0,255,0)',
+			'coords'    : [
+				{'x':999   , 'y':1000  },
+				{'x':1002  , 'y':1000  },
+				{'x':999.5 , 'y':1000.5},
+				{'x':1001.5, 'y':1000.5}
+			]
+		}),
+		new mapapi.shape.nCurve({
+			'lineWidth' : 5,
+			'strokeStyle':'rgb(0,0,255)',
+			'coords'    : [
+				{'x':999   , 'y':1000  },
+				{'x':1002  , 'y':1000  },
+				{'x':999.5 , 'y':1000.5},
+				{'x':1000.5, 'y':1001  },
+				{'x':1001.5, 'y':1000.5}
+			]
+		})
+	);
+
+	for(var i=0;i<10;++i){
+		randomCoords.push(
+			mapapi.gridPoint.fuzzy([
+				(Math.random() * 3) + 999,
+				(Math.random() * 3) + 999
+			])
+		);
+	}
+	map.addShape(
+		new mapapi.shape.nCurve({
+			'lineWidth' : 5,
+			'coords'    : randomCoords
+		})
+	);
+};
+</script>
+</head>
+<body>
+</body>
+</html>
