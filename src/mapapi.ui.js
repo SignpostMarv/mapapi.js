@@ -255,6 +255,9 @@
 					this['DOM']['appendChild'](li);
 					delClass(this['DOM']['parentNode'], 'childless');
 					subsection['addListener']('sectionsadded', sectionsAddedListener);
+					if(subsection['sections'] && subsection['sections'] instanceof Array && subsection['sections']['length'] > 0){
+						subsection['fire']('sectionsadded', {'sections':subsection['sections']});
+					}
 					subsection['addListener']('sectionsremoved', sectionsRemovedListener);
 				}
 			}
