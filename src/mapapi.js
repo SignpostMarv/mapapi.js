@@ -219,6 +219,28 @@
 		return value;
 	}
 
+	gridPoint['lerp'] = function(a, b, c){
+		var
+			a = gridPoint['fuzzy'](a),
+			b = gridPoint['fuzzy'](b),
+			c = Math.max(0, Math.min(1, parseFloat(c)))
+		;
+		return gridPoint['lerpFloats'](a['x'], a['y'], b['x'], b['y'], c);
+	}
+
+	gridPoint['lerpFloats'] = function(x1, y1, x2, y2, c){
+		var
+			x1 = parseFloat(x1),
+			y1 = parseFloat(y1),
+			x2 = parseFloat(x2),
+			y2 = parseFloat(y2)
+		;
+		return new gridPoint(
+			x1 + ((x2 - x1) * c),
+			y1 + ((y2 - y1) * c)
+		)
+	}
+
 	gridPoint.prototype['equals'] = function(value){
 		return (value instanceof gridPoint && value['x'] == this['x'] && value['y'] == this['y']);
 	}
