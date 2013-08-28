@@ -400,6 +400,7 @@
 			function setcolors(){
 				if(rgbRegex['test'](strokeStyle)){
 					rgb = strokeStyle.replace(rgbRegex,color2hex);
+					alpha = 1;
 				}else if(rgbaRegex['test'](strokeStyle)){
 					rgb = strokeStyle.replace(rgbaRegex,color2hex);
 					alpha = strokeStyle.replace(rgbaRegex,function(){
