@@ -27,6 +27,13 @@ java -jar ../../compiler.jar \
 	--js ../src/gridconfig/aurora-sim.js \
 	--js_output_file ../build/mapapi-complete.js
 
+rm -fr ../build/ui
+mkdir ../build/ui
+cp ../src/ui/marker.png ../build/ui/marker.png
+cp ../src/ui/marker-shadows.png ../build/ui/marker-shadows.png
+cp ../src/ui/marker-tail-top-slice.png ../build/ui/marker-tail-top-slice.png
+cp ../src/ui/minimalist.css ../build/ui/minimalist.css
+
 if [ -f ../../7za.exe ];
 then
 	if [ -f ../build/mapapi-complete.js.gz ];
@@ -37,7 +44,9 @@ then
 	fi;
 	../../7za.exe a -tgzip ../build/mapapi-complete.js.gz ../build/mapapi-complete.js -mx=9 -mfb=258 -mpass=15
 	../../7za.exe a -tgzip ../build/mapapi.gridConfigs.js.gz ../build/mapapi.gridConfigs.js -mx=9 -mfb=258 -mpass=15
+	../../7za.exe a -tgzip ../build/ui/minimalist.css.gz ../build/ui/minimalist.css -mx=9 -mfb=258 -mpass=15
 else
 	gzip -cf --best ../build/mapapi-complete.js > ../build/mapapi-complete.js.gz
 	gzip -cf --best ../build/mapapi.gridConfigs.js > ../build/mapapi.gridConfigs.js.gz
+	gzip -cf --best ../build/ui/minimalist.css > ../build/ui/minimalist.css.gz
 fi;
