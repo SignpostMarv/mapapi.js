@@ -32,7 +32,7 @@ mkdir ../build/ui
 cp ../src/ui/marker.png ../build/ui/marker.png
 cp ../src/ui/marker-shadows.png ../build/ui/marker-shadows.png
 cp ../src/ui/marker-tail-top-slice.png ../build/ui/marker-tail-top-slice.png
-cp ../src/ui/minimalist.css ../build/ui/minimalist.css
+lessc --yui-compress ../src/ui/minimalist.less ../build/ui/minimalist.css
 
 if [ -f ../../7za.exe ];
 then
