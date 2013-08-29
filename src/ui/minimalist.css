@@ -99,7 +99,8 @@
 	margin-right: 2em ;
 	line-height: 1.5em ;
 	width: 100% ;
-}.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li li{
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li li{
 	padding-left: .25em ;
 }
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li:nth-child(odd),
