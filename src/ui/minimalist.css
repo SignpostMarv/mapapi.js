@@ -1,7 +1,7 @@
 /**
 * License and Terms of Use
 *
-* Copyright (c) 2011 SignpostMarv
+* Copyright (c) 2013 SignpostMarv
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -9,10 +9,10 @@
 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 * copies of the Software, and to permit persons to whom the Software is
 * furnished to do so, subject to the following conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be included in
 * all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -95,13 +95,20 @@
 	padding-top: 1em ;
 }
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li{
-	padding: 0 0 0 .25em;
+	padding: 0 0 .25em .25em;
 	margin-right: 2em ;
 	line-height: 1.5em ;
 	width: 100% ;
+}.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li li{
+	padding-left: .25em ;
 }
-.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li:nth-child(odd){
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li:nth-child(odd),
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li:nth-child(even) li:nth-child(odd){
 	background: #ddd ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li:nth-child(odd) li:nth-child(even),
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li > ul > li:nth-child(even) li:nth-child(odd){
+	background: #ccc ;
 }
 .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li.toggled > ul, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover > ul{
 	display: block ;
@@ -112,19 +119,21 @@
 	border-radius: 8px 0 8px 8px ;
 	padding: .25em ;
 }
-.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover{
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li.toggled, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover{
 	z-index: 300 ;
 }
-.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover > h1{
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li.toggled > h1, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover > h1{
 	background: #fff ;
 	border-radius: 8px 8px 0 0 ;
 	box-shadow: 4px 4px 4px #000 ;
 }
-.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover ul{
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li.toggled ul, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover ul{
 	background: #fff ;
+}
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li.toggled > ul, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li:hover > ul{
 	box-shadow: 4px 4px 4px #000 ;
 }
-.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li:hover > ul{
+.mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li.toggled > ul, .mapapi-ui-minimalist .mapapi-ui-sidebars .menu > ul > li > ul > li:hover > ul{
 	display: block ;
 	position: absolute ;
 	top: 8px ;
