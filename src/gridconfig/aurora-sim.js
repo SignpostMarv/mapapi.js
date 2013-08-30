@@ -33,8 +33,6 @@
 		gridPoint      = mapapi['gridPoint']
 	;
 
-	mapapi['gridConfigs'] = mapapi['gridConfigs'] || {};
-
 	mapapi['gridConfigs']['aurorasim'] = function(obj){
 		var
 			tileLabel       = obj['tileLabel'] || 'Land & Objects',

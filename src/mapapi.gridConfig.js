@@ -215,4 +215,5 @@
 	}
 
 	mapapi['gridConfig'] = gridConfig;
+	mapapi['gridConfigs'] = {};
 })(window);
