@@ -22,6 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	'use strict';
 	var
 		Array       = window['Array'],
 		EventTarget = window['EventTarget'],
@@ -481,7 +482,7 @@
 	nCurve.prototype['coords'] = function(granularity){
 		var
 			granularity = Math.max(10, parseInt(granularity || 100)),
-			coords      = line.prototype['coords']['call'](this)
+			coords      = line.prototype['coords']['call'](this),
 			curve       = [gridPoint['fuzzy']([
 				coords[0]['x'],
 				coords[0]['y']
