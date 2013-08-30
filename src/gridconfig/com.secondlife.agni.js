@@ -35,8 +35,6 @@
 		gridPoint      = mapapi['gridPoint']
 	;
 
-	mapapi['gridConfigs'] = mapapi['gridConfigs'] || {};
-
 	var SecondLifeTileSource = new tileSource({
 		'copyright'       : '© 2007 - ' + (new Date).getFullYear() + ' Linden Lab',
 		'label'           : 'Land & Objects',

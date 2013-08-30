@@ -468,9 +468,9 @@
 		this['ui'] = ui;
 		var
 			obj     = this,
-			DOM     = obj['DOM'],
+			DOM     = obj['DOM'] || obj['content2DOM'](),
 			DOMp    = DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined,
-			dest    = ui['contentNode']
+			dest    = ui['rendererNode']
 		;
 		if(DOM != undefined){
 			if(!!obj['opts']['autoFocus']){
@@ -696,6 +696,8 @@
 				obj['anchor']({'x':img['width'] / 2, 'y' : img['height']});
 			}
 			obj['content'](img);
+			obj['DOM']['width'] = img['width'];
+			obj['DOM']['height'] = img['height'];
 		}
 		img['onerror'] = function(){
 			throw 'Could not load image';
@@ -745,14 +747,19 @@
 		var
 			obj     = this,
 			content = obj['content'](),
-			DOM     = createElement('img')
+			DOM     = createElement('img'),
+			DOMclasses = obj['DOMclasses']
 		;
-		if(!(content instanceof Image) && content['nodeName']['toLowerCase']() != 'img'){
-			throw 'Invalid contents, must be an instance of Image or an img tag';
+		for(var i=0;i<DOMclasses['length'];++i){
+			addClass(DOM, DOMclasses[i]);
 		}
-		DOM['setAttribute']('src', content['src']);
-		DOM['onclick'] = function(){
-			obj['fire']('click');
+		if((content instanceof Image) || (content && content['nodeName'] && content['nodeName']['toLowerCase']() == 'img')){
+			DOM['setAttribute']('src', content['src']);
+			DOM['onclick'] = function(){
+				obj['fire']('click');
+			}
+		}else if(content != undefined){
+			throw 'Invalid contents, must be an instance of Image or an img tag';
 		}
 		return DOM;
 	}
@@ -828,6 +835,10 @@
 	}
 	extend(numberedMarker, marker);
 
+	numberedMarker.prototype['DOMclasses'] = [
+		'mapapi-ui-marker'
+	];
+
 	numberedMarker.prototype['number'] = function(number){
 		if(typeof number == 'number'){
 			this['opts']['number'] = number;
@@ -853,6 +864,7 @@
 
 		delClass(content, 'mapapi-ui-marker');
 		addClass(content, 'mapapi-ui-marker-img');
+		addClass(DOM, 'mapapi-ui-marker');
 
 		if(!!img){
 			DOM['style']['width']  = img['width'] + 'px';
@@ -866,10 +878,6 @@
 
 		return DOM;
 	}
-	numberedMarker.prototype['DOMclasses'] = [
-		'mapapi-ui-marker',
-		'mapapi-ui-marker-numbered'
-	];
 
 	mapapi['numberedMarker'] = numberedMarker;
 
