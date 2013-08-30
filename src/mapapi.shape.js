@@ -22,6 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	'use strict';
 	var
 		Array       = window['Array'],
 		EventTarget = window['EventTarget'],
@@ -481,7 +482,7 @@
 	nCurve.prototype['coords'] = function(granularity){
 		var
 			granularity = Math.max(10, parseInt(granularity || 100)),
-			coords      = line.prototype['coords']['call'](this)
+			coords      = line.prototype['coords']['call'](this),
 			curve       = [gridPoint['fuzzy']([
 				coords[0]['x'],
 				coords[0]['y']
@@ -523,10 +524,16 @@
 
 	function circle(options){
 		shape['call'](this, options);
-		this['bounds'] = gridPoint['fuzzy']([
-			this['opts']['coords'][0]['x'] - this['opts']['radius'],
-			this['opts']['coords'][0]['y'] - this['opts']['radius']
-		]);
+		this['bounds'] = new bounds(
+			gridPoint['fuzzy']([
+				this['opts']['coords'][0]['x'] - this['opts']['radius'],
+				this['opts']['coords'][0]['y'] - this['opts']['radius']
+			]),
+			gridPoint['fuzzy']([
+				this['opts']['coords'][0]['x'] + this['opts']['radius'],
+				this['opts']['coords'][0]['y'] + this['opts']['radius']
+			])
+		);
 	}
 
 	extend(circle, shape);

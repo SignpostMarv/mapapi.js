@@ -34,6 +34,7 @@ cp ../src/ui/marker.png ../mapapi.js/ui/marker.png
 cp ../src/ui/marker-shadows.png ../mapapi.js/ui/marker-shadows.png
 cp ../src/ui/marker-tail-top-slice.png ../mapapi.js/ui/marker-tail-top-slice.png
 lessc --yui-compress ../src/ui/minimalist.less ../mapapi.js/ui/minimalist.css
+cp ../mapapi.js/ui/minimalist.css ../src/ui/minimalist.css
 
 if [ -f ../../7za.exe ];
 then

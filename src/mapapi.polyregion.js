@@ -21,9 +21,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-(function(undefined){
+(function(window, undefined){
+	'use strict';
 	var
-		window = this,
 		mapapi = window['mapapi']
 	;
 	if(mapapi == undefined){
@@ -56,7 +56,7 @@
 							}else{
 								var
 									ne = spec[i][j]['bounds']['ne'],
-									sw = spec[i][j]['bounds']['sw']
+									sw = spec[i][j]['bounds']['sw'],
 									tne = bounds[i]['ne'],
 									tsw = bounds[i]['sw']
 								;
@@ -180,4 +180,4 @@
 		}, fail);
 	}
 	mapapi['polyregion'] = polyregion;
-})();
+})(this);

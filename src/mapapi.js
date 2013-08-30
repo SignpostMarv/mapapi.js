@@ -22,6 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	'use strict';
 	var
 		Array = window['Array']
 	;
@@ -39,7 +40,6 @@
 
 	if (!Array.prototype.forEach) {
 		Array.prototype['forEach'] = function(fn, scope){
-			'use strict';
 			var
 				obj = this,
 				scope = scope || obj,
@@ -223,22 +223,16 @@
 		var
 			a = gridPoint['fuzzy'](a),
 			b = gridPoint['fuzzy'](b),
-			c = Math.max(0, Math.min(1, parseFloat(c)))
-		;
-		return gridPoint['lerpFloats'](a['x'], a['y'], b['x'], b['y'], c);
-	}
-
-	gridPoint['lerpFloats'] = function(x1, y1, x2, y2, c){
-		var
-			x1 = parseFloat(x1),
-			y1 = parseFloat(y1),
-			x2 = parseFloat(x2),
-			y2 = parseFloat(y2)
+			c = +Math.max(0, Math.min(1, c * 1)),
+			x1 = a['x'],
+			y1 = a['y'],
+			x2 = b['x'],
+			y2 = b['y']
 		;
 		return new gridPoint(
 			x1 + ((x2 - x1) * c),
 			y1 + ((y2 - y1) * c)
-		)
+		);
 	}
 
 	gridPoint.prototype['equals'] = function(value){
@@ -257,7 +251,7 @@
 	}
 
 	if(localStorage && JSON){
-		function storage(){
+		var storage = function(){
 			this['storage'] = localStorage;
 		}
 

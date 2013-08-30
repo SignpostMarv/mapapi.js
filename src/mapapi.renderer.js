@@ -22,7 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
-	window['mapapi'] = window['mapapi'] || {};
+	'use strict';
 	var
 		document    = window['document'],
 		EventTarget = window['EventTarget'],
@@ -35,12 +35,8 @@
 	;
 	if(EventTarget == undefined){
 		throw 'EventTarget not loaded';
-	}
-
-	function each(array, cb){
-		for(var i=0;i<array.length;++i){
-			cb(array[i],i);
-		}
+	}else if(mapapi == undefined){
+		throw 'mapapi not loaded';
 	}
 
 	function dblclick_handler(e){
@@ -90,7 +86,6 @@
 			options   = options || {},
 			opts      = obj['opts'],
 			container = options['container'],
-			hasFunc   = ['minZoom', 'maxZoom', 'scrollWheelZoom', 'smoothZoom', 'draggable', 'dblclickZoom', 'zoom', 'focus', 'panUnitLR', 'panUnitUD'],
 			checkFunc
 		;
 
@@ -99,14 +94,11 @@
 		options['panUnitLR'] = options['panUnitLR'] || 0;
 		options['panUnitUD'] = options['panUnitUD'] || 0;
 
-		for(var i=0;i<hasFunc.length;++i){
-			var
-				checkFunc = hasFunc[i]
-			;
-			if(options[checkFunc] != undefined){
-				obj[checkFunc](options[checkFunc]);
+		['minZoom', 'maxZoom', 'scrollWheelZoom', 'smoothZoom', 'draggable', 'dblclickZoom', 'zoom', 'focus', 'panUnitLR', 'panUnitUD'].forEach(function(e){
+			if(options[e] != undefined){
+				obj[e](options[e]);
 			}
-		}
+		});
 
 		obj['addListener']('drag', dragpan);
 		obj['addListener']('click', function(e){
@@ -162,7 +154,7 @@
 		var
 			opts = this['opts']
 		;
-		if(value){
+		if(value != undefined){
 			opts['panUnitUD'] = Math.max(value, 1);
 		}
 		return opts['panUnitUD'] * Math.pow(2, this['zoom']());
@@ -172,7 +164,7 @@
 		var
 			opts = this['opts']
 		;
-		if(value){
+		if(value != undefined){
 			opts['panUnitLR'] = Math.max(value, 1);
 		}
 		return opts['panUnitLR'] * Math.pow(2, this['zoom']());
@@ -276,7 +268,7 @@
 			size    = obj['tileSize'](),
 			distX   = (x - cw2) / size['width'],
 			distY   = ((cHeight - y) - ch2) / size['height'],
-			focus   = obj['focus']()//,
+			focus   = obj['focus'](),
 			mapX    = focus['x'] + distX,
 			mapY    = focus['y'] + distY
 		;
