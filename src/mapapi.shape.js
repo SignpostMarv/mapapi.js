@@ -524,10 +524,16 @@
 
 	function circle(options){
 		shape['call'](this, options);
-		this['bounds'] = gridPoint['fuzzy']([
-			this['opts']['coords'][0]['x'] - this['opts']['radius'],
-			this['opts']['coords'][0]['y'] - this['opts']['radius']
-		]);
+		this['bounds'] = new bounds(
+			gridPoint['fuzzy']([
+				this['opts']['coords'][0]['x'] - this['opts']['radius'],
+				this['opts']['coords'][0]['y'] - this['opts']['radius']
+			]),
+			gridPoint['fuzzy']([
+				this['opts']['coords'][0]['x'] + this['opts']['radius'],
+				this['opts']['coords'][0]['y'] + this['opts']['radius']
+			])
+		);
 	}
 
 	extend(circle, shape);
