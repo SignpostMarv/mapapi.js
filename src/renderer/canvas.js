@@ -260,6 +260,15 @@
 				}
 			}
 
+			ctx.save();
+			obj['fire']('apply_tile_effects', {
+				'renderer'  : obj,
+				'context2d' : ctx,
+				'width'     : canvas.width,
+				'height'    : canvas.height
+			});
+			ctx.restore();
+
 			if(shape != undefined){
 				var
 					shapes = obj['shapes']()['intersects'](sbounds),
@@ -334,6 +343,13 @@
 						}
 					}
 				}
+
+				ctx.save();
+				obj['fire']('apply_shape_effects', {
+					'renderer'  : obj,
+					'context2d' : ctx
+				});
+				ctx.restore();
 			}
 			
 			ctx.restore();
