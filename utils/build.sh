@@ -20,6 +20,7 @@ java -jar ../../compiler.jar \
 	--js ../src/mapapi.polyregion.js \
 	--js ../src/mapapi.ui.js \
 	--js ../src/ui/minimalist.js \
+	--js ../src/ui/contextmenu.js \
 	--js ../src/mapapi.renderer.js \
 	--js ../src/mapapi.tileSource.js \
 	--js ../src/mapapi.gridConfig.js \
