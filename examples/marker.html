@@ -62,53 +62,8 @@ window.onload = function(){
 	mapui.addMarker(marker1);
 	mapui.addMarker(marker2);
 	mapui.addMarker(numbered);
-	mapui.markerManager.open(mapui);
-/*
+	mapui.markerManager.open();
 
-	function numberedMarker(options){
-		options = options || {};
-		options.image  = '../src/ui/marker-shadows.png',
-		options.anchor = {'x':16, 'y': 64}
-		mapapi.numberedMarker.call(this, options);
-	}
-	numberedMarker.prototype = new mapapi.numberedMarker;
-	numberedMarker.prototype.constructor = numberedMarker;
-	numberedMarker.prototype.DOMclasses.push('marker-shadows-numbered-marker');
-
-	var
-		mapui = new mapapi.userinterfaces.minimalist({
-			gridConfig : mapapi.gridConfigs['com.secondlife.agni']
-		}),
-		map   = mapui.renderer,
-		marker1 = new mapapi.marker({
-			'image'      : '../src/ui/marker-shadows.png',
-			'anchor'     : {'x':16, 'y': 64},
-			'position'   : new mapapi.gridPoint(1000, 1000),
-			'infoWindow' : mapui.infoWindow({
-				'content' : 'Marker 1'
-			})
-		}),
-		marker2 = new mapapi.marker({
-			'image'      : '../src/ui/marker-shadows.png',
-			'anchor'     : {'x':16, 'y': 64},
-			'position'   : new mapapi.gridPoint(900, 1000),
-			'infoWindow' : mapui.infoWindow({
-				'content' : 'Marker 2'
-			})
-		}),
-		numbered = new numberedMarker({
-			'position'   : new mapapi.gridPoint(999, 1000),
-			'infoWindow' : mapui.infoWindow({
-				'content' : 'Marker Numbered'
-			}),
-			'numbered'   : 8
-		})
-	;
-
-	mapui.addMarker(marker1);
-	mapui.addMarker(marker2);
-	mapui.addMarker(numbered);
-*/
 	map.scrollWheelZoom(true);
 	map.smoothZoom(true);
 	map.draggable(true);
