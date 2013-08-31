@@ -21,9 +21,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-(function(undefined){
+(function(window, undefined){
+	'use strict';
 	var
-		window   = this,
 		mapapi   = window['mapapi'],
 		mapapiui = (mapapi != undefined) ? mapapi['ui'] : undefined
 	;
@@ -180,4 +180,4 @@
 	}
 	
 	mapapi['userinterfaces'][toClassName(UI.prototype.name)] = UI;
-})();
+})(this);
