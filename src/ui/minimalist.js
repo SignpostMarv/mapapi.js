@@ -32,7 +32,7 @@
 		mapapiui      = (mapapi != undefined) ? mapapi['ui'] : undefined,
 		infoWindow    = mapapi['infoWindow'],
 		addClass      = (mapapi != undefined) ? mapapi['utils']['addClass'] : undefined,
-		hasClass      = addClass ? mapapi['utils']['hasClass'] : undefined
+		hasClass      = addClass ? mapapi['utils']['hasClass'] : undefined,
 		empty         = addClass ? mapapi['utils']['empty'] : undefined
 	;
 	if(mapapi == undefined){
@@ -41,7 +41,7 @@
 		throw 'mapapi.ui not loaded';
 	}
 
-	minimalistUI = function(options){
+	var minimalistUI = function(options){
 		mapapiui['call'](this, options);
 		var
 			obj           = this,
@@ -95,7 +95,7 @@
 	}
 	minimalistUI.prototype = new mapapiui;
 	minimalistUI.prototype['constructor'] = minimalistUI;
-	minimalistUI.prototype['name'] = 'minimalist';
+	minimalistUI.prototype['name']        = 'minimalist';
 	minimalistUI.prototype['description'] = "Provides a minimalist interface to the map.\nUnfinished, made available for feedback.";
 
 	minimalistUI.prototype['css'] = [
@@ -103,7 +103,7 @@
 	];
 	
 
-	mapapi['userinterfaces'][minimalistUI.prototype.name ] = minimalistUI;
+	mapapi['userinterfaces'][minimalistUI.prototype['name']] = minimalistUI;
 
 
 	function minimalistUIinfoWindow(options){
