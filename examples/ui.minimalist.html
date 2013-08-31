@@ -32,6 +32,13 @@ window.onload = function(){
 	map.smoothZoom(true);
 	map.draggable(true);
 	map.focus(1000,1000,0);
+	window.mapui = mapui;
+	mapui.sidebar(0).addSection(
+		new mapapi.ui.section('foo'),
+		new mapapi.ui.section('foo'),
+		new mapapi.ui.section('foo'),
+		new mapapi.ui.section('foo')
+	);
 };
 </script>
 </head>

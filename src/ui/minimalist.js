@@ -52,8 +52,23 @@
 			menuHideShow  = createElement('div'),
 			menuMinimised = false,
 			zoomcontrol   = createElement('li'),
-			zoomin        = createElement('p'),
-			zoomout       = createElement('p')
+			testStyleProp = function(prop){
+				var
+					firstLetter = prop[0],
+					found = false
+				;
+				[firstLetter, 'webkit' + firstLetter['toUpperCase'](), 'moz' + firstLetter['toUpperCase'](), 'o' + firstLetter['toUpperCase'](), 'ms' + firstLetter['toUpperCase']()].forEach(function(e){
+					found = found ? found : ((e + prop['substr'](1)) in document['body']['style']);
+				});
+				return found;
+			},
+			testInputType = function(type){
+				var
+					input = document.createElement('input')
+				;
+				input['setAttribute']('type', type);
+				return input['type'] == type;
+			}
 		;
 
 		function toggleMenu(){
@@ -68,8 +83,6 @@
 		menu['appendChild'](menuHideShow);
 
 		addClass(zoomcontrol, 'zoomcontrol');
-		appendChild(zoomin , createText('+'));
-		appendChild(zoomout, createText('–'));
 		function changeZoom(level){
 			if(renderer['smoothZoom']() && /MSIE ([0-9]{1,}[\.0-9]{0,})/.test(navigator['userAgent']) == !1){
 				renderer['animate']({
@@ -79,16 +92,77 @@
 				renderer['zoom'](level);
 			}
 		}
-		zoomin['onclick'] = function(e){
-			changeZoom(renderer['zoom']() - 1);
-			return false;
-		};
-		zoomout['onclick'] = function(e){
-			changeZoom(renderer['zoom']() + 1);
-			return false;
-		};
-		appendChild(zoomcontrol, zoomin);
-		appendChild(zoomcontrol, zoomout);
+		if(!testStyleProp('transform') || !testInputType('range')){
+			var
+				zoomin        = createElement('p'),
+				zoomout       = createElement('p')
+			;
+			appendChild(zoomin , createText('+'));
+			appendChild(zoomout, createText('–'));
+			zoomin['onclick'] = function(e){
+				changeZoom(renderer['zoom']() - 1);
+				return false;
+			};
+			zoomout['onclick'] = function(e){
+				changeZoom(renderer['zoom']() + 1);
+				return false;
+			};
+			appendChild(zoomcontrol, zoomin);
+			appendChild(zoomcontrol, zoomout);
+			addClass(zoomcontrol, 'clipped');
+		}else{
+			var
+				activateZoom = document.createElement('input'),
+				changing = false
+			;
+			activateZoom['type']  = 'range';
+			activateZoom['min']   = renderer['minZoom']();
+			activateZoom['max']   = renderer['maxZoom']();
+			activateZoom['step']  = 0.1;
+			activateZoom['value'] = renderer['zoom']();
+			activateZoom['oninput'] = function(){
+				changing = true;
+				changeZoom(this['value']);
+			}
+			activateZoom['onmouseup'] = function(){
+				changing = false;
+			}
+			activateZoom['addEventListener'](/WebKit/.test(window['navigator']['userAgent']) ? 'mousewheel' : 'DOMMouseScroll', function(e){
+				var d=0;
+				if(!e){
+					e = window['event']
+				}else if(e['wheelDelta']){
+					d = e['wheelDelta'] / 120;
+					if(window['opera']){
+						d = -d;
+					}
+				}else if(e['detail']){
+					d = -e['detail'] / 3;
+				}
+				if(d){
+					var
+						zoom = renderer['zoom'](),
+						mod  = (d > 0) ? -1 : 1
+					;
+					changeZoom(zoom + mod);
+				}
+				if(e['preventDefault']){
+					e['preventDefault']();
+				}
+				e['returnValue'] = false;
+				return false;
+			}, false);
+			addClass(activateZoom, 'activate-zoom');
+			renderer['addListener']('bounds_changed', function(){
+				var
+					zoom = renderer['zoom']()
+				;
+				if(!changing && activateZoom['value'] != zoom){
+					activateZoom['value'] = zoom;
+				}
+			});
+			appendChild(zoomcontrol, activateZoom);
+		}
 		appendChild(this['sidebarsContainer'], zoomcontrol);
 
 		mapapi['events']['fire']('uiready',{'ui':obj});
