@@ -59,12 +59,35 @@
 				menu          = obj['addSidebar']('Menu', new mapapiui['sidebar']()),
 				sBarOriginal  = obj['sidebarsContainer'],
 				sBarReplacer  = createElement('div'),
-				menuHideShow  = createElement('div'),
 				menuMinimised = false,
-				zoomcontrol   = createElement('li'),
-				zoomin        = createElement('p'),
-				zoomout       = createElement('p')
+				zoomcontrol   = new section('Zoom'),
+				zoomIn        = new section('In'),
+				zoomOut       = new section('Out'),
+				zoomFunc      = function(){
+					tryZoom(this.zoomLevel);
+				},
+				tryZoom       = function(zoomLevel){
+					if(renderer['smoothZoom']()){
+						renderer['animate']({
+							'zoom'  : zoomLevel,
+							'focus' : contextPos
+						}, .5);
+					}else{
+						obj['zoom'](zoomLevel);
+						obj['focus'](contextPos);
+					}
+				},
+				contextPos
 			;
+			renderer['contentNode']['addEventListener']('contextmenu', function(e){
+				contextPos = renderer['px2point'](e['clientX'], e['clientY']);
+			});
+			zoomIn['addListener']('click', function(){
+				tryZoom(renderer['zoom']() - 1);
+			});
+			zoomOut['addListener']('click', function(){
+				tryZoom(renderer['zoom']() + 1);
+			});
 			sBarReplacer['style']['display'] = 'none';
 			while(sBarOriginal['hasChildNodes']()){
 				appendChild(sBarReplacer, sBarOriginal['firstChild']);
@@ -72,6 +95,17 @@
 			sBarOriginal['parentNode']['replaceChild'](sBarReplacer, sBarOriginal);
 			obj['rendererNode']['setAttribute']('contextmenu', menu['id']);
 			mapapi['events']['fire']('uiready',{'ui':obj});
+			obj['sidebar'](0)['addSection'](zoomcontrol);
+			zoomcontrol['addSection'](zoomIn);
+			zoomcontrol['addSection'](zoomOut);
+			for(var i=0;i<renderer['gridConfig']['maxZoom'];++i){
+				var
+					zoom = new section('1:' + (parseInt(renderer['gridConfig']['tileSources'][0]['size']['width'], 10) * (1 << i)))
+				;
+				zoom.zoomLevel = i;
+				zoom['addListener']('click', zoomFunc);
+				zoomcontrol['addSection'](zoom);
+			}
 		}
 	;
 	UI.prototype = new mapapiui;
