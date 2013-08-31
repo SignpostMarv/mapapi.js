@@ -14,7 +14,7 @@ java -jar ../../compiler.jar \
 	--js_output_file ../mapapi.js/mapapi.gridConfigs.js
 
 java -jar ../../compiler.jar \
-	--js ../src/EventTarget.js \
+	--js ../src/lib/EventTarget.js \
 	--js ../src/mapapi.js \
 	--js ../src/mapapi.shape.js \
 	--js ../src/mapapi.polyregion.js \
