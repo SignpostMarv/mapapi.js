@@ -61,15 +61,10 @@
 			container         = options['container'],
 			renderer          = options['renderer'],
 			gridConfig        = options['gridConfig'],
-			markerMngr        = options['markerManager'],
 			rendererNode      = createElement('div'),
 			sidebarsContainer = createElement('ul')
 		;
-		if(markerMngr == undefined){
-			markerMngr = new markerManager;
-		}else if(!(markerMngr instanceof markerManager)){
-			throw 'marker manager must be an instance of mapapi.markerManager';
-		}
+		markerMngr = new markerManager(this);
 		if(container == undefined){
 			container = document['body'];
 		}
@@ -469,7 +464,7 @@
 		this['ui'] = ui;
 		var
 			obj     = this,
-			DOM     = obj['DOM'] || obj['content2DOM'](),
+			DOM     = obj['content2DOM'](),
 			DOMp    = DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined,
 			dest    = ui['rendererNode']
 		;
@@ -556,7 +551,7 @@
 	}
 
 	function infoWindow(options){
-		uiItem['call'](this);
+		uiItem['call'](this, options);
 		var
 			obj       = this,
 			opts      = {},
@@ -662,6 +657,85 @@
 		return new infoWindow(options);
 	}
 
+	
+	function marker(){
+		uiItem.apply(this, arguments);
+		if(arguments.length == 0){
+			return;
+		}
+		var
+			obj     = this,
+			options = arguments[0] || {},
+			anchor  = options['anchor'],
+			imgSrc  = options['image'],
+			infoW   = options['infoWindow'],
+			img     = document.createElement('img')
+		;
+		obj['position'](options['position']);
+		if(anchor != undefined){
+			obj['anchor'](anchor);
+		}
+		img['onload'] = function(){
+			if(anchor == undefined){
+				obj['anchor']({'x':img['width'] / 2, 'y' : img['height']});
+			}
+			obj['content'](this);
+		}
+		img['onclick'] = function(){
+			obj['fire']('click');
+		}
+		console.log(options);
+		img['src'] = imgSrc;
+
+		if(infoW instanceof infoWindow){
+			infoW['position'](obj['position']());
+			console.log(infoW);
+			obj['addListener']('click', function(){
+				obj['opts']['disableAutoShow'] = true;
+				obj['hide']();
+				infoW['open'](obj['ui']);
+			});
+			infoW['addListener']('closed', function(){
+				obj['opts']['disableAutoShow'] = false;
+				obj['show']();
+			});
+		}
+	}
+
+	extend(marker, uiItem);
+
+	marker.prototype['DOMclasses'] = [
+		'mapapi-ui-marker'
+	];
+
+	marker.prototype['content2DOM'] = function(){
+		return this['content']();
+	}
+	
+	marker.prototype['anchor'] = function(anchor){
+		if(anchor != undefined){
+			if(typeof anchor['x'] != 'number' || typeof anchor['y'] != 'number'){
+				throw 'x and y anchor points must be numbers';
+			}
+			this['opts']['anchor'] = {'x':anchor['x'], 'y':anchor['y']};
+		}
+		return this['opts']['anchor'];
+	}
+
+	marker.prototype['csspos'] = function(){
+		var
+			pos    = uiItem.prototype['csspos']['call'](this),
+			anchor = this['anchor']()
+		;
+		if(anchor == undefined){
+			throw 'No anchor point found';
+		}else{
+			pos['x'] -= anchor['x'],
+			pos['y'] -= anchor['y']
+		}
+		return pos;
+	}
+/*
 	function marker(options){
 		uiItem['call'](this);
 		if(options == undefined){
@@ -748,32 +822,25 @@
 		var
 			obj     = this,
 			content = obj['content'](),
-			DOM     = createElement('img'),
 			DOMclasses = obj['DOMclasses']
 		;
 		for(var i=0;i<DOMclasses['length'];++i){
-			addClass(DOM, DOMclasses[i]);
+			addClass(content, DOMclasses[i]);
 		}
-		if((content instanceof Image) || (content && content['nodeName'] && content['nodeName']['toLowerCase']() == 'img')){
-			DOM['setAttribute']('src', content['src']);
-			DOM['onclick'] = function(){
-				obj['fire']('click');
-			}
-		}else if(content != undefined){
-			throw 'Invalid contents, must be an instance of Image or an img tag';
-		}
-		return DOM;
+		return content;
 	}
 
 	marker.prototype['DOMclasses'] = [
 		'mapapi-ui-marker'
 	];
+*/
 
 	mapapi['marker'] = marker;
 
-	function markerManager(){
+	function markerManager(ui){
 		EventTarget['call'](this);
 		this['markers'] = [];
+		this['ui'] = ui;
 	}
 	extend(markerManager, EventTarget);
 
@@ -801,13 +868,18 @@
 		}
 	}
 
-	markerManager.prototype['open'] = function(on){
-		if(!(on instanceof ui)){
-			throw 'value must be an instance of mapapi.ui';
-		}
-		for(var i=0;i<this['markers']['length'];++i){
-			this['markers'][i]['open'](on);
-		}
+	markerManager.prototype['open'] = function(){
+		var
+			ui = this['ui'],
+			firstLoadOpen = function(){
+				this['open'](ui);
+				this['removeListener']('content_changed', firstLoadOpen);
+			}
+		;
+		this['markers']['forEach'](function(e){
+			e['open'](ui);
+			e['addListener']('content_changed', firstLoadOpen);
+		});
 		this['fire']('opened');
 	}
 
@@ -837,7 +909,8 @@
 	extend(numberedMarker, marker);
 
 	numberedMarker.prototype['DOMclasses'] = [
-		'mapapi-ui-marker'
+		'mapapi-ui-marker',
+		'mapapi-ui-marker-numbered'
 	];
 
 	numberedMarker.prototype['number'] = function(number){
@@ -852,8 +925,7 @@
 		var
 			obj     = this,
 			content = marker.prototype['content2DOM']['call'](obj),
-			img     = obj['img'],
-			DOM     = createElement('div'),
+			DOM     = obj['DOM'] || createElement('div'),
 			number  = createElement('p'),
 			value   = parseInt(obj['opts']['number'])
 		;
@@ -863,18 +935,25 @@
 			obj['fire']('click');
 		}
 
-		delClass(content, 'mapapi-ui-marker');
-		addClass(content, 'mapapi-ui-marker-img');
-		addClass(DOM, 'mapapi-ui-marker');
+		while(DOM['hasChildNodes']()){
+			DOM['removeChild'](DOM['firstChild']);
+		}
+		
+		if(content){
+			content['onclick'] = function(){}
+			delete content['onclick'];
 
-		if(!!img){
-			DOM['style']['width']  = img['width'] + 'px';
-			DOM['style']['height'] = img['height'] + 'px';
+			content['className'] = '';
+			addClass(content, 'mapapi-ui-marker-img');
+
+			DOM['style']['width']  = content['width'] + 'px';
+			DOM['style']['height'] = content['height'] + 'px';
+
+			DOM['appendChild'](content);
 		}
 
 		addClass(number, 'mapapi-ui-marker-number');
 
-		DOM['appendChild'](content);
 		DOM['appendChild'](number);
 
 		return DOM;
