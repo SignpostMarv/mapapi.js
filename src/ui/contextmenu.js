@@ -46,6 +46,9 @@
 		hasClass      = addClass ? mapapi['utils']['hasClass'] : undefined,
 		empty         = addClass ? mapapi['utils']['empty'] : undefined,
 		trimRegex     = /^\s+|\s+$/g,
+		toClassName   = function(str){
+			return (str + '')['toLowerCase']()['replace'](/\s+/g,'');
+		},
 		UI            = function(options){
 			mapapiui['call'](this, options);
 			var
@@ -131,7 +134,7 @@
 			throw 'sidebar name is empty';
 		}
 		var
-			className = sidebarName['toLowerCase']()['replace'](/\s+/g,''),
+			className = toClassName(sidebarName),
 			menu      = createElement('menu')
 		;
 		menu['type'] = 'context';
@@ -142,5 +145,5 @@
 		return menu;
 	}
 	
-	mapapi['userinterfaces'][UI.prototype['name']] = UI;
+	mapapi['userinterfaces'][toClassName(UI.prototype.name)] = UI;
 })();
