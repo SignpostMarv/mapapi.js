@@ -112,15 +112,17 @@
 			addClass(zoomcontrol, 'clipped');
 		}else{
 			var
-				activateZoom = document.createElement('input'),
+				activateZoom = document.createElement('x-slider'),
 				changing = false
 			;
-			activateZoom['type']  = 'range';
-			activateZoom['min']   = renderer['minZoom']();
-			activateZoom['max']   = renderer['maxZoom']();
-			activateZoom['step']  = 0.1;
-			activateZoom['value'] = renderer['zoom']();
-			activateZoom['oninput'] = function(){
+			activateZoom['type']      = 'range';
+			activateZoom['min']       = renderer['minZoom']();
+			activateZoom['max']       = renderer['maxZoom']();
+			activateZoom['step']      = 0.1;
+			activateZoom['value']     = renderer['zoom']();
+			activateZoom['setAttribute']('polyfill', 'polyfill');
+			activateZoom['setAttribute']('vertical', 'vertical');
+			activateZoom['oninput']   = function(){
 				changing = true;
 				changeZoom(this['value']);
 			}
@@ -173,7 +175,8 @@
 	minimalistUI.prototype['description'] = "Provides a minimalist interface to the map.\nUnfinished, made available for feedback.";
 
 	minimalistUI.prototype['css'] = [
-		'ui/minimalist.css'
+		'ui/minimalist.css',
+		'lib/slider.css'
 	];
 	
 
