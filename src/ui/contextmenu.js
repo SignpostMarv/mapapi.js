@@ -28,7 +28,10 @@
 		mapapiui = (mapapi != undefined) ? mapapi['ui'] : undefined
 	;
 	if(!('HTMLMenuItemElement' in window && 'HTMLCommandElement' in window)){
-		throw 'context menu not supported.';
+		if(window['console'] && window['console']['log']){
+			window['console']['log']('context menu not supported.');
+		}
+		return;
 	}else if(mapapi == undefined){
 		throw 'mapapi.js not loaded';
 	}else if(mapapiui == undefined){
