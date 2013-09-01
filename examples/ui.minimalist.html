@@ -3,7 +3,9 @@
 <head>
 <title>mapapi.ui.minimalist</title>
 <meta charset="UTF-8" />
-<script src="../src/EventTarget.js"></script>
+<script src="../src/lib/EventTarget.js"></script>
+<script src="../src/lib/x-tag-core.min.js"></script>
+<script src="../src/lib/slider.js"></script>
 <script src="../src/mapapi.js"></script>
 <script src="../src/mapapi.shape.js"></script>
 <script src="../src/mapapi.renderer.js"></script>
@@ -32,6 +34,13 @@ window.onload = function(){
 	map.smoothZoom(true);
 	map.draggable(true);
 	map.focus(1000,1000,0);
+	window.mapui = mapui;
+	mapui.sidebar(0).addSection(
+		new mapapi.ui.section('foo'),
+		new mapapi.ui.section('foo'),
+		new mapapi.ui.section('foo'),
+		new mapapi.ui.section('foo')
+	);
 };
 </script>
 </head>

@@ -21,6 +21,34 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+.transition(@args){
+	transition: @args ;
+	-moz-transition: @args ;
+	-webkit-transition: @args ;
+	-o-transition: @args ;
+	-ms-transition: @args ;
+}
+.transform(@args){
+	transform: @args ;
+	-moz-transform: @args ;
+	-webkit-transform: @args ;
+	-o-transform: @args ;
+	-ms-transform: @args ;
+}
+.transform-origin(@args){
+	transform-origin: @args ;
+	-moz-transform-origin: @args ;
+	-webkit-transform-origin: @args ;
+	-o-transform-origin: @args ;
+	-ms-transform-origin: @args ;
+}
+.border-radius(@args){
+	border-radius: @args ;
+	-moz-border-radius: @args ;
+	-webkit-border-radius: @args ;
+	-o-border-radius: @args ;
+	-ms-border-radius: @args ;
+}
 
 .mapapi-ui-minimalist{
 	.mapapi-ui-sidebars{
@@ -38,21 +66,80 @@
 			width: 16px ;
 			text-align: center ;
 			text-indent: -4px ;
-			border-radius: 0 8px 8px 0;
+			.border-radius(0 8px 8px 0);
+			line-height: 14.5px ;
+			z-index: 400 ;
 			box-shadow: 0px 2px 4px #000 ;
 			clip:rect(0,20px,33px,0);
 			overflow: hidden ;
-			line-height: 14.5px ;
-			z-index: 400 ;
+			&:hover{
+				clip: rect(0, 28px, 1000000000px, 0);
+				overflow: visible;
+				.border-radius(0 8px 0 0);
+				height: 3em ;
+			}
+			&.clipped:hover{
+				box-shadow: 0px 2px 4px #000 ;
+				clip:rect(0,20px,33px,0);
+				overflow: hidden ;
+			}
+			// pseudo element magnifying glass adapted from
+			//  http://nicolasgallagher.com/pure-css-gui-icons/demo/
+			// found via http://css-tricks.com/pseudo-element-roundup/
+			&:before, :after{
+				display: block;
+				z-index: 500;
+			}
+			&:before{
+				display: block;
+				background: transparent;
+				position: absolute ;
+				top: .4em ;
+				left: .1em ;
+				width: .8em;
+				height: .8em;
+				border: .1em solid;
+				.border-radius(.8em);
+				content: '';
+			}
+			&:after{
+				display: block;
+				position: absolute ;
+				top : 1.3em ;
+				left: .3em;
+				width: .1em ;
+				height: .8em ;
+				.transform(rotate(15deg));
+				background: #000 ;
+				content: ' ';
+			}
+			.activate-zoom{
+				max-width: 0 ;
+				height: 0 ;
+				margin-left: -2em;
+			}
+			&:hover .activate-zoom{
+				position: absolute ;
+				bottom: 0 ;
+				margin-left: 0 ;
+				height: 16px ;
+				display: block ;
+				box-shadow: 4px -4px 8px #000;
+				.border-radius(0 2em 2em 0);
+				min-width: 50vh ;
+				max-width: 90vh ;
+				background-color: inherit ;
+			}
 		}
 		.menu{
 			right: 24px ;
 			line-height: 29px ;
-			width: auto ;
+			max-width: 100vw ;
+			.transition(max-width .5s ease);
 			box-shadow: 0 2px 4px #000 ;
 			z-index: 300 ;
 			&.minimised{
-				width: 0 ;
+				max-width: 0 ;
 				> ul{
 					display: none ;
 				}
@@ -109,7 +196,7 @@
 								top: 8px ;
 								right: 100% ;
 								margin-right: -8px ;
-								border-radius: 8px 0 8px 8px ;
+								.border-radius(8px 0 8px 8px);
 								padding: .25em ;
 								box-shadow: 8px 8px 4px #000 ;
 							}
@@ -127,7 +214,7 @@
 						top: 100% ;
 						right: 0 ;
 						background: #eee ;
-						border-radius: 8px 0 8px 8px ;
+						.border-radius(8px 0 8px 8px);
 						padding: .25em ;
 						box-shadow: 4px 4px 4px #000 ;
 					}
@@ -136,7 +223,7 @@
 					}
 					> h1{
 						background: #fff ;
-						border-radius: 8px 8px 0 0 ;
+						.border-radius(8px 8px 0 0);
 						box-shadow: 4px 4px 4px #000 ;
 					}
 				}
@@ -148,7 +235,7 @@
 				z-index: 200 ;
 				padding: 0 4px ;
 				background: #eee ;
-				border-radius: 8px 0 0 8px ;
+				.border-radius(8px 0 0 8px);
 				height: 100% ;
 				box-shadow: 0px 2px 4px #000 ;
 				clip:rect(0,1em,33px,0);
@@ -174,7 +261,7 @@
 		background: transparent url('marker.png') bottom left no-repeat ;
 		.mapapi-ui-wrapper{
 			padding: 1px ;
-			border-radius: 16px ;
+			.border-radius(16px);
 			position: absolute ;
 			bottom: 32px ;
 			left: 0 ;
@@ -184,7 +271,7 @@
 			background: #fff ;
 			padding: .25em 1em .25em 8px ;
 			border: 2px solid #5a749e ;
-			border-radius: 16px ;
+			.border-radius(16px);
 		}
 		.waiting{
 			.mapapi-ui-item-contents{
@@ -202,7 +289,7 @@
 			width: 1em ;
 			padding: 2px ;
 			text-align: center ;
-			border-radius: 0 16px 0 0 ;
+			.border-radius(0 16px 0 0);
 			&:hover{
 				background: #eee ;
 				box-shadow: 0px 2px 4px #000 ;

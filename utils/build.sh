@@ -14,7 +14,7 @@ java -jar ../../compiler.jar \
 	--js_output_file ../mapapi.js/mapapi.gridConfigs.js
 
 java -jar ../../compiler.jar \
-	--js ../src/EventTarget.js \
+	--js ../src/lib/EventTarget.js \
 	--js ../src/mapapi.js \
 	--js ../src/mapapi.shape.js \
 	--js ../src/mapapi.polyregion.js \
@@ -28,6 +28,17 @@ java -jar ../../compiler.jar \
 	--js ../src/renderer/google-v3.js \
 	--js ../src/gridconfig/opensim.js \
 	--js_output_file ../mapapi.js/mapapi-complete.js
+
+cat \
+	../src/lib/x-tag-core.min.js \
+	../src/lib/slider.js \
+	../mapapi.js/mapapi-complete.js \
+	> ../mapapi.js/mapapi-complete.tmp
+mv ../mapapi.js/mapapi-complete.tmp ../mapapi.js/mapapi-complete.js
+
+rm -fr ../mapapi.js/lib
+mkdir ../mapapi.js/lib
+cp ../src/lib/slider.css ../mapapi.js/lib/slider.css
 
 rm -fr ../mapapi.js/ui
 mkdir ../mapapi.js/ui
