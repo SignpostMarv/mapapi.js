@@ -3,6 +3,7 @@
 * MIT License
 */
 (function(window, undefined){
+	'use strict';
 	function EventTarget(){
 		this['_listeners'] = {};
 	}

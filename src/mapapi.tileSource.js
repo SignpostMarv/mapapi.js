@@ -21,9 +21,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-(function(undefined){
+(function(window, undefined){
+	'use strict';
 	var
-		window      = this,
 		EventTarget = window['EventTarget'],
 		mapapi      = window['mapapi'],
 		gridPoint   = mapapi ? mapapi['gridPoint'] : undefined
@@ -126,4 +126,5 @@
 	}
 
 	mapapi['tileSource'] = tileSource;
-})();
+})(window);
+
