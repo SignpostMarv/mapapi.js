@@ -225,6 +225,14 @@
 		background: #fff ;
 		border-radius: 0 .5em .5em ;
 		padding: .2em;
+		max-height: 60vh ;
+		max-width: 25vh ;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: -moz-none;
+		-ms-user-select: none;
+		user-select: none;
 		&.toggled{				
 			min-height: 2em;
 			border-radius: 0 2em 2em;
@@ -239,7 +247,9 @@
 			}
 		}
 		.mapapi-ui-item-contents{
-			min-width: 2em ;
+			max-height: 50vh ;
+			overflow: auto ;
+			min-width: 4em ;
 			border-radius: 0 .375em .375em ;
 			padding: .2em ;
 			border: .2em solid #5a749e ;

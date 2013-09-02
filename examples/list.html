@@ -38,14 +38,18 @@ window.onload = function(){
 	var
 		list = new mapapi.uiitem.list({
 			'position' : [1000, 1000],
-			'content'  : 'ABCDEFG'.split('')
+			'content'  : 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 		})
 	;
 
 	window.list = list;
 
 	list.open(mapui);
-	list.fire('content_changed');
+	list.addListener('click', function(){
+		if(!mapapi.utils.hasClass(this['DOM'], 'toggled')){
+			list.focus();
+		}
+	});
 };
 </script>
 </head>

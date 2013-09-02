@@ -64,7 +64,8 @@
 	list.prototype['constructor'] = list;
 
 	list.prototype['DOMClasses'] = [
-		'mapapi-ui-list'
+		'mapapi-ui-list',
+		'toggled'
 	];
 
 	list.prototype['zIndex'] = function(){
@@ -121,6 +122,20 @@
 		}
 
 		return obj['DOM'];
+	}
+
+	list.prototype['focus'] = function(){
+		var
+			obj = this,
+			pos = obj['csspos']()
+		;
+		if(obj['ui'] && obj['DOM']){
+			pos['x'] += (obj['DOM']['clientWidth'] / 2);
+			pos['y'] += (obj['DOM']['clientHeight'] / 2);
+			obj['ui']['renderer']['focus'](
+				obj['ui']['renderer']['px2point'](pos['x'], pos['y'])
+			);
+		}
 	}
 
 	item['list'] = list;
