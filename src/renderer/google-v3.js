@@ -22,6 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	'use strict';
 	if(!window['mapapi']){
 		throw 'mapapi.js not loaded';
 	}else if(!window['mapapi']['renderer']){
@@ -207,19 +208,17 @@
 		obj['tileSource'] = gridConf['tileSources'][0];
 
 		obj['dblclickZoom'](obj['opts']['dblclickZoom']);
-		if(reqAnim){
-			function a(){
+
+		var
+			a = reqAnim ? (function(){
 				obj['doAnimation']();
 				reqAnim(a);
-			}
-			reqAnim(a);
-		}else{
-			function b(){
+			}) : (function(){
 				obj['doAnimation']();
-				setTimeout(b, 1000/15);
-			}
-			b();
-		}
+				setTimeout(a, 1000/15);
+			});
+		;
+		a();
 	}
 
 	google3.prototype = new renderer;
@@ -395,27 +394,27 @@
 				rgb,
 				fillrgb,
 				alpha = 0,
-				fillalpha = 0
+				fillalpha = 0,
+				setcolors = function(){
+					if(rgbRegex['test'](strokeStyle)){
+						rgb = strokeStyle.replace(rgbRegex,color2hex);
+						alpha = 1;
+					}else if(rgbaRegex['test'](strokeStyle)){
+						rgb = strokeStyle.replace(rgbaRegex,color2hex);
+						alpha = strokeStyle.replace(rgbaRegex,function(){
+							return arguments[4] * 1;
+						});
+					}
+					if(rgbRegex['test'](fillStyle)){
+						fillrgb = fillStyle.replace(rgbRegex,color2hex);
+					}else if(rgbaRegex['test'](fillStyle)){
+						fillrgb = fillStyle.replace(rgbaRegex,color2hex);
+						fillalpha = fillStyle.replace(rgbaRegex,function(){
+							return arguments[4] * 1;
+						});
+					}
+				}
 			;
-			function setcolors(){
-				if(rgbRegex['test'](strokeStyle)){
-					rgb = strokeStyle.replace(rgbRegex,color2hex);
-					alpha = 1;
-				}else if(rgbaRegex['test'](strokeStyle)){
-					rgb = strokeStyle.replace(rgbaRegex,color2hex);
-					alpha = strokeStyle.replace(rgbaRegex,function(){
-						return arguments[4] * 1;
-					});
-				}
-				if(rgbRegex['test'](fillStyle)){
-					fillrgb = fillStyle.replace(rgbRegex,color2hex);
-				}else if(rgbaRegex['test'](fillStyle)){
-					fillrgb = fillStyle.replace(rgbaRegex,color2hex);
-					fillalpha = fillStyle.replace(rgbaRegex,function(){
-						return arguments[4] * 1;
-					});
-				}
-			}
 
 			if(mapapiShape instanceof line || mapapiShape.prototype instanceof line){
 				path = [];

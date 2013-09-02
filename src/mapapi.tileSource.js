@@ -22,6 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	'use strict';
 	window['mapapi'] = window['mapapi'] || {};
 	var
 		document     = window['document'],

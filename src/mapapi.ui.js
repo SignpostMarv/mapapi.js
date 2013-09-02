@@ -22,6 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	'use strict';
 	window['mapapi'] = window['mapapi'] || {};
 	var
 		document      = window['document'],
@@ -64,7 +65,6 @@
 			rendererNode      = createElement('div'),
 			sidebarsContainer = createElement('ul')
 		;
-		markerMngr = new markerManager(this);
 		if(container == undefined){
 			container = document['body'];
 		}
@@ -120,7 +120,7 @@
 		obj['sidebars']          = {};
 		obj['sidebarLabels']     = [];
 		obj['sidebarsContainer'] = sidebarsContainer;
-		obj['markerManager']     = markerMngr;
+		obj['markerManager']     = new markerManager(this);
 		obj['ID']                = uiID++;
 
 		obj['loadCSS']();
