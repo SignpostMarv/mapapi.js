@@ -55,8 +55,6 @@
 
 	var
 		EventTarget   = window['EventTarget'],
-		localStorage  = window['localStorage'],
-		JSON          = window['JSON'],
 		mapapi = {
 			'utils' : {
 				'addClass' : function(node, className){
@@ -244,22 +242,6 @@
 			])
 		;
 		return Math.sqrt(Math.abs(Math.pow(relative['x'], 2) + Math.pow(relative['y'], 2)));
-	}
-
-	if(localStorage && JSON){
-		var storage = function(){
-			this['storage'] = localStorage;
-		}
-
-		storage.prototype['getItem'] = function(item){
-			return JSON['parse'](this['storage']['getItem'](item));
-		}
-
-		storage.prototype['setItem'] = function(item, value){
-			return this['storage']['setItem'](item, JSON.stringify(value));
-		}
-
-		mapapi['storage'] = new storage;
 	}
 
 	var
