@@ -341,7 +341,8 @@
 		EventTarget['call'](obj);
 
 		obj['opts'] = {
-			'open' : false
+			'shown' : false,
+			'open'  : false
 		};
 
 		obj['rendererEvents'] = {
@@ -360,6 +361,12 @@
 			}
 			if(oldDOM && oldDOM != obj['DOM'] && oldDOM['parentNode']){
 				oldDOM['parentNode']['replaceChild'](obj['DOM'], oldDOM);
+			}
+			if(this['opts']['shown']){
+				this['show']();
+			}
+			if(this['opts']['open'] && this['ui']){
+				this['open'](this['ui']);
 			}
 		});
 	}
@@ -387,15 +394,29 @@
 	}
 
 	uiItem.prototype['hide'] = function(){
-		if(this['DOM']){
-			this['DOM']['style']['display'] = 'none';
+		var
+			obj = this
+		;
+		if(obj['DOM']){
+			obj['DOM']['style']['display'] = 'none';
+			if(obj['zIndex']){
+				obj['DOM']['style']['zIndex'] = -1;
+			}
 		}
+		obj['opts']['shown'] = false;
 	}
 
 	uiItem.prototype['show'] = function(){
-		if(this['DOM'] && this['DOM']['parentNode']){
-			this['DOM']['style']['display'] = 'block';
+		var
+			obj = this
+		;
+		if(obj['DOM'] && obj['DOM']['parentNode']){
+			obj['DOM']['style']['display'] = 'block';
+			if(obj['zIndex']){
+				obj['DOM']['style']['zIndex'] = obj['zIndex']();
+			}
 		}
+		obj['opts']['shown'] = true;
 	}
 
 	uiItem.prototype['content'] = function(content){
@@ -416,6 +437,7 @@
 		var
 			wipe = !!wipe,
 			obj = this
+		;
 
 		if(wipe || !this['DOM']){
 			var
@@ -479,7 +501,7 @@
 					if(!!(DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined)){
 						var
 							style     = DOM['style'],
-							wasHidden = (style['display'] == 'none'),
+							wasHidden = (style['display'] == '' || style['display'] == 'none'),
 							zIndex    = style['zIndex']
 						;
 						if(wasHidden){
@@ -503,7 +525,7 @@
 							style['top']  = top + 'px';
 							style['left'] = left + 'px';
 							if(obj['opts']['disableAutoShow'] != true){
-								obj['show']()
+								obj['show']();
 							}else{
 								obj['hide']();
 							}
@@ -550,6 +572,8 @@
 		obj['fire']('closed');
 		obj['opts']['open'] = false;
 	}
+
+	mapapi['uiitem'] = uiItem;
 
 	function infoWindow(options){
 		uiItem['call'](this, options);
