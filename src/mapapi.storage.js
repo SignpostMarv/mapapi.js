@@ -170,7 +170,7 @@
 			return;
 		}
 		try{
-			this.data['setItem'](item, JSON.stringify(value));
+			this.data['setItem'](key, JSON.stringify(value));
 			trySuccess(success, fail, {
 				'key': key
 			});
