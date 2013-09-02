@@ -22,6 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	'use strict';
 	window['mapapi'] = window['mapapi'] || {};
 
 	var
@@ -53,15 +54,17 @@
 					cursor['continue']();
 				}else{
 					if(deleteThese.length){
-						var i=0;
-						function a(){
-							if(i < deleteThese.length){
-								b();
+						var
+							i=0,
+							a=function(){
+								if(i < deleteThese.length){
+									b();
+								}
+							},
+							b=function(){
+								db['transaction']('pos2region', 'readwrite')['objectStore']('pos2region')['delete'](deleteThese[i++])['onsuccess'] = a;
 							}
-						}
-						function b(){
-							db['transaction']('pos2region', 'readwrite')['objectStore']('pos2region')['delete'](deleteThese[i++])['onsuccess'] = a;
-						}
+						;
 						a();
 					}
 				}
