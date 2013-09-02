@@ -174,7 +174,7 @@
 						script['parentNode']['removeChild'](script);
 					},30000);
 				}
-				script['setAttribute']('src', 'http://slurl.com/get-region-coords-by-name?' + ['var=' + escape(_var), 'sim_name=' + escape(r)].join('&'));
+				script['setAttribute']('src', 'http://slurl.com/get-region-coords-by-name?' + ['var=' + escape(_var), 'sim_name=' + escape(region)].join('&'));
 				document['getElementsByTagName']('head')[0]['appendChild'](script);
 			}
 		})
