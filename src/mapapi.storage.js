@@ -206,6 +206,8 @@
 				}else{
 					tryFail(fail, 'No persistant storage mechanisms available');
 				}
+			}else{
+				trySuccess(success, fail, persistantStorage);
 			}
 			return persistantStorage;
 		}else{
@@ -217,6 +219,8 @@
 				}else{
 					tryFail(fail, 'No temporary storage mechanisms available');
 				}
+			}else{
+				trySuccess(success, fail, temporaryStorage);
 			}
 			return temporaryStorage;
 		}
