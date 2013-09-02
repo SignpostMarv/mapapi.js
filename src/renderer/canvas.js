@@ -22,6 +22,7 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
+	'use strict';
 	if(!window['mapapi']){
 		throw 'mapapi.js not loaded';
 	}else if(!window['mapapi']['renderer']){
