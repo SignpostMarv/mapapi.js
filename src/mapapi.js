@@ -156,10 +156,6 @@
 		ctype_float     = mapapi['utils']['ctype_float']
 	;
 
-	window['IndexedDB']      = windowDiscovery(['IndexedDB', 'mozIndexedDB', 'webkitIndexedDB']);
-	window['IDBTransaction'] = windowDiscovery(['IDBTransaction', 'webkitIDBTransaction']);
-	window['IDBObjectStore'] = windowDiscovery(['IDBObjectStore', 'webkitIDBObjectStore']);
-
 	bounds.prototype['isWithin'] = function(x, y){
 		if(x instanceof gridPoint){
 			y = x['y'];
