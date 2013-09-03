@@ -207,7 +207,6 @@
 			}else if(value instanceof Array && value['length'] == 2 && ctype_float(value[0]) && ctype_float(value[1])){
 				value = new gridPoint(value[0] * 1, value[1] * 1);
 			}else{
-				console.log(value);
 				throw 'value was not an instance of mapapi.gridPoint and was not an object with appropriate properties';
 			}
 		}
