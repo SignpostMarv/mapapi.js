@@ -234,6 +234,10 @@
 	}
 
 	gridPoint.prototype['distance'] = function(value){
+		return Math.sqrt(this['distanceSquared'](value));
+	}
+
+	gridPoint.prototype['distanceSquared'] = function(value){
 		var
 			value = gridPoint['fuzzy'](value),
 			relative = gridPoint['fuzzy']([
@@ -241,7 +245,23 @@
 				value['y'] - this['y']
 			])
 		;
-		return Math.sqrt(Math.abs(Math.pow(relative['x'], 2) + Math.pow(relative['y'], 2)));
+		return Math.abs(Math.pow(relative['x'], 2) + Math.pow(relative['y'], 2));
+	}
+
+	gridPoint.prototype['distanceGT'] = function(value, than){
+		return gridPoint.prototype['distanceSquared'] > Math.pow(parseFloat(than), 2);
+	}
+
+	gridPoint.prototype['distanceGTEQ'] = function(value, than){
+		return gridPoint.prototype['distanceSquared'] >= Math.pow(parseFloat(than), 2);
+	}
+
+	gridPoint.prototype['distanceLT'] = function(value, than){
+		return gridPoint.prototype['distanceSquared'] < Math.pow(parseFloat(than), 2);
+	}
+
+	gridPoint.prototype['distanceLTEQ'] = function(value, than){
+		return gridPoint.prototype['distanceSquared'] <= Math.pow(parseFloat(than), 2);
 	}
 
 	var
