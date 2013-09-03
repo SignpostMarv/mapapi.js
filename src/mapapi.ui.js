@@ -765,55 +765,90 @@
 		;
 		EventTarget['call'](obj);
 		obj['markers'] = [];
+		obj['clustered'] = [];
+		obj['clusterClosed'] = [];
 		obj['ui'] = ui;
 		ui['renderer']['addListener']('bounds_changed', function(e){
+			obj['clusterClosed'].forEach(function(e){
+				e['open'](obj['ui']);
+			});
+			obj['clusterClosed'] = [];
 			var
-				zero  = this['point2px'](0,0),
-				one   = this['point2px'](.1,.1),
-				rel   = (new gridPoint(0,0))['distance'](gridPoint['fuzzy']([0, gridPoint['fuzzy'](one)['distance'](zero) * .05])),
-				shown = [],
-				clusters = []
+				renderer   = this,
+				cellWidth  = renderer['contentNode']['clientWidth']  /  Math.floor(renderer['contentNode']['clientWidth']  / 96),
+				cellHeight = renderer['contentNode']['clientHeight'] /  Math.floor(renderer['contentNode']['clientHeight'] / 96),
+				horizontal = [],
+				vertical = [],
+				bounds = [],
+				boundMarkers = []
 			;
-			obj['open']();
+			for(var i=0;i<=renderer['contentNode']['clientWidth'];i+=cellWidth){
+				horizontal.push(renderer['px2point'](i, 0)['x']);
+			}
+			for(var i=0;i<=renderer['contentNode']['clientHeight'];i+=cellHeight){
+				vertical.push(renderer['px2point'](0, i)['y']);
+			}
+			for(var i=0;i<(horizontal.length - 1);++i){
+				for(var j=0;j<(vertical.length - 1);++j){
+					bounds.push(new mapapi['bounds']({
+						'x' : horizontal[i],
+						'y' : vertical[j + 1]
+					},{
+						'x' : horizontal[i + 1],
+						'y' : vertical[j]
+					}));
+					boundMarkers.push([]);
+				}
+			}
+			vertical = horizontal = undefined;
 			obj['markers'].forEach(function(e){
 				if(e['opts']['shown']){
-					shown.push(e);
-				}
-			});
-			shown.forEach(function(e, i){
-				clusters.push([e]);
-				shown.forEach(function(f){
-					if(e != f){
-						var
-							g = e.position().distance(f.position()),
-							clusteredAlready = false
-						;
-						if(g < rel){
-							for(var h=0;h<clusters.length;++h){
-								if(clusters[h].indexOf(f) >= 1){
-									clusteredAlready = true;
-									break;
-								}
-							}
-							if(!clusteredAlready){
-								clusters[i].push(f);
-							}
+					for(var i=0;i<bounds.length;++i){
+						if(bounds[i]['isWithin'](e['position']())){
+							boundMarkers[i].push(e);
+							obj['clusterClosed'].push(e);
+							e['close']();
+							break;
 						}
 					}
-				});
+				}
 			});
-			var
-				h = 0;
-			;
-			clusters.forEach(function(e){
-				e.forEach(function(f, g){
-					if(g >= 1){
-						f.close();
-						++h;
-					}
-				});
+			obj['clustered'].forEach(function(e){
+				e['close']();
 			});
-			console.log('hidden', h);
+			obj['clustered'] = [];
+			boundMarkers.forEach(function(e, i){
+				if(e.length == 1){
+					e[0]['open'](obj['ui']);
+				}else if(e.length > 1){
+					var
+						cellBounds = bounds[i],
+						x=0,
+						y=0
+					;
+					e.forEach(function(f){
+						var
+							pos = f['position']()
+						;
+						x += pos['x'];
+						y += pos['y'];
+					});
+					obj['clustered'].push(
+						new numberedMarker({
+							'image'    : '../src/ui/marker-shadows.png',
+							'anchor'     : {'x':16, 'y': 64},
+							'position' : new gridPoint(
+								x / e.length,
+								y / e.length
+							),
+							'number' : e.length
+						})
+					);
+				}
+			});
+			obj['clustered']['forEach'](function(e){
+				e['open'](obj['ui']);
+			});
 		});
 	}
 	extend(markerManager, EventTarget);
