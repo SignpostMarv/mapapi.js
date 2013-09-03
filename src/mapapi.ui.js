@@ -50,8 +50,10 @@
 	}
 
 	var
-		uiID = 0
+		uiID = 0,
+		uiregex = /(mapapi\.ui\.js|mapapi-complete.js)$/
 	;
+
 	function ui(options){
 		if(options == undefined){
 			return;
@@ -63,7 +65,8 @@
 			renderer          = options['renderer'],
 			gridConfig        = options['gridConfig'],
 			rendererNode      = createElement('div'),
-			sidebarsContainer = createElement('ul')
+			sidebarsContainer = createElement('ul'),
+			mapuijs           = this.jsPath()
 		;
 		if(container == undefined){
 			container = document['body'];
@@ -120,7 +123,11 @@
 		obj['sidebars']          = {};
 		obj['sidebarLabels']     = [];
 		obj['sidebarsContainer'] = sidebarsContainer;
-		obj['markerManager']     = new markerManager(this);
+		obj['markerManager']     = new markerManager({
+			'ui'                  : obj,
+			'defaultMarkerImage'  : options['defaultMarkerImage'] || mapuijs.replace(uiregex, 'ui/marker-shadows.png'),
+			'defaultMarkerAnchor' : options['defaultMarkerAnchor'] || {'x':16, 'y': 64}
+		});
 		obj['ID']                = uiID++;
 
 		obj['loadCSS']();
@@ -131,20 +138,30 @@
 		'ui.css'
 	];
 
+	ui.prototype.jsPath = function(){
+		var
+			scripts = document.querySelectorAll('head script')
+		;
+		for(var i=0;i<scripts.length;++i){
+			if(uiregex.test(scripts[i]['src'])){
+				return scripts[i]['src'];
+			}
+		}
+		throw 'Could not find mapapi.js UI file';
+	}
+
 	ui.prototype['loadCSS'] = function(){
 		var
 			obj     = this,
 			head    = document.getElementsByTagName('head')[0],
-			scripts = head.getElementsByTagName('script'),
 			links   = head.getElementsByTagName('link'),
 			regexp  = /./,
-			uiregex = /(mapapi\.ui\.js|mapapi-complete.js)$/,
 			exregex = /^https?/,
 			styles  = [],
 			css     = [],
+			mapuijs = obj.jsPath(),
 			csspath,
 			csspathregex,
-			mapuijs,
 			cssfound,
 			newcss,
 			jspath
@@ -155,43 +172,34 @@
 			}
 		}
 		links = [];
-		for(var i=0;i<scripts.length;++i){
-			if(uiregex.test(scripts[i]['src'])){
-				mapuijs = scripts[i]['src'];
-			}
+		jspath = mapuijs['replace'](uiregex,'');
+		for(var i=0;i<ui.prototype.css.length;++i){
+			css.push(ui.prototype.css[i]);
 		}
-		if(mapuijs == undefined){
-			throw 'Could not find mapapi.js UI file';
-		}else{
-			jspath = mapuijs['replace'](uiregex,'');
-			for(var i=0;i<ui.prototype.css.length;++i){
-				css.push(ui.prototype.css[i]);
+		for(var i=0;i<obj['css']['length'];++i){
+			css.push(obj['css'][i]);
+		}
+		for(var i=0;i<css.length;++i){
+			cssfound     = false;
+			csspath      = css[i];
+			csspathregex = csspath.replace(/\./g,'\.').replace(/\//g,'\/');
+			if(exregex.test(csspath)){
+				regexp.compile('/^' + csspathregex + '$/');
+			}else{
+				regexp.compile('^' + jspath.replace(/\./g,'\.').replace(/\//g,'\/') + csspathregex + '$');
 			}
-			for(var i=0;i<obj['css']['length'];++i){
-				css.push(obj['css'][i]);
+			for(var j=0;j<styles.length;++j){
+				if(regexp.test(styles[j]['href'])){
+					cssfound = true;
+					break;
+				}
 			}
-			for(var i=0;i<css.length;++i){
-				cssfound     = false;
-				csspath      = css[i];
-				csspathregex = csspath.replace(/\./g,'\.').replace(/\//g,'\/');
-				if(exregex.test(csspath)){
-					regexp.compile('/^' + csspathregex + '$/');
-				}else{
-					regexp.compile('^' + jspath.replace(/\./g,'\.').replace(/\//g,'\/') + csspathregex + '$');
-				}
-				for(var j=0;j<styles.length;++j){
-					if(regexp.test(styles[j]['href'])){
-						cssfound = true;
-						break;
-					}
-				}
-				if(!cssfound){
-					newcss = createElement('link');
-					newcss['setAttribute']('rel','stylesheet');
-					newcss['setAttribute']('type','text/css');
-					newcss['setAttribute']('href',exregex.test(csspath) ? csspath : mapuijs['replace'](uiregex,csspath));
-					head['appendChild'](newcss);
-				}
+			if(!cssfound){
+				newcss = createElement('link');
+				newcss['setAttribute']('rel','stylesheet');
+				newcss['setAttribute']('type','text/css');
+				newcss['setAttribute']('href',exregex.test(csspath) ? csspath : mapuijs['replace'](uiregex,csspath));
+				head['appendChild'](newcss);
 			}
 		}
 	}
@@ -759,9 +767,21 @@
 
 	mapapi['marker'] = marker;
 
-	function markerManager(ui){
+	function markerManager(options){
+		if(options == undefined){
+			throw new Error('Options not specified');
+		}else{
+			['ui', 'defaultMarkerImage', 'defaultMarkerAnchor'].forEach(function(e){
+				if(!options.hasOwnProperty(e)){
+					throw new Error(e + ' not specified in options');
+				}
+			});
+		}
 		var
-			obj = this
+			obj                 = this,
+			ui                  = options['ui'],
+			defaultMarkerImage  = options['defaultMarkerImage'],
+			defaultMarkerAnchor = options['defaultMarkerAnchor']
 		;
 		EventTarget['call'](obj);
 		obj['markers'] = [];
@@ -841,8 +861,8 @@
 						y += pos['y'];
 					});
 					clusteredStandin = new numberedMarker({
-							'image'    : '../src/ui/marker-shadows.png',
-							'anchor'     : {'x':16, 'y': 64},
+							'image'    : defaultMarkerImage,
+							'anchor'     : defaultMarkerAnchor,
 							'position' : new gridPoint(
 								x / e.length,
 								y / e.length
