@@ -765,14 +765,17 @@
 		;
 		EventTarget['call'](obj);
 		obj['markers'] = [];
-		obj['clustered'] = [];
-		obj['clusterClosed'] = [];
+		obj.clustered = [];
+		obj.clusterClosed = [];
+		obj.clusterList = new uiItem['list']();
 		obj['ui'] = ui;
 		ui['renderer']['addListener']('bounds_changed', function(e){
-			obj['clusterClosed'].forEach(function(e){
+			obj.clusterList['close']();
+			obj.clusterList = new uiItem['list']();
+			obj.clusterClosed.forEach(function(e){
 				e['open'](obj['ui']);
 			});
-			obj['clusterClosed'] = [];
+			obj.clusterClosed = [];
 			var
 				renderer   = this,
 				cellWidth  = renderer['contentNode']['clientWidth']  /  Math.floor(renderer['contentNode']['clientWidth']  / 96),
@@ -806,25 +809,29 @@
 					for(var i=0;i<bounds.length;++i){
 						if(bounds[i]['isWithin'](e['position']())){
 							boundMarkers[i].push(e);
-							obj['clusterClosed'].push(e);
+							obj.clusterClosed.push(e);
 							e['close']();
 							break;
 						}
 					}
 				}
 			});
-			obj['clustered'].forEach(function(e){
-				e['close']();
+			obj.clustered.forEach(function(e){
+				if(e){
+					e['close']();
+				}
 			});
-			obj['clustered'] = [];
+			obj.clustered = [];
 			boundMarkers.forEach(function(e, i){
 				if(e.length == 1){
 					e[0]['open'](obj['ui']);
+					obj.clustered.push(false);
 				}else if(e.length > 1){
 					var
 						cellBounds = bounds[i],
 						x=0,
-						y=0
+						y=0,
+						clusteredStandin
 					;
 					e.forEach(function(f){
 						var
@@ -833,8 +840,7 @@
 						x += pos['x'];
 						y += pos['y'];
 					});
-					obj['clustered'].push(
-						new numberedMarker({
+					clusteredStandin = new numberedMarker({
 							'image'    : '../src/ui/marker-shadows.png',
 							'anchor'     : {'x':16, 'y': 64},
 							'position' : new gridPoint(
@@ -843,11 +849,42 @@
 							),
 							'number' : e.length
 						})
-					);
+					;
+					clusteredStandin['addListener']('click', function(){
+						var
+							objM    = this,
+							content = []
+						;
+						for(var i=0;i<e.length;++i){
+							content.push('Marker ' + (i + 1));
+						}
+						objM['hide']();
+						obj.clusterList['content'](content);
+						obj.clusterList['position'](objM['position']());
+						obj.clusterList['open'](obj['ui']);
+						obj.clusterList['show']();
+						obj.clusterList['fire']('click');
+						obj.clusterList['addListener']('click', function(f){
+							if(f['child']){
+								var
+									pos = Array.prototype['slice']['call'](obj.clusterList['DOM']['firstChild']['childNodes'])['indexOf'](f['child'])
+								;
+								if(pos >= 0){
+									e[pos]['fire']('click');
+								}
+							}else if(hasClass(this['DOM'], 'toggled')){
+								obj.clusterList['hide']();
+								objM['show']();
+							}
+						});
+					});
+					obj.clustered.push(clusteredStandin);
 				}
 			});
-			obj['clustered']['forEach'](function(e){
-				e['open'](obj['ui']);
+			obj.clustered.forEach(function(e){
+				if(e){
+					e['open'](obj['ui']);
+				}
 			});
 		});
 	}
