@@ -341,7 +341,8 @@
 		EventTarget['call'](obj);
 
 		obj['opts'] = {
-			'open' : false
+			'shown' : false,
+			'open'  : false
 		};
 
 		obj['rendererEvents'] = {
@@ -360,6 +361,12 @@
 			}
 			if(oldDOM && oldDOM != obj['DOM'] && oldDOM['parentNode']){
 				oldDOM['parentNode']['replaceChild'](obj['DOM'], oldDOM);
+			}
+			if(this['opts']['shown']){
+				this['show']();
+			}
+			if(this['opts']['open'] && this['ui']){
+				this['open'](this['ui']);
 			}
 		});
 	}
@@ -387,15 +394,29 @@
 	}
 
 	uiItem.prototype['hide'] = function(){
-		if(this['DOM']){
-			this['DOM']['style']['display'] = 'none';
+		var
+			obj = this
+		;
+		if(obj['DOM']){
+			obj['DOM']['style']['display'] = 'none';
+			if(obj['zIndex']){
+				obj['DOM']['style']['zIndex'] = -1;
+			}
 		}
+		obj['opts']['shown'] = false;
 	}
 
 	uiItem.prototype['show'] = function(){
-		if(this['DOM'] && this['DOM']['parentNode']){
-			this['DOM']['style']['display'] = 'block';
+		var
+			obj = this
+		;
+		if(obj['DOM'] && obj['DOM']['parentNode']){
+			obj['DOM']['style']['display'] = 'block';
+			if(obj['zIndex']){
+				obj['DOM']['style']['zIndex'] = obj['zIndex']();
+			}
 		}
+		obj['opts']['shown'] = true;
 	}
 
 	uiItem.prototype['content'] = function(content){
@@ -416,6 +437,7 @@
 		var
 			wipe = !!wipe,
 			obj = this
+		;
 
 		if(wipe || !this['DOM']){
 			var
@@ -479,7 +501,7 @@
 					if(!!(DOM ? (DOM['parentNode'] == undefined ? undefined : DOM['parentNode']) : undefined)){
 						var
 							style     = DOM['style'],
-							wasHidden = (style['display'] == 'none'),
+							wasHidden = (style['display'] == '' || style['display'] == 'none'),
 							zIndex    = style['zIndex']
 						;
 						if(wasHidden){
@@ -503,7 +525,7 @@
 							style['top']  = top + 'px';
 							style['left'] = left + 'px';
 							if(obj['opts']['disableAutoShow'] != true){
-								obj['show']()
+								obj['show']();
 							}else{
 								obj['hide']();
 							}
@@ -550,6 +572,8 @@
 		obj['fire']('closed');
 		obj['opts']['open'] = false;
 	}
+
+	mapapi['uiitem'] = uiItem;
 
 	function infoWindow(options){
 		uiItem['call'](this, options);
@@ -736,9 +760,133 @@
 	mapapi['marker'] = marker;
 
 	function markerManager(ui){
-		EventTarget['call'](this);
-		this['markers'] = [];
-		this['ui'] = ui;
+		var
+			obj = this
+		;
+		EventTarget['call'](obj);
+		obj['markers'] = [];
+		obj.clustered = [];
+		obj.clusterClosed = [];
+		obj.clusterList = new uiItem['list']();
+		obj['ui'] = ui;
+		ui['renderer']['addListener']('bounds_changed', function(e){
+			obj.clusterList['close']();
+			obj.clusterList = new uiItem['list']();
+			obj.clusterClosed.forEach(function(e){
+				e['open'](obj['ui']);
+			});
+			obj.clusterClosed = [];
+			var
+				renderer   = this,
+				cellWidth  = renderer['contentNode']['clientWidth']  /  Math.floor(renderer['contentNode']['clientWidth']  / 96),
+				cellHeight = renderer['contentNode']['clientHeight'] /  Math.floor(renderer['contentNode']['clientHeight'] / 96),
+				horizontal = [],
+				vertical = [],
+				bounds = [],
+				boundMarkers = []
+			;
+			for(var i=0;i<=renderer['contentNode']['clientWidth'];i+=cellWidth){
+				horizontal.push(renderer['px2point'](i, 0)['x']);
+			}
+			for(var i=0;i<=renderer['contentNode']['clientHeight'];i+=cellHeight){
+				vertical.push(renderer['px2point'](0, i)['y']);
+			}
+			for(var i=0;i<(horizontal.length - 1);++i){
+				for(var j=0;j<(vertical.length - 1);++j){
+					bounds.push(new mapapi['bounds']({
+						'x' : horizontal[i],
+						'y' : vertical[j + 1]
+					},{
+						'x' : horizontal[i + 1],
+						'y' : vertical[j]
+					}));
+					boundMarkers.push([]);
+				}
+			}
+			vertical = horizontal = undefined;
+			obj['markers'].forEach(function(e){
+				if(e['opts']['shown']){
+					for(var i=0;i<bounds.length;++i){
+						if(bounds[i]['isWithin'](e['position']())){
+							boundMarkers[i].push(e);
+							obj.clusterClosed.push(e);
+							e['close']();
+							break;
+						}
+					}
+				}
+			});
+			obj.clustered.forEach(function(e){
+				if(e){
+					e['close']();
+				}
+			});
+			obj.clustered = [];
+			boundMarkers.forEach(function(e, i){
+				if(e.length == 1){
+					e[0]['open'](obj['ui']);
+					obj.clustered.push(false);
+				}else if(e.length > 1){
+					var
+						cellBounds = bounds[i],
+						x=0,
+						y=0,
+						clusteredStandin
+					;
+					e.forEach(function(f){
+						var
+							pos = f['position']()
+						;
+						x += pos['x'];
+						y += pos['y'];
+					});
+					clusteredStandin = new numberedMarker({
+							'image'    : '../src/ui/marker-shadows.png',
+							'anchor'     : {'x':16, 'y': 64},
+							'position' : new gridPoint(
+								x / e.length,
+								y / e.length
+							),
+							'number' : e.length
+						})
+					;
+					clusteredStandin['addListener']('click', function(){
+						var
+							objM    = this,
+							content = []
+						;
+						for(var i=0;i<e.length;++i){
+							content.push('Marker ' + (i + 1));
+						}
+						objM['hide']();
+						obj.clusterList['content'](content);
+						obj.clusterList['position'](objM['position']());
+						obj.clusterList['open'](obj['ui']);
+						obj.clusterList['show']();
+						obj.clusterList['fire']('click');
+						obj.clusterList['addListener']('click', function(f){
+							if(f['child']){
+								var
+									pos = Array.prototype['slice']['call'](obj.clusterList['DOM']['firstChild']['childNodes'])['indexOf'](f['child'])
+								;
+								if(pos >= 0){
+									e[pos]['fire']('click');
+								}
+							}else if(hasClass(this['DOM'], 'toggled')){
+								obj.clusterList['hide']();
+								objM['show']();
+							}
+						});
+					});
+					obj.clustered.push(clusteredStandin);
+				}
+			});
+			obj.clustered.forEach(function(e){
+				if(e){
+					e['open'](obj['ui']);
+				}
+			});
+		});
 	}
 	extend(markerManager, EventTarget);
 
