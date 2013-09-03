@@ -307,4 +307,46 @@
 			overflow: hidden ;
 		}
 	}
+	.mapapi-ui-list{
+		position: absolute ;
+		background: #fff ;
+		border-radius: 0 .5em .5em ;
+		padding: .2em;
+		max-height: 60vh ;
+		max-width: 25vh ;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: -moz-none;
+		-ms-user-select: none;
+		user-select: none;
+		&.toggled{				
+			min-height: 2em;
+			border-radius: 0 2em 2em;
+			max-width: 2em;
+			li{
+				display: none ;
+			}
+			.mapapi-ui-item-contents{
+				border-radius: 0 1.25em 1.25em;
+				min-width: 1.2em;
+				min-height: 1.2em;
+			}
+		}
+		.mapapi-ui-item-contents{
+			max-height: 50vh ;
+			overflow: auto ;
+			min-width: 4em ;
+			border-radius: 0 .375em .375em ;
+			padding: .2em ;
+			border: .2em solid #5a749e ;
+			li{
+				padding: .1em ;
+				padding-left: .25em ;
+				&:nth-child(odd){
+					background-color: #eee ;
+				}
+			}
+		}
+	}
 }
