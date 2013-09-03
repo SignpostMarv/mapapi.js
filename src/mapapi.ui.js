@@ -760,9 +760,61 @@
 	mapapi['marker'] = marker;
 
 	function markerManager(ui){
-		EventTarget['call'](this);
-		this['markers'] = [];
-		this['ui'] = ui;
+		var
+			obj = this
+		;
+		EventTarget['call'](obj);
+		obj['markers'] = [];
+		obj['ui'] = ui;
+		ui['renderer']['addListener']('bounds_changed', function(e){
+			var
+				zero  = this['point2px'](0,0),
+				one   = this['point2px'](.1,.1),
+				rel   = (new gridPoint(0,0))['distance'](gridPoint['fuzzy']([0, gridPoint['fuzzy'](one)['distance'](zero) * .05])),
+				shown = [],
+				clusters = []
+			;
+			obj['open']();
+			obj['markers'].forEach(function(e){
+				if(e['opts']['shown']){
+					shown.push(e);
+				}
+			});
+			shown.forEach(function(e, i){
+				clusters.push([e]);
+				shown.forEach(function(f){
+					if(e != f){
+						var
+							g = e.position().distance(f.position()),
+							clusteredAlready = false
+						;
+						if(g < rel){
+							for(var h=0;h<clusters.length;++h){
+								if(clusters[h].indexOf(f) >= 1){
+									clusteredAlready = true;
+									break;
+								}
+							}
+							if(!clusteredAlready){
+								clusters[i].push(f);
+							}
+						}
+					}
+				});
+			});
+			var
+				h = 0;
+			;
+			clusters.forEach(function(e){
+				e.forEach(function(f, g){
+					if(g >= 1){
+						f.close();
+						++h;
+					}
+				});
+			});
+			console.log('hidden', h);
+		});
 	}
 	extend(markerManager, EventTarget);
 
