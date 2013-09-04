@@ -783,17 +783,18 @@
 			defaultMarkerImage  = options['defaultMarkerImage'],
 			defaultMarkerAnchor = options['defaultMarkerAnchor'],
 			defaultCellWidth    = options['defaultCellWidth'] ? Math.max(16, parseInt(options['defaultCellWidth'])) : 96,
-			defaultCellHeight   = options['defaultCellHeight'] ? Math.max(16, parseInt(options['defaultCellHeight'])) : 96
+			defaultCellHeight   = options['defaultCellHeight'] ? Math.max(16, parseInt(options['defaultCellHeight'])) : 96,
+			useSearchableList   = true
 		;
 		EventTarget['call'](obj);
 		obj['markers'] = [];
 		obj.clustered = [];
 		obj.clusterClosed = [];
-		obj.clusterList = new uiItem['list']();
+		obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
 		obj['ui'] = ui;
 		ui['renderer']['addListener']('bounds_changed', function(e){
 			obj.clusterList['close']();
-			obj.clusterList = new uiItem['list']();
+			obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
 			obj.clusterClosed.forEach(function(e){
 				e['open'](obj['ui']);
 			});
