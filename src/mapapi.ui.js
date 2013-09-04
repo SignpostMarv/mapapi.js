@@ -781,7 +781,9 @@
 			obj                 = this,
 			ui                  = options['ui'],
 			defaultMarkerImage  = options['defaultMarkerImage'],
-			defaultMarkerAnchor = options['defaultMarkerAnchor']
+			defaultMarkerAnchor = options['defaultMarkerAnchor'],
+			defaultCellWidth    = options['defaultCellWidth'] ? Math.max(16, parseInt(options['defaultCellWidth'])) : 96,
+			defaultCellHeight   = options['defaultCellHeight'] ? Math.max(16, parseInt(options['defaultCellHeight'])) : 96
 		;
 		EventTarget['call'](obj);
 		obj['markers'] = [];
@@ -798,8 +800,8 @@
 			obj.clusterClosed = [];
 			var
 				renderer   = this,
-				cellWidth  = renderer['contentNode']['clientWidth']  /  Math.floor(renderer['contentNode']['clientWidth']  / 96),
-				cellHeight = renderer['contentNode']['clientHeight'] /  Math.floor(renderer['contentNode']['clientHeight'] / 96),
+				cellWidth  = renderer['contentNode']['clientWidth']  /  Math.floor(renderer['contentNode']['clientWidth']  / defaultCellWidth),
+				cellHeight = renderer['contentNode']['clientHeight'] /  Math.floor(renderer['contentNode']['clientHeight'] / defaultCellHeight),
 				horizontal = [],
 				vertical = [],
 				bounds = [],
