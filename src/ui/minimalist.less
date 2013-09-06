@@ -337,13 +337,18 @@
 			li{
 				overflow: hidden ;
 				max-height: 100vh ;
-				.transition(max-height 1s);
+				@args: max-height 0.5s, padding 1s ;
+				.transition(@args);
 			}
 			.matching{
 				font-weight: bolder ;
 			}
 			.not-matching{
 				max-height: 0 ;
+				padding: 0 ;
+			}
+			.exact{
+				text-decoration: underline ;
 			}
 		}
 	}

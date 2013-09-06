@@ -76,20 +76,27 @@
 				lis = obj['content2DOM']()['querySelectorAll']('li')
 			;
 			for(var i=0;i<lis.length;++i){
-				mapapi['utils']['delClass'](lis[i], 'not-matching matching');
+				mapapi['utils']['delClass'](lis[i], 'not-matching matching exact');
 			}
 		}
 		obj.searchEngine['search'](term, function(e){
 			reset();
 			var
-				lis = obj['content2DOM']()['querySelectorAll']('li')
+				lis = obj['content2DOM']()['querySelectorAll']('li'),
+				results = e['partial']
 			;
-			if(!e['results'] || e['results']['length'] >= 1){
+			if((!results || results['length'] < 1) && e['results'] && e['results']['length'] >= 1){
+				results = e['results'];
+			}
+			if(results['length'] >= 1){
 				for(var i=0;i<lis['length'];++i){
 					mapapi['utils']['addClass'](lis[i],
-						((e['results']['indexOf'](lis[i]['textContent']) < 0) ? 'not-' : '') +
+						((results['indexOf'](lis[i]['textContent']) < 0) ? 'not-' : '') +
 						'matching'
 					);
+					if(e['exact']['indexOf'](lis[i]['textContent']) >= 0){
+						mapapi['utils']['addClass'](lis[i], 'exact');
+					}
 				}
 			}else if(e['term']['length'] > 0){
 				for(var i=0;i<lis['length'];++i){
@@ -97,6 +104,17 @@
 				}
 			}
 		}, reset);
+	}
+
+	searchList.prototype['content'] = function(){
+		var
+			obj = this
+		;
+		if(arguments.length > 0){
+			obj.searchEngine['removeAll']();
+			obj.searchEngine['add']['apply'](obj.searchEngine, arguments[0]);
+		}
+		return list.prototype['content']['apply'](obj, arguments);
 	}
 
 	searchList.prototype['content2DOM'] = function(wipe){

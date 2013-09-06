@@ -49,7 +49,7 @@
 				}
 				if(!e['entry']){
 					throw new Error('Index entries must have an entry property');
-				}else if(!(e['entry'] instanceof uiitem) && typeof(e['entry']) != 'string'){
+				}else if(typeof(e['entry']) != 'string' && !(e['entry'] instanceof uiitem)){
 					throw new Error('Index entries must be strings or instances of mapap.uiitem');
 				}
 				if(typeof(e['entry']) == 'string' && !e['keywords']){
@@ -97,8 +97,8 @@
 	function search(index){
 		validateIndex(index);
 		this.index = index || [];
-		this.index.forEach(function(e){
-			arrayUnique['call'](e['keywords']);
+		this.index.forEach(function(e, i){
+			arrayUnique['call'](this.index[i]['keywords']);
 		});
 	}
 
@@ -120,8 +120,14 @@
 		});
 	}
 
+
+	search.prototype['removeAll'] = function(){
+		this.index = [];
+	}
+
 	search.prototype['add'] = function(){
 		var
+			obj = this,
 			addIndex = Array.prototype.slice.call(arguments)
 		;
 		validateIndex(addIndex);
@@ -129,17 +135,17 @@
 			var
 				found = false
 			;
-			for(var i=0;i<this.index.length;++i){
-				if(this.index[i]['entry'] == e['entry']){
-					this.index[i]['keywords']['concat'](e['keywords']);
-					arrayUnique['call'](this.index[i]['keywords']);
+			for(var i=0;i<obj.index.length;++i){
+				if(obj.index[i]['entry'] == e['entry']){
+					obj.index[i]['keywords']['concat'](e['keywords']);
+					arrayUnique['call'](obj.index[i]['keywords']);
 					found = true;
 					break;
 				}
 			}
 			if(!found){
 				arrayUnique['call'](e['keywords']);
-				this.index.push(e);
+				obj.index.push(e);
 			}
 		});
 	}
@@ -151,7 +157,9 @@
 		var
 			rawTerm = term,
 			term = (term + '').replace(/^\s+|\s+$/g,'').replace(/\s+/g, ' '),
-			results = []
+			results = [],
+			exact = [],
+			partial = []
 		;
 		if(term.length > 0){
 			var
@@ -162,6 +170,12 @@
 					found = false
 				;
 				for(var j=0;j<this.index[i]['keywords']['length'];++j){
+					if(this.index[i]['keywords'][j]['toLowerCase']()['indexOf'](term['toLowerCase']()) >= 0){
+						partial.push(this.index[i]['entry']);
+					}
+					if(term['toLowerCase']() == this.index[i]['keywords'][j]['toLowerCase']()){
+						exact.push(this.index[i]['entry']);
+					}
 					for(var k=0;k<termArray.length;++k){
 						if(
 							this.index[i]['keywords'][j]['indexOf'](termArray[k]) >= 0 ||
@@ -180,10 +194,14 @@
 				}
 			}
 		}
+		arrayUnique['call'](partial);
+		arrayUnique['call'](exact);
 		success({
 			'rawTerm' : rawTerm,
 			'term':term,
-			'results' : results
+			'results' : results,
+			'partial' : partial,
+			'exact'   : exact
 		});
 	}
 
