@@ -682,7 +682,10 @@
 		return new infoWindow(options);
 	}
 
-	
+	var
+		markerID = 0
+	;
+
 	function marker(){
 		uiItem.apply(this, arguments);
 		if(arguments.length == 0){
@@ -710,6 +713,9 @@
 			obj['fire']('click');
 		}
 		img['src'] = imgSrc;
+
+		obj['id']   = ++markerID;
+		obj['name'] = options['name'] || ('Marker ' + obj['id']);
 
 		if(infoW instanceof infoWindow){
 			infoW['position'](obj['position']());
@@ -875,9 +881,9 @@
 								objM['show']();
 							}
 							objM = this;
-							for(var i=0;i<e.length;++i){
-								content.push('Marker ' + (i + 1));
-							}
+							e.forEach(function(f){
+								content.push(f['name']);
+							});
 							objM['hide']();
 							obj.clusterList['close']();
 							obj.clusterList['content'](content);
