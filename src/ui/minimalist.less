@@ -21,6 +21,34 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+.transition(@args){
+	transition: @args ;
+	-moz-transition: @args ;
+	-webkit-transition: @args ;
+	-o-transition: @args ;
+	-ms-transition: @args ;
+}
+.transform(@args){
+	transform: @args ;
+	-moz-transform: @args ;
+	-webkit-transform: @args ;
+	-o-transform: @args ;
+	-ms-transform: @args ;
+}
+.transform-origin(@args){
+	transform-origin: @args ;
+	-moz-transform-origin: @args ;
+	-webkit-transform-origin: @args ;
+	-o-transform-origin: @args ;
+	-ms-transform-origin: @args ;
+}
+.border-radius(@args){
+	border-radius: @args ;
+	-moz-border-radius: @args ;
+	-webkit-border-radius: @args ;
+	-o-border-radius: @args ;
+	-ms-border-radius: @args ;
+}
 
 .mapapi-ui-minimalist{
 	.mapapi-ui-sidebars{
@@ -259,6 +287,68 @@
 				&:nth-child(odd){
 					background-color: #eee ;
 				}
+			}
+		}
+	}
+	.mapapi-ui-search-list{
+		position: absolute ;
+		background: #fff ;
+		.border-radius(0 .5em .5em .5em);
+		fieldset{
+			border: .2em solid #5a749e ;
+			border-top-width: 0 ;
+			.border-radius(0 0 .375em .375em);
+			margin: 0 .2em .2em .2em ;
+		}
+		fieldset:first-child{
+			border-radius: 0 .375em 0 0  ;
+			border-top-width: .2em ;
+			border-bottom-width: 0 ;
+			margin-bottom: 0 ;
+			margin-top: .2em ;
+		}
+		label, button, legend{
+			display: none ;
+		}
+		input{
+			border-radius: .2em .2em 0 0 ;
+			padding: 0 .5em ;
+			margin: 0 ;
+			border-width: 0 ;
+		}
+		.mapapi-ui-list{
+			padding: 0 ;
+			.border-radius(0 0 .2em .2em);
+			max-height: 50vh ;
+			position: relative ;
+			.mapapi-ui-item-contents{
+				max-height: 40vh ;
+				.border-radius(0 0 .2em 0);
+				border-width: 0 ;
+				border-radius: 0 ;
+				padding: 0 ;
+			}
+			&.toggled{
+				max-width: none ;			
+				li{
+					display: list-item ;
+				}
+			}
+			li{
+				overflow: hidden ;
+				max-height: 100vh ;
+				@args: max-height 0.5s, padding 1s ;
+				.transition(@args);
+			}
+			.matching{
+				font-weight: bolder ;
+			}
+			.not-matching{
+				max-height: 0 ;
+				padding: 0 ;
+			}
+			.exact{
+				text-decoration: underline ;
 			}
 		}
 	}
