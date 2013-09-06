@@ -781,131 +781,155 @@
 			obj                 = this,
 			ui                  = options['ui'],
 			defaultMarkerImage  = options['defaultMarkerImage'],
-			defaultMarkerAnchor = options['defaultMarkerAnchor']
+			defaultMarkerAnchor = options['defaultMarkerAnchor'],
+			defaultCellWidth    = options['defaultCellWidth'] ? Math.max(16, parseInt(options['defaultCellWidth'])) : 96,
+			defaultCellHeight   = options['defaultCellHeight'] ? Math.max(16, parseInt(options['defaultCellHeight'])) : 96,
+			useSearchableList   = true,
+			objM, boundsTimeout,
+			clusterListBounds   = function(e){
+				obj.clusterList['close']();
+				obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
+				obj.clusterClosed.forEach(function(e){
+					e['open'](obj['ui']);
+				});
+				obj.clusterClosed = [];
+				var
+					renderer   = this,
+					cellWidth  = renderer['contentNode']['clientWidth']  /  Math.floor(renderer['contentNode']['clientWidth']  / defaultCellWidth),
+					cellHeight = renderer['contentNode']['clientHeight'] /  Math.floor(renderer['contentNode']['clientHeight'] / defaultCellHeight),
+					horizontal = [],
+					vertical = [],
+					bounds = [],
+					boundMarkers = []
+				;
+				for(var i=0;i<=renderer['contentNode']['clientWidth'];i+=cellWidth){
+					horizontal.push(renderer['px2point'](i, 0)['x']);
+				}
+				for(var i=0;i<=renderer['contentNode']['clientHeight'];i+=cellHeight){
+					vertical.push(renderer['px2point'](0, i)['y']);
+				}
+				for(var i=0;i<(horizontal.length - 1);++i){
+					for(var j=0;j<(vertical.length - 1);++j){
+						bounds.push(new mapapi['bounds']({
+							'x' : horizontal[i],
+							'y' : vertical[j + 1]
+						},{
+							'x' : horizontal[i + 1],
+							'y' : vertical[j]
+						}));
+						boundMarkers.push([]);
+					}
+				}
+				vertical = horizontal = undefined;
+				obj['markers'].forEach(function(e){
+					if(e['opts']['shown']){
+						for(var i=0;i<bounds.length;++i){
+							if(bounds[i]['isWithin'](e['position']())){
+								boundMarkers[i].push(e);
+								obj.clusterClosed.push(e);
+								e['close']();
+								break;
+							}
+						}
+					}
+				});
+				obj.clustered.forEach(function(e){
+					if(e){
+						e['close']();
+					}
+				});
+				obj.clustered = [];
+				boundMarkers.forEach(function(e, i){
+					if(e.length == 1){
+						e[0]['open'](obj['ui']);
+						obj.clustered.push(false);
+					}else if(e.length > 1){
+						var
+							cellBounds = bounds[i],
+							x=0,
+							y=0,
+							clusteredStandin
+						;
+						e.forEach(function(f){
+							var
+								pos = f['position']()
+							;
+							x += pos['x'];
+							y += pos['y'];
+						});
+						clusteredStandin = new numberedMarker({
+								'image'    : defaultMarkerImage,
+								'anchor'     : defaultMarkerAnchor,
+								'position' : new gridPoint(
+									x / e.length,
+									y / e.length
+								),
+								'number' : e.length
+							})
+						;
+						clusteredStandin['addListener']('click', function(){
+							var
+								content = []
+							;
+							if(objM){
+								objM['show']();
+							}
+							objM = this;
+							for(var i=0;i<e.length;++i){
+								content.push('Marker ' + (i + 1));
+							}
+							objM['hide']();
+							obj.clusterList['close']();
+							obj.clusterList['content'](content);
+							obj.clusterList['position'](objM['position']());
+							obj.clusterList['open'](obj['ui']);
+							obj.clusterList['show']();
+							obj.clusterList['fire']('click');
+							obj.clusterList['addListener']('click', function(f){
+								if(f['child']){
+									var
+										pos = Array.prototype['slice']['call'](obj.clusterList['DOM']['querySelectorAll']('ul > li'))['indexOf'](f['child'])
+									;
+									if(pos >= 0){
+										e[pos]['fire']('click');
+									}
+								}else if(hasClass(this['DOM'], 'toggled')){
+									obj.clusterList['hide']();
+									objM['show']();
+								}
+							});
+						});
+						obj.clustered.push(clusteredStandin);
+					}
+				});
+				obj.clustered.forEach(function(e){
+					if(e){
+						e['open'](obj['ui']);
+					}
+				});
+			}
 		;
 		EventTarget['call'](obj);
 		obj['markers'] = [];
 		obj.clustered = [];
 		obj.clusterClosed = [];
-		obj.clusterList = new uiItem['list']();
+		obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
 		obj['ui'] = ui;
+		ui['renderer']['addListener']('click', function(){
+			if(obj.clusterList['opts']['shown']){
+				obj.clusterList['close']();
+				if(objM){
+					objM['show']();
+				}
+			}
+		});
 		ui['renderer']['addListener']('bounds_changed', function(e){
-			obj.clusterList['close']();
-			obj.clusterList = new uiItem['list']();
-			obj.clusterClosed.forEach(function(e){
-				e['open'](obj['ui']);
-			});
-			obj.clusterClosed = [];
-			var
-				renderer   = this,
-				cellWidth  = renderer['contentNode']['clientWidth']  /  Math.floor(renderer['contentNode']['clientWidth']  / 96),
-				cellHeight = renderer['contentNode']['clientHeight'] /  Math.floor(renderer['contentNode']['clientHeight'] / 96),
-				horizontal = [],
-				vertical = [],
-				bounds = [],
-				boundMarkers = []
-			;
-			for(var i=0;i<=renderer['contentNode']['clientWidth'];i+=cellWidth){
-				horizontal.push(renderer['px2point'](i, 0)['x']);
+			if(boundsTimeout){
+				clearTimeout(boundsTimeout);
 			}
-			for(var i=0;i<=renderer['contentNode']['clientHeight'];i+=cellHeight){
-				vertical.push(renderer['px2point'](0, i)['y']);
-			}
-			for(var i=0;i<(horizontal.length - 1);++i){
-				for(var j=0;j<(vertical.length - 1);++j){
-					bounds.push(new mapapi['bounds']({
-						'x' : horizontal[i],
-						'y' : vertical[j + 1]
-					},{
-						'x' : horizontal[i + 1],
-						'y' : vertical[j]
-					}));
-					boundMarkers.push([]);
-				}
-			}
-			vertical = horizontal = undefined;
-			obj['markers'].forEach(function(e){
-				if(e['opts']['shown']){
-					for(var i=0;i<bounds.length;++i){
-						if(bounds[i]['isWithin'](e['position']())){
-							boundMarkers[i].push(e);
-							obj.clusterClosed.push(e);
-							e['close']();
-							break;
-						}
-					}
-				}
-			});
-			obj.clustered.forEach(function(e){
-				if(e){
-					e['close']();
-				}
-			});
-			obj.clustered = [];
-			boundMarkers.forEach(function(e, i){
-				if(e.length == 1){
-					e[0]['open'](obj['ui']);
-					obj.clustered.push(false);
-				}else if(e.length > 1){
-					var
-						cellBounds = bounds[i],
-						x=0,
-						y=0,
-						clusteredStandin
-					;
-					e.forEach(function(f){
-						var
-							pos = f['position']()
-						;
-						x += pos['x'];
-						y += pos['y'];
-					});
-					clusteredStandin = new numberedMarker({
-							'image'    : defaultMarkerImage,
-							'anchor'     : defaultMarkerAnchor,
-							'position' : new gridPoint(
-								x / e.length,
-								y / e.length
-							),
-							'number' : e.length
-						})
-					;
-					clusteredStandin['addListener']('click', function(){
-						var
-							objM    = this,
-							content = []
-						;
-						for(var i=0;i<e.length;++i){
-							content.push('Marker ' + (i + 1));
-						}
-						objM['hide']();
-						obj.clusterList['content'](content);
-						obj.clusterList['position'](objM['position']());
-						obj.clusterList['open'](obj['ui']);
-						obj.clusterList['show']();
-						obj.clusterList['fire']('click');
-						obj.clusterList['addListener']('click', function(f){
-							if(f['child']){
-								var
-									pos = Array.prototype['slice']['call'](obj.clusterList['DOM']['firstChild']['childNodes'])['indexOf'](f['child'])
-								;
-								if(pos >= 0){
-									e[pos]['fire']('click');
-								}
-							}else if(hasClass(this['DOM'], 'toggled')){
-								obj.clusterList['hide']();
-								objM['show']();
-							}
-						});
-					});
-					obj.clustered.push(clusteredStandin);
-				}
-			});
-			obj.clustered.forEach(function(e){
-				if(e){
-					e['open'](obj['ui']);
-				}
-			});
+			boundsTimeout = setTimeout(function(){
+				clusterListBounds['call'](ui['renderer'], e);
+			}, 200);
 		});
 	}
 	extend(markerManager, EventTarget);
