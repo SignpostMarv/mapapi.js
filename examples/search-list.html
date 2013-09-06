@@ -6,8 +6,8 @@
 <script src="../src/EventTarget.js"></script>
 <script src="../src/mapapi.js"></script>
 <script src="../src/mapapi.shape.js"></script>
-<script src="../src/mapapi.search.js"></script>
 <script src="../src/mapapi.ui.js"></script>
+<script src="../src/mapapi.search.js"></script>
 <script src="../src/uiitem/list.js"></script>
 <script src="../src/uiitem/search-list.js"></script>
 <script src="../src/ui/minimalist.js"></script>
@@ -22,11 +22,6 @@
 html, .mapapi-ui{
 	height: 100% ;
 }
-.mapapi-ui-minimalist .marker-shadows-numbered-marker p.mapapi-ui-marker-number{
-	width: 32px ;
-	height: 32px ;
-	line-height: 30px ;
-}
 </style>
 <script>
 window.onload = function(){
@@ -34,26 +29,29 @@ window.onload = function(){
 		mapui = new mapapi.userinterfaces.minimalist({
 			gridConfig : mapapi.gridConfigs['com.secondlife.agni']
 		}),
-		map   = mapui.renderer
+		map   = mapui.renderer,
+		infoWindows = {}
 	;
-
-	for(var i=0;i<100;++i){
-		mapui.addMarker(new mapapi.marker({
-			'image'      : '../src/ui/marker-shadows.png',
-			'anchor'     : {'x':16, 'y': 64},
-			'position'   : new mapapi.gridPoint(995.5 + ((Math.random() * 10) - 5), 995.5 + ((Math.random() * 10) - 5)),
-			'infoWindow' : mapui.infoWindow({
-				'content' : 'Marker ' + (i + 1)
-			})
-		}));
-	}
-
-	mapui.markerManager.open();
-
 	map.scrollWheelZoom(true);
 	map.smoothZoom(true);
 	map.draggable(true);
-	map.focus(995.5,995.5,3);
+	map.focus(1000,1000,0);
+
+	var
+		list = new mapapi.uiitem.searchList({
+			'position' : [1000, 1000],
+			'content'  : 'Foo Bar Baz Bat'.split(' ')
+		})
+	;
+
+	window.list = list;
+
+	list.open(mapui);
+	list.addListener('click', function(){
+		if(!mapapi.utils.hasClass(this['DOM'], 'toggled')){
+			list.focus();
+		}
+	});
 };
 </script>
 </head>

@@ -280,7 +280,13 @@
 			}
 		};
 		mapapi['utils']['delClass'] = function(node, className){
-			node['classList']['remove'](className);
+			if((className + '')['indexOf'](' ') > 0){
+				className['split'](' ')['forEach'](function(e){
+					mapapi['utils']['delClass'](node, e);
+				});
+			}else{
+				node['classList']['remove'](className);
+			}
 		};
 		mapapi['utils']['hasClass'] = function(node, className){
 			return node['classList']['contains'](className);
