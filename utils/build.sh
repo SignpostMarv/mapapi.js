@@ -19,8 +19,10 @@ java -jar ../../compiler.jar \
 	--js ../src/mapapi.storage.js \
 	--js ../src/mapapi.shape.js \
 	--js ../src/mapapi.polyregion.js \
+	--js ../src/mapapi.search.js \
 	--js ../src/mapapi.ui.js \
 	--js ../src/uiitem/list.js \
+	--js ../src/uiitem/search-list.js \
 	--js ../src/ui/minimalist.js \
 	--js ../src/ui/contextmenu.js \
 	--js ../src/mapapi.renderer.js \
