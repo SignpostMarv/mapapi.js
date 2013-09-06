@@ -251,10 +251,14 @@
 						subsection['fire']('click');
 					};
 					li['appendChild'](h1);
-					li['appendChild'](ul);
+					if(!(sections[i] instanceof stubSection)){
+						li['appendChild'](ul);
+						subsection['DOM'] = ul;
+					}else if(subsection['content2DOM']){
+						li['appendChild'](subsection['content2DOM'](true));
+					}
 					addClass(li, text['toLowerCase']()['replace'](/[^A-z\d]+/g,''));
 					addClass(li, 'childless');
-					subsection['DOM'] = ul;
 					this['DOM']['appendChild'](li);
 					delClass(this['DOM']['parentNode'], 'childless');
 					subsection['addListener']('sectionsadded', sectionsAddedListener);
@@ -266,6 +270,7 @@
 			}
 		}
 	}
+
 	function sectionsRemovedListener(e){
 		var
 			sections = e['sections'],
@@ -913,8 +918,19 @@
 						e['open'](obj['ui']);
 					}
 				});
+			},
+			searchSectionCreator = function(e){
+				if(e['ui'] == ui && e['name'] == 'Menu'){
+					var
+						searchSection       = e['sidebar']['findOrCreateSection']('Search'),
+						markerSearchSection = searchSection['findOrCreateSection']('Markers', uiItem['searchSection'])
+					;
+
+					mapapi['events']['removeListener']('sidebaradded', searchSectionCreator);
+				}
 			}
 		;
+		mapapi['events']['addListener']('sidebaradded', searchSectionCreator);
 		EventTarget['call'](obj);
 		obj['markers'] = [];
 		obj.clustered = [];
@@ -1115,6 +1131,32 @@
 		}
 	}
 
+	sidebar.prototype['findSection'] = function(text){
+		for(var i=0;i<this['sections']['length'];++i){
+			if(this['sections'][i]['text']() == text){
+				return this['sections'][i];
+			}
+		}
+		return false;
+	}
+
+	sidebar.prototype['findOrCreateSection'] = function(text){
+		var
+			type  = arguments['length'] > 1 ? arguments[1] : section,
+			found = this['findSection'](text)
+		;
+		if(type == undefined){
+			throw new Error('Type not found');
+		}else if(!found){
+			if(type != section && !(type.prototype instanceof section) && !(type.prototype instanceof stubSection)){
+				throw new Error('Type should be instance of mapap.ui.section or child class thereof.');
+			}
+			found = new type(text);
+			this['addSection'](found);
+		}
+		return found;
+	}
+
 	ui['sidebar'] = sidebar;
 
 	function section(options){
@@ -1160,4 +1202,35 @@
 	}
 
 	ui['section'] = section;
+
+
+	function stubSection(options){
+		section['call'](this, options);
+		if(!options){
+			return;
+		}
+	}
+
+	extend(stubSection, section);
+
+	stubSection.prototype['addSection']  = function(){
+		throw new Error('Cannot add sections to a stub section');
+	}
+
+	stubSection.prototype['findSection'] = function(){
+		return false;
+	}
+
+	stubSection.prototype['findOrCreateSection'] = function(){
+		throw new Error('Cannot add sections to a stub section');
+	}
+
+	stubSection.prototype['addListener'] = function(){
+		if(arguments.length > 0 && arguments[0] == 'sectionsadded'){
+			return;
+		}
+		section.prototype['addListener']['apply'](this, arguments);
+	}
+
+	section['stub'] = stubSection;
 })(window);

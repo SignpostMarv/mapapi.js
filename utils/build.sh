@@ -23,6 +23,7 @@ java -jar ../../compiler.jar \
 	--js ../src/mapapi.ui.js \
 	--js ../src/uiitem/list.js \
 	--js ../src/uiitem/search-list.js \
+	--js ../src/uiitem/search-section.js \
 	--js ../src/ui/minimalist.js \
 	--js ../src/ui/contextmenu.js \
 	--js ../src/mapapi.renderer.js \
