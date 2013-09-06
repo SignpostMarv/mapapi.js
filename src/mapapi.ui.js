@@ -784,7 +784,8 @@
 			defaultMarkerAnchor = options['defaultMarkerAnchor'],
 			defaultCellWidth    = options['defaultCellWidth'] ? Math.max(16, parseInt(options['defaultCellWidth'])) : 96,
 			defaultCellHeight   = options['defaultCellHeight'] ? Math.max(16, parseInt(options['defaultCellHeight'])) : 96,
-			useSearchableList   = true
+			useSearchableList   = true,
+			objM
 		;
 		EventTarget['call'](obj);
 		obj['markers'] = [];
@@ -792,6 +793,14 @@
 		obj.clusterClosed = [];
 		obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
 		obj['ui'] = ui;
+		ui['renderer']['addListener']('click', function(){
+			if(obj.clusterList['opts']['shown']){
+				obj.clusterList['close']();
+				if(objM){
+					objM['show']();
+				}
+			}
+		});
 		ui['renderer']['addListener']('bounds_changed', function(e){
 			obj.clusterList['close']();
 			obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
@@ -875,13 +884,17 @@
 					;
 					clusteredStandin['addListener']('click', function(){
 						var
-							objM    = this,
 							content = []
 						;
+						if(objM){
+							objM['show']();
+						}
+						objM = this;
 						for(var i=0;i<e.length;++i){
 							content.push('Marker ' + (i + 1));
 						}
 						objM['hide']();
+						obj.clusterList['close']();
 						obj.clusterList['content'](content);
 						obj.clusterList['position'](objM['position']());
 						obj.clusterList['open'](obj['ui']);
@@ -890,7 +903,7 @@
 						obj.clusterList['addListener']('click', function(f){
 							if(f['child']){
 								var
-									pos = Array.prototype['slice']['call'](obj.clusterList['DOM']['firstChild']['childNodes'])['indexOf'](f['child'])
+									pos = Array.prototype['slice']['call'](obj.clusterList['DOM']['querySelectorAll']('ul > li'))['indexOf'](f['child'])
 								;
 								if(pos >= 0){
 									e[pos]['fire']('click');
