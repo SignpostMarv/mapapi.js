@@ -974,33 +974,52 @@
 	}
 	extend(markerManager, EventTarget);
 
-	markerManager.prototype['add'] = function(one){
-		if(one == undefined){
+	markerManager.prototype['add'] = function(){
+		if(arguments.length < 1){
 			throw 'No marker specified';
-		}else if(one instanceof marker){
-			if(this['markers']['indexOf'](one) == -1){
-				this['markers']['push'](one);
+		}
+		var
+			names = []
+		;
+		for(var i=0;i<arguments.length;++i){
+			var
+				one = arguments[i]
+			;
+			if(one instanceof marker){
+				if(this['markers']['indexOf'](one) == -1){
+					this['markers']['push'](one);
+					if(this.markerSearchSection){
+						names.push(one['name']);
+					}
+				}
+			}else{
+				throw 'value is not a marker';
 			}
-			if(this.markerSearchSection){
-				this.markerSearchSection['searchEngine']['add'](one['name']);
-			}
-		}else{
-			throw 'value is not a marker';
+		}
+		if(names.length > 0){
+			this.markerSearchSection['searchEngine']['add']['apply'](this.markerSearchSection['searchEngine'], names);
 		}
 	}
 
-	markerManager.prototype['remove'] = function(one){
-		if(one != undefined){
+	markerManager.prototype['remove'] = function(){
+		var
+			names = []
+		;
+		for(var i=0;i<arguments.length;++i){
 			var
+				one = arguments[i],
 				pos = this['markers']['indexOf'](one)
 			;
 			if(pos >= 0){
 				this['markers'][i]['close']();
 				this['markers']['splice'](pos, 1);
 				if(this.markerSearchSection){
-					this.markerSearchSection['searchEngine']['remove'](one['name']);
+					names.push(one['name']);
 				}
 			}
+		}
+		if(names.length > 0){
+			this.markerSearchSection['searchEngine']['remove']['apply'](this.markerSearchSection['searchEngine'], names);
 		}
 	}
 
@@ -1027,12 +1046,11 @@
 	}
 
 	mapapi['markerManager'] = markerManager;
-	ui.prototype['addMarker'] = function(one){
-		if(one instanceof marker){
-			this['markerManager']['add'](one);
-		}else{
-			throw 'value must be instance of mapapi.marker';
-		}
+	ui.prototype['addMarker'] = function(){
+		this['markerManager']['add']['apply'](this['markerManager'], arguments);
+	}
+	ui.prototype['removeMarker'] = function(){
+		this['markerManager']['remove']['apply'](this['markerManager'], arguments);
 	}
 
 	function numberedMarker(options){
