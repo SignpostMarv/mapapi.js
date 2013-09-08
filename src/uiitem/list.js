@@ -34,7 +34,7 @@
 
 	var
 		createElement   = mapapi['utils']['createElement'],
-		document        = window['document'],
+		empty           = mapapi['utils']['empty'],
 		gridPoint       = mapapi ? mapapi['gridPoint']['fuzzy'] : undefined,
 		clickToggle     = function(e){
 			if(this['DOM']){
@@ -59,7 +59,26 @@
 		if(content){
 			obj['content'](content);
 		}
+		var
+			listeners = []
+		;
+		obj['_listeners']['content_changed']['forEach'](function(e){
+			listeners.push(e);
+		});
+		listeners.forEach(function(e){
+			obj['removeListener']('content_changed', e);
+		});
 		obj['addListener']('click', clickToggle);
+		obj['addListener']('content_changed', function(){
+			if(obj['DOM']){
+				var
+					list = empty(obj['DOM']['querySelector']('ul'))
+				;				
+				obj['content']().forEach(function(e){
+					list['appendChild'](createElement('li', e + ''));
+				});
+			}
+		});
 	}
 	list.prototype = new item;
 	list.prototype['constructor'] = list;
