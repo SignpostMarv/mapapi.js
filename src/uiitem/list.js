@@ -33,7 +33,8 @@
 	}
 
 	var
-		document        = window['document'],
+		createElement   = mapapi['utils']['createElement'],
+		empty           = mapapi['utils']['empty'],
 		gridPoint       = mapapi ? mapapi['gridPoint']['fuzzy'] : undefined,
 		clickToggle     = function(e){
 			if(this['DOM']){
@@ -58,7 +59,26 @@
 		if(content){
 			obj['content'](content);
 		}
+		var
+			listeners = []
+		;
+		obj['_listeners']['content_changed']['forEach'](function(e){
+			listeners.push(e);
+		});
+		listeners.forEach(function(e){
+			obj['removeListener']('content_changed', e);
+		});
 		obj['addListener']('click', clickToggle);
+		obj['addListener']('content_changed', function(){
+			if(obj['DOM']){
+				var
+					list = empty(obj['DOM']['querySelector']('ul'))
+				;				
+				obj['content']().forEach(function(e){
+					list['appendChild'](createElement('li', e + ''));
+				});
+			}
+		});
 	}
 	list.prototype = new item;
 	list.prototype['constructor'] = list;
@@ -94,15 +114,11 @@
 		;
 		if(wipe || !obj['DOM']){
 			var
-				DOM = document.createElement('ul'),
-				wrapper = document.createElement('div')
+				DOM = createElement('ul'),
+				wrapper = createElement('div')
 			;
 			obj['content']().forEach(function(e){
-				var
-					child = document.createElement('li')
-				;
-				child.appendChild(document.createTextNode(e + ''));
-				DOM.appendChild(child);
+				DOM['appendChild'](createElement('li', e + ''));
 			});
 
 			wrapper['onclick'] = function(e){
