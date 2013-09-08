@@ -25,8 +25,6 @@
 	var
 		document      = window['document'],
 		navigator     = window['navigator'],
-		createElement = function(element){ return document['createElement'](element); },
-		createText    = function(text){ return document['createTextNode'](text); },
 		appendChild   = function(a,b){ return a['appendChild'](b); },
 		mapapi        = window['mapapi'],
 		mapapiui      = (mapapi != undefined) ? mapapi['ui'] : undefined,
@@ -49,6 +47,8 @@
 			sidebars      = obj['sidebars'],
 			renderer      = obj['renderer'],
 			menu        = this['addSidebar']('Menu', new mapapiui['sidebar']()),
+			createElement = mapapi['utils']['createElement'],
+			createText    = mapapi['utils']['createText'],
 			menuHideShow  = createElement('div'),
 			menuMinimised = false,
 			zoomcontrol   = createElement('li'),
@@ -94,11 +94,9 @@
 		}
 		if(!testStyleProp('transform') || !testInputType('range')){
 			var
-				zoomin        = createElement('p'),
-				zoomout       = createElement('p')
+				zoomin        = createElement('p', '+'),
+				zoomout       = createElement('p', '–')
 			;
-			appendChild(zoomin , createText('+'));
-			appendChild(zoomout, createText('–'));
 			zoomin['onclick'] = function(e){
 				changeZoom(renderer['zoom']() - 1);
 				return false;

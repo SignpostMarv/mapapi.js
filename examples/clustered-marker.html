@@ -10,6 +10,7 @@
 <script src="../src/mapapi.ui.js"></script>
 <script src="../src/uiitem/list.js"></script>
 <script src="../src/uiitem/search-list.js"></script>
+<script src="../src/uiitem/search-section.js"></script>
 <script src="../src/ui/minimalist.js"></script>
 <script src="../src/mapapi.renderer.js"></script>
 <script src="../src/mapapi.tileSource.js"></script>
@@ -39,6 +40,13 @@ window.onload = function(){
 
 	for(var i=0;i<100;++i){
 		mapui.addMarker(new mapapi.marker({
+			'image'      : '../src/ui/marker-shadows.png',
+			'anchor'     : {'x':16, 'y': 64},
+			'position'   : new mapapi.gridPoint(995.5 + ((Math.random() * 10) - 5), 995.5 + ((Math.random() * 10) - 5)),
+			'infoWindow' : mapui.infoWindow({
+				'content' : 'Marker ' + (i + 1)
+			})
+		}), new mapapi.marker({
 			'image'      : '../src/ui/marker-shadows.png',
 			'anchor'     : {'x':16, 'y': 64},
 			'position'   : new mapapi.gridPoint(995.5 + ((Math.random() * 10) - 5), 995.5 + ((Math.random() * 10) - 5)),
