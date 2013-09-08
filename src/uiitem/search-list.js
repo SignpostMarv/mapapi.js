@@ -56,8 +56,8 @@
 	}
 
 	function searchList(options){
+		this.searchEngine = new search;
 		list['call'](this, options);
-		this.searchEngine = new search(this['content']());
 	}
 
 	searchList.prototype = new list;
