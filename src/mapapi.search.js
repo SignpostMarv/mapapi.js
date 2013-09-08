@@ -224,5 +224,20 @@
 		});
 	}
 
+	search.prototype['click'] = function(){
+		var
+			entries2Check = Array.prototype.slice.call(arguments),
+			clicks = []
+		;
+		this.index.forEach(function(e){
+			if(entries2Check.indexOf(e['entry']) && e['click']){
+				clicks.push(e['click']);
+			}
+		});
+		clicks.forEach(function(e){
+			e();
+		});
+	}
+
 	mapapi['search'] = search;
 })(window);

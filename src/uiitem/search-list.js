@@ -139,6 +139,12 @@
 			DOM.className  = list.prototype['DOMClasses']['join'](' ');
 			form.className = obj['DOMClasses']['join'](' ');
 
+			DOM['onclick'] = function(e){
+				if(e['target']['nodeName'] == 'LI'){
+					obj.searchEngine['click'](e['target']['textContent']);
+				}
+			}
+
 			obj['DOM'] = form;
 		}
 		return obj['DOM'];

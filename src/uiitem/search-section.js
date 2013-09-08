@@ -167,6 +167,7 @@
 			DOM['onclick'] = function(e){
 				if(e['target']['nodeName'] == 'LI'){
 					obj['fire']('click', {'child': e['target']});
+					obj.searchEngine['click'](e['target']['textContent']);
 				}else{
 					obj['fire']('click');
 				}
