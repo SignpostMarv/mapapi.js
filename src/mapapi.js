@@ -82,14 +82,6 @@
 				'toggleClass' : function(node, className){
 					mapapi['utils'][mapapi['utils']['hasClass'](node, className) ? 'delClass' : 'addClass'](node, className);
 				},
-				'windowDiscovery' : function(checkThis){
-					for(var i=0;i<checkThis.length;++i){
-						if(window[checkThis[i]] != undefined){
-							return window[checkThis[i]];
-						}
-					}
-					return undefined;
-				},
 				'empty' : function(node){
 					while(node['hasChildNodes']()){
 						node['removeChild'](node['firstChild']);
