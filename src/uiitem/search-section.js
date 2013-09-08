@@ -22,14 +22,15 @@
 * THE SOFTWARE.
 */
 (function(window, undefined){
-	'use strict';
 	var
+		document = window['document'],
 		Error    = window['Error'],
 		mapapi   = window['mapapi'],
-		uiitem   = mapapi['uiitem'] || undefined,
-		list     = uiitem ? uiitem['list'] : undefined,
-		search   = mapapi ? mapapi['search'] : undefined,
-		element  = mapapi ? mapapi['utils']['createElement'] : undefined,
+		ui       = mapapi  ? mapapi['ui']     : undefined,
+		uiitem   = mapapi  ? mapapi['uiitem'] : undefined,
+		section  = ui      ? ui['section']    : undefined,
+		stub     = section ? section['stub']  : undefined,
+		search   = mapapi  ? mapapi['search'] : undefined,
 		id       = 0
 	;
 
@@ -37,23 +38,61 @@
 		throw new Error('mapapi.js not loaded');
 	}else if(!search){
 		throw new Error('mapapi.search not found');
-	}else if(!list){
-		throw new Error('mapapi.uiitem.list not found');
+	}else if(!section){
+		throw new Error('mapapi.ui.section not found');
 	}
 
-	function searchList(options){
-		this.searchEngine = new search;
-		list['call'](this, options);
+	function text(txt){
+		return document.createTextNode(txt);
 	}
 
-	searchList.prototype = new list;
-	searchList.prototype['constructor'] = searchList;
+	function element(el, txt){
+		var
+			el = document.createElement(el)
+		;
+		if(txt){
+			el.appendChild(text(txt));
+		}
 
-	searchList.prototype['DOMClasses'] = [
-		'mapapi-ui-search-list'
+		return el;
+	}
+
+	function searchSection(){
+		var
+			obj = this
+		;
+		stub['apply'](obj, arguments);
+		obj['searchEngine'] = obj.searchEngine = new search;
+		obj.searchEngine['addListener']('added', function(e){
+			var
+				resultList = obj['content2DOM']()['querySelector']('ul')
+			;
+			for(var i=0;i<e['values']['length'];++i){
+				resultList.appendChild(element('li', e['values'][i]['entry']));
+			}
+		});
+		obj.searchEngine['addListener']('removed', function(e){
+			var
+				indices = e['indices'],
+				resultList = obj['content2DOM']()['querySelector']('ul')
+			;
+			indices['sort']();
+			indices['reverse']();
+			indices['forEach'](function(i){
+				resultList['removeChild'](resultList['childNodes'][i]);
+			});
+		});
+		window['searchEngineTest'] = obj.searchEngine;
+	}
+
+	searchSection.prototype = new stub;
+	searchSection.prototype['constructor'] = searchSection;
+
+	searchSection.prototype['DOMClasses'] = [
+		'mapapi-ui-search-section'
 	];
 
-	searchList.prototype['search'] = function(term){
+	searchSection.prototype['search'] = function(term){
 		var
 			obj = this
 		;
@@ -92,29 +131,18 @@
 		}, reset);
 	}
 
-	searchList.prototype['content'] = function(){
-		var
-			obj = this
-		;
-		if(arguments.length > 0){
-			obj.searchEngine['removeAll']();
-			obj.searchEngine['add']['apply'](obj.searchEngine, arguments[0]);
-		}
-		return list.prototype['content']['apply'](obj, arguments);
-	}
-
-	searchList.prototype['content2DOM'] = function(wipe){
+	searchSection.prototype['content2DOM'] = function(wipe){
 		var
 			obj = this
 		;
 		if(wipe || !obj['DOM']){
 			var
-				DOM = list.prototype['content2DOM']['call'](obj, true),
-				form = element('form'),
-				fieldset = [element('fieldset'), element('fieldset')],
+				DOM = document.createElement('ul'),
+				form = document.createElement('form'),
+				fieldset = [document.createElement('fieldset'), document.createElement('fieldset')],
 				legend   = element('legend', 'Results'),
 				label    = element('label', 'Search Terms: '),
-				input    = element('input'),
+				input    = document.createElement('input'),
 				button   = element('button', 'Search')
 			;
 			
@@ -136,7 +164,14 @@
 				obj['search'](input.value);
 			}
 
-			DOM.className  = list.prototype['DOMClasses']['join'](' ');
+			DOM['onclick'] = function(e){
+				if(e['target']['nodeName'] == 'LI'){
+					obj['fire']('click', {'child': e['target']});
+				}else{
+					obj['fire']('click');
+				}
+			}
+
 			form.className = obj['DOMClasses']['join'](' ');
 
 			obj['DOM'] = form;
@@ -144,5 +179,5 @@
 		return obj['DOM'];
 	}
 
-	uiitem['searchList'] = searchList;
+	uiitem['searchSection'] = searchSection;
 })(window);
