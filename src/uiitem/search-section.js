@@ -62,7 +62,7 @@
 			obj = this
 		;
 		stub['apply'](obj, arguments);
-		obj.searchEngine = new search;
+		obj['searchEngine'] = obj.searchEngine = new search;
 		obj.searchEngine['addListener']('added', function(e){
 			var
 				resultList = obj['content2DOM']()['querySelector']('ul')
@@ -73,9 +73,10 @@
 		});
 		obj.searchEngine['addListener']('removed', function(e){
 			var
-				indices = e['indices']['sort'](),
+				indices = e['indices'],
 				resultList = obj['content2DOM']()['querySelector']('ul')
 			;
+			indices['sort']();
 			indices['reverse']();
 			indices['forEach'](function(i){
 				resultList['removeChild'](resultList['childNodes'][i]);
@@ -161,6 +162,14 @@
 				e['preventDefault']();
 				e['stopPropagation']();
 				obj['search'](input.value);
+			}
+
+			DOM['onclick'] = function(e){
+				if(e['target']['nodeName'] == 'LI'){
+					obj['fire']('click', {'child': e['target']});
+				}else{
+					obj['fire']('click');
+				}
 			}
 
 			form.className = obj['DOMClasses']['join'](' ');

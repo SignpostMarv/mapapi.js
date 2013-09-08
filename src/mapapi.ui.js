@@ -257,11 +257,11 @@
 			for(var i=0;i<sections['length'];++i){
 				if(sections[i] instanceof section){
 					var
+						subsection = sections[i],
 						text       = subsection['text'](),
 						li         = createElement('li'),
 						h1         = createElement('h1', text),
-						ul         = createElement('ul'),
-						subsection = sections[i]
+						ul         = createElement('ul')
 					;
 					h1['onclick'] = function(){
 						toggleClass(this['parentNode'], 'toggled');
@@ -930,9 +930,19 @@
 			searchSectionCreator = function(e){
 				if(e['ui'] == ui && e['name'] == 'Menu'){
 					var
-						searchSection       = e['sidebar']['findOrCreateSection']('Search'),
-						markerSearchSection = searchSection['findOrCreateSection']('Markers', uiItem['searchSection'])
+						searchSection = e['sidebar']['findOrCreateSection']('Search')
 					;
+					obj.markerSearchSection = searchSection['findOrCreateSection']('Markers', uiItem['searchSection']);
+					obj.markerSearchSection['addListener']('click', function(e){
+						if(e['child']){
+							var
+								pos = Array.prototype['slice']['call'](obj.markerSearchSection['DOM']['querySelectorAll']('ul > li'))['indexOf'](e['child'])
+							;
+							if(pos >= 0){
+								obj['markers'][pos]['fire']('click');
+							}
+						}
+					});
 
 					mapapi['events']['removeListener']('sidebaradded', searchSectionCreator);
 				}
@@ -971,6 +981,9 @@
 			if(this['markers']['indexOf'](one) == -1){
 				this['markers']['push'](one);
 			}
+			if(this.markerSearchSection){
+				this.markerSearchSection['searchEngine']['add'](one['name']);
+			}
 		}else{
 			throw 'value is not a marker';
 		}
@@ -984,6 +997,9 @@
 			if(pos >= 0){
 				this['markers'][i]['close']();
 				this['markers']['splice'](pos, 1);
+				if(this.markerSearchSection){
+					this.markerSearchSection['searchEngine']['remove'](one['name']);
+				}
 			}
 		}
 	}
