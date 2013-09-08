@@ -33,6 +33,7 @@
 	}
 
 	var
+		createElement   = mapapi['utils']['createElement'],
 		document        = window['document'],
 		gridPoint       = mapapi ? mapapi['gridPoint']['fuzzy'] : undefined,
 		clickToggle     = function(e){
@@ -94,15 +95,11 @@
 		;
 		if(wipe || !obj['DOM']){
 			var
-				DOM = document.createElement('ul'),
-				wrapper = document.createElement('div')
+				DOM = createElement('ul'),
+				wrapper = createElement('div')
 			;
 			obj['content']().forEach(function(e){
-				var
-					child = document.createElement('li')
-				;
-				child.appendChild(document.createTextNode(e + ''));
-				DOM.appendChild(child);
+				DOM['appendChild'](createElement('li', e + ''));
 			});
 
 			wrapper['onclick'] = function(e){

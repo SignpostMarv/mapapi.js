@@ -94,8 +94,14 @@
 				'ctype_float' : function(value){
 					return /^\-?(\d+|\d*\.\d+)$/.test(value + '');
 				},
-				'createElement' : function(element){
-					return document['createElement'](element);
+				'createElement' : function(element, txt){
+					var
+						resp = document['createElement'](element)
+					;
+					if(txt){
+						resp['appendChild'](mapapi['utils']['createText'](txt));
+					}
+					return resp;
 				},
 				'createText'    : function(text){
 					return document['createTextNode'](text);
@@ -257,7 +263,7 @@
 	}
 
 	var
-		testNode      = window['document']['createElement']('a'),
+		testNode      = mapapi['utils']['createElement']('a'),
 		testClassList = testNode && testNode['classList'] ? testNode['classList'] : false,
 		testClassList = testClassList['add'] && testClassList['remove'] && testClassList['contains']
 	;

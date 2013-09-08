@@ -23,12 +23,12 @@
 */
 (function(window, undefined){
 	var
-		document = window['document'],
 		Error    = window['Error'],
 		mapapi   = window['mapapi'],
 		uiitem   = mapapi['uiitem'] || undefined,
 		list     = uiitem ? uiitem['list'] : undefined,
 		search   = mapapi ? mapapi['search'] : undefined,
+		element  = mapapi ? mapapi['utils']['createElement'] : undefined,
 		id       = 0
 	;
 
@@ -38,21 +38,6 @@
 		throw new Error('mapapi.search not found');
 	}else if(!list){
 		throw new Error('mapapi.uiitem.list not found');
-	}
-
-	function text(txt){
-		return document.createTextNode(txt);
-	}
-
-	function element(el, txt){
-		var
-			el = document.createElement(el)
-		;
-		if(txt){
-			el.appendChild(text(txt));
-		}
-
-		return el;
 	}
 
 	function searchList(options){
@@ -124,11 +109,11 @@
 		if(wipe || !obj['DOM']){
 			var
 				DOM = list.prototype['content2DOM']['call'](obj, true),
-				form = document.createElement('form'),
-				fieldset = [document.createElement('fieldset'), document.createElement('fieldset')],
+				form = element('form'),
+				fieldset = [element('fieldset'), element('fieldset')],
 				legend   = element('legend', 'Results'),
 				label    = element('label', 'Search Terms: '),
-				input    = document.createElement('input'),
+				input    = element('input'),
 				button   = element('button', 'Search')
 			;
 			
