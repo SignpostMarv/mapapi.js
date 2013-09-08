@@ -23,15 +23,18 @@
 */
 (function(window, undefined){
 	'use strict';
-	if(!window['mapapi']){
-		throw 'mapapi.js not loaded';
-	}else if(!window['mapapi']['renderer']){
-		throw 'mapapi.js renderer class not loaded';
-	}
-
 	var
 		document   = window['document'],
-		mapapi     = window['mapapi'],
+		mapapi     = window['mapapi']
+	;
+	if(!mapapi){
+		throw new Error('mapapi.js not loaded');
+	}
+	mapapi['utils']['load']([
+		'renderer', 'mapapi.renderer.js',
+		'shape'   , 'mapap.shape.js'
+	], function(){
+	var
 		SLURL      = window['SLURL'],
 		renderer   = mapapi['renderer'],
 		gridConfig = mapapi['gridConfig'],
@@ -41,10 +44,10 @@
 		reqAnim    = ['mozRequestAnimationFrame', 'webkitRequestAnimationFrame'],
 		reqAnimSp  = false,
 		shape      = mapapi['shape'],
-		poly       = shape != undefined ? shape['polygon']   : undefined,
-		rectangle  = shape != undefined ? shape['rectangle'] : undefined,
-		line       = shape != undefined ? shape['line']      : undefined,
-		circle     = shape != undefined ? shape['circle']    : undefined
+		poly       = shape['polygon'],
+		rectangle  = shape['rectangle'],
+		line       = shape['line'],
+		circle     = shape['circle']
 	;
 
 	for(var i=0;i<reqAnim.length;++i){
@@ -532,4 +535,5 @@
 	}
 
 	mapapi['renderers']['canvas'] = canvas;
+	});
 })(window);

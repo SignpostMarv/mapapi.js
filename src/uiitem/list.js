@@ -23,17 +23,18 @@
 */
 (function(window, undefined){
 	var
-		mapapi          = window['mapapi'],
-		item            = mapapi ? mapapi['uiitem'] : undefined
+		mapapi          = window['mapapi']
 	;
-	if(mapapi == undefined){
-		throw new Error('mapapi not loaded');
-	}else if(item == undefined){
-		throw new Error('mapapi.uiitem not found');
+	if(!mapapi){
+		throw new Error('mapapi.js not loaded');
 	}
 
+	mapapi['utils']['load']([
+		'uiitem', 'mapapi.ui.js'
+	], function(){
 	var
 		document        = window['document'],
+		item            = mapapi['uiitem'],
 		gridPoint       = mapapi ? mapapi['gridPoint']['fuzzy'] : undefined,
 		clickToggle     = function(e){
 			if(this['DOM']){
@@ -139,4 +140,6 @@
 	}
 
 	item['list'] = list;
+	
+	});
 })(window);

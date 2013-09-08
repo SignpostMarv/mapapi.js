@@ -55,6 +55,7 @@
 
 	var
 		EventTarget   = window['EventTarget'],
+		jsRegex = /(mapapi\.js|mapapi-complete.js)$/,
 		mapapi = {
 			'utils' : {
 				'addClass' : function(node, className){
@@ -99,6 +100,64 @@
 				},
 				'createText'    : function(text){
 					return document['createTextNode'](text);
+				},
+				'jsPath' : function(){
+					var
+						scripts = document.querySelectorAll('head script')
+					;
+					for(var i=0;i<scripts.length;++i){
+						if(jsRegex.test(scripts[i]['src'])){
+							return scripts[i]['src'];
+						}
+					}
+					throw new Error('Could not find mapapi.js file');
+				},
+				'load' : function(things, success){
+					var
+						needLoaded = things['length'] / 2,
+						thingsLoaded = 0
+					;
+					for(var i=0;i<(things['length'] - 1);i+=2){
+						var
+							className = things[i + 0]['split']('.'),
+							srcFile   = things[i + 1],
+							loaded    = !!mapapi[className[0]]
+						;
+						for(var j=1;j<className['length'];++j){
+							loaded = loaded && !!mapapi[className[j]];
+						}
+						if(loaded){
+							++thingsLoaded;
+						}else{
+							var
+								jsPath = mapapi['utils']['jsPath'](),
+								jsPath = jsPath['replace'](jsRegex, '') + srcFile,
+								js = mapapi['utils']['createElement']('script')
+							;
+							js['onload'] = function(){
+								++thingsLoaded;
+								if(thingsLoaded >= needLoaded){
+									success();
+								}
+							}
+							js['onreadystatechange'] = function(){
+								if(js['readyState'] == 'complete' || js['readyState'] == 'loaded'){
+									++thingsLoaded;
+									if(thingsLoaded >= needLoaded){
+										success();
+									}
+								}
+							}
+							js['onerror'] = function(e){
+								throw new Error('Could not load ' + js['src']);
+							}
+							js['src'] = jsPath;
+							document.querySelector('head').appendChild(js);
+						}
+					}
+					if(thingsLoaded >= needLoaded){
+						success();
+					}
 				}
 			},
 			'gridPoint' : function(x, y){

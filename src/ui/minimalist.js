@@ -28,18 +28,21 @@
 		createElement = function(element){ return document['createElement'](element); },
 		createText    = function(text){ return document['createTextNode'](text); },
 		appendChild   = function(a,b){ return a['appendChild'](b); },
-		mapapi        = window['mapapi'],
-		mapapiui      = (mapapi != undefined) ? mapapi['ui'] : undefined,
-		infoWindow    = mapapi['infoWindow'],
-		addClass      = (mapapi != undefined) ? mapapi['utils']['addClass'] : undefined,
-		hasClass      = addClass ? mapapi['utils']['hasClass'] : undefined,
-		empty         = addClass ? mapapi['utils']['empty'] : undefined
+		mapapi        = window['mapapi']
 	;
-	if(mapapi == undefined){
-		throw 'mapapi.js not loaded';
-	}else if(mapapiui == undefined){
-		throw 'mapapi.ui not loaded';
+	if(!mapapi){
+		throw new Error('mapapi.js not loaded');
 	}
+	mapapi['utils']['load']([
+		'ui', 'mapapi.ui.js'
+	], function(){
+	var
+		mapapiui      = mapapi['ui'],
+		infoWindow    = mapapi['infoWindow'],
+		addClass      = mapapi['utils']['addClass'],
+		hasClass      = mapapi['utils']['hasClass'],
+		empty         = mapapi['utils']['empty']
+	;
 
 	var minimalistUI = function(options){
 		mapapiui['call'](this, options);
@@ -124,4 +127,5 @@
 	minimalistUI.prototype['infoWindow'] = function(options){
 		return new minimalistUIinfoWindow(options);
 	}
+	});
 })(window);

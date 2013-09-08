@@ -25,21 +25,24 @@
 	var
 		document = window['document'],
 		Error    = window['Error'],
-		mapapi   = window['mapapi'],
+		mapapi   = window['mapapi']
+	;
+
+	if(!mapapi){
+		throw new Error('mapapi.js not loaded');
+	}
+
+	mapapi['utils']['load']([
+		'search', 'mapapi.search.js',
+		'uiitem', 'mapapi.ui.js',
+		'uiitem.list', 'uiitem/list.js'
+	], function(){
+	var
 		uiitem   = mapapi['uiitem'] || undefined,
 		list     = uiitem ? uiitem['list'] : undefined,
 		search   = mapapi ? mapapi['search'] : undefined,
 		id       = 0
 	;
-
-	if(!mapapi){
-		throw new Error('mapapi.js not loaded');
-	}else if(!search){
-		throw new Error('mapapi.search not found');
-	}else if(!list){
-		throw new Error('mapapi.uiitem.list not found');
-	}
-
 	function text(txt){
 		return document.createTextNode(txt);
 	}
@@ -159,4 +162,5 @@
 	}
 
 	uiitem['searchList'] = searchList;
+	});
 })(window);

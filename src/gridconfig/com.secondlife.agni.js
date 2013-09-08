@@ -24,10 +24,18 @@
 */
 (function(window, undefined){
 	'use strict';
-	window['mapapi'] = window['mapapi'] || {};
 	var
 		document       = window['document'],
-		mapapi         = window['mapapi'],
+		mapapi         = window['mapapi']
+	;
+	if(!mapapi){
+		throw new Error('mapapi.js not loaded');
+	}
+	mapapi['utils']['load']([
+		'tileSource', 'mapapi.tileSource.js',
+		'gridConfig', 'mapapi.gridConfig.js'
+	], function(){
+	var
 		Date           = window['Date'],
 		console        = window['console'],
 		gridConfig     = mapapi['gridConfig'],
@@ -181,4 +189,6 @@
 	;
 
 	mapapi['gridConfigs']['com.secondlife.agni'] = agni;
+	
+	});
 })(window);
