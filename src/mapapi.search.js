@@ -230,7 +230,7 @@
 			clicks = []
 		;
 		this.index.forEach(function(e){
-			if(entries2Check.indexOf(e['entry']) && e['click']){
+			if(entries2Check.indexOf(e['entry']) >= 0 && e['click']){
 				clicks.push(e['click']);
 			}
 		});
