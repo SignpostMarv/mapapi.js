@@ -32,6 +32,7 @@
 	var
 		document   = window['document'],
 		mapapi     = window['mapapi'],
+		element    = mapapi['utils']['createElement'],
 		SLURL      = window['SLURL'],
 		renderer   = mapapi['renderer'],
 		gridConfig = mapapi['gridConfig'],
@@ -58,7 +59,7 @@
 
 	function canvas(options){
 		renderer['call'](this, options);
-		var supported = document.createElement('canvas');
+		var supported = element('canvas');
 		if(supported){
 			supported = (supported['getContext'] && supported['getContext']('2d'));
 		}
@@ -86,7 +87,7 @@
 		}
 		obj.gridConfig = gridConf;
 
-		obj['contentNode']   = document.createElement('canvas');
+		obj['contentNode']   = element('canvas');
 		obj['vendorContent'] = obj['contentNode']['getContext']('2d');
 
 		mapapi['utils']['addClass'](obj['contentNode'], 'mapapi-renderer mapapi-renderer-canvas');
@@ -114,7 +115,7 @@
 	canvas.prototype['description'] = 'Uses the 2D canvas API to render the map as a single image.';
 
 	var
-		canvasElement = document['createElement']('canvas')
+		canvasElement = element('canvas')
 	;
 	canvas.prototype['browserSupported'] = canvasElement && canvasElement['getContext'] && canvasElement['getContext']('2d');
 

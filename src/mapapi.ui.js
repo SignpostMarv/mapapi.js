@@ -1,7 +1,7 @@
 /**
 * License and Terms of Use
 *
-* Copyright (c) 2011 SignpostMarv
+* Copyright (c) 2013 SignpostMarv
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +29,8 @@
 		EventTarget   = window['EventTarget'],
 		Image         = window['Image'],
 		Array         = window['Array'],
-		createElement = function(a){ return document['createElement'](a); },
-		createText    = function(a){ return document['createTextNode'](a); },
 		mapapi        = window['mapapi'],
+		createElement = mapapi['utils']['createElement'],
 		gridPoint     = mapapi['gridPoint'],
 		bounds        = mapapi['bounds'],
 		utils         = mapapi['utils'],
@@ -51,7 +50,26 @@
 
 	var
 		uiID = 0,
-		uiregex = /(mapapi\.ui\.js|mapapi-complete.js)$/
+		uiregex = /(mapapi\.ui\.js|mapapi-complete.js)$/,
+		testStyle  = createElement('a')['style'],
+		transformProps = ['transform', 'webkitTransform'],
+		hasTransform = false,
+		transformProp
+	;
+	for(var i=0;i<transformProps['length'];++i){
+		transformProp = transformProps[i];
+		if(transformProp in testStyle){
+			hasTransform = true;
+			break;
+		}
+	}
+	var
+		setCSSPos = hasTransform ? function(element, top, left){
+			element['style'][transformProp] = 'translateX(' + left + 'px) translateY(' + top + 'px)';
+		} : function(element, top, left){
+			element['style']['top'] = top + 'px';
+			element['style']['left'] = left + 'px';
+		}
 	;
 
 	function ui(options){
@@ -239,22 +257,25 @@
 			for(var i=0;i<sections['length'];++i){
 				if(sections[i] instanceof section){
 					var
-						li         = createElement('li'),
-						h1         = createElement('h1'),
-						ul         = createElement('ul'),
 						subsection = sections[i],
-						text       = subsection['text']()
+						text       = subsection['text'](),
+						li         = createElement('li'),
+						h1         = createElement('h1', text),
+						ul         = createElement('ul')
 					;
-					h1['appendChild'](createText(text));
 					h1['onclick'] = function(){
 						toggleClass(this['parentNode'], 'toggled');
 						subsection['fire']('click');
 					};
 					li['appendChild'](h1);
-					li['appendChild'](ul);
+					if(!(sections[i] instanceof stubSection)){
+						li['appendChild'](ul);
+						subsection['DOM'] = ul;
+					}else if(subsection['content2DOM']){
+						li['appendChild'](subsection['content2DOM'](true));
+					}
 					addClass(li, text['toLowerCase']()['replace'](/[^A-z\d]+/g,''));
 					addClass(li, 'childless');
-					subsection['DOM'] = ul;
 					this['DOM']['appendChild'](li);
 					delClass(this['DOM']['parentNode'], 'childless');
 					subsection['addListener']('sectionsadded', sectionsAddedListener);
@@ -266,6 +287,7 @@
 			}
 		}
 	}
+
 	function sectionsRemovedListener(e){
 		var
 			sections = e['sections'],
@@ -455,18 +477,11 @@
 			;
 
 			if(typeof content == 'string'){
-				var
-					paragraphs,
-					paragraph
-				;
-				paragraphs = /\n/.test(content) ? content.split("\n") : [content];
-				for(var i=0;i<paragraphs.length;++i){
-					paragraph = createElement('p');
-					paragraph.appendChild(createText(paragraphs[i]));
-					DOM.appendChild(paragraph);
-				}
+				content.split("\n")['forEach'](function(e){
+					DOM['appendChild'](createElement('p', e));
+				});
 			}else if(content['appendChild'] != undefined || content instanceof Image){
-				DOM.appendChild(content);
+				DOM['appendChild'](content);
 			}
 
 			addClass(DOM, 'mapapi-ui-item-contents');
@@ -530,8 +545,7 @@
 							horizontal  = width > 0  && left >= 0 && (left + DOM['clientWidth']) <= contentNode['clientWidth']
 						;
 						if((vertical && horizontal) || (height == 0 && obj['ui']['renderer']['bounds']()['isWithin'](obj['position']()))){
-							style['top']  = top + 'px';
-							style['left'] = left + 'px';
+							setCSSPos(DOM, top, left);
 							if(obj['opts']['disableAutoShow'] != true){
 								obj['show']();
 							}else{
@@ -650,13 +664,12 @@
 				content = uiItem.prototype['content2DOM']['call'](obj, true),
 				DOM     = createElement('aside'),
 				div     = createElement('div'),
-				close   = createElement('p')
+				close   = createElement('p', '×')
 			;
 			addClass(DOM, obj['DOMclasses'].join(' '));
 			addClass(close, 'mapapi-ui-infowindow-close');
 			addClass(div,   'mapapi-ui-wrapper');
 
-			close['appendChild'](createText('×'));
 			close['setAttribute']('title', 'Close');
 			div.appendChild(content);
 			content.appendChild(close);
@@ -682,7 +695,10 @@
 		return new infoWindow(options);
 	}
 
-	
+	var
+		markerID = 0
+	;
+
 	function marker(){
 		uiItem.apply(this, arguments);
 		if(arguments.length == 0){
@@ -694,7 +710,7 @@
 			anchor  = options['anchor'],
 			imgSrc  = options['image'],
 			infoW   = options['infoWindow'],
-			img     = document.createElement('img')
+			img     = createElement('img')
 		;
 		obj['position'](options['position']);
 		if(anchor != undefined){
@@ -710,6 +726,9 @@
 			obj['fire']('click');
 		}
 		img['src'] = imgSrc;
+
+		obj['id']   = ++markerID;
+		obj['name'] = options['name'] || ('Marker ' + obj['id']);
 
 		if(infoW instanceof infoWindow){
 			infoW['position'](obj['position']());
@@ -740,7 +759,7 @@
 		}
 		return this['DOM'];
 	}
-	
+
 	marker.prototype['anchor'] = function(anchor){
 		if(anchor != undefined){
 			if(typeof anchor['x'] != 'number' || typeof anchor['y'] != 'number'){
@@ -875,9 +894,9 @@
 								objM['show']();
 							}
 							objM = this;
-							for(var i=0;i<e.length;++i){
-								content.push('Marker ' + (i + 1));
-							}
+							e.forEach(function(f){
+								content.push(f['name']);
+							});
 							objM['hide']();
 							obj.clusterList['close']();
 							obj.clusterList['content'](content);
@@ -907,8 +926,29 @@
 						e['open'](obj['ui']);
 					}
 				});
+			},
+			searchSectionCreator = function(e){
+				if(e['ui'] == ui && e['name'] == 'Menu'){
+					var
+						searchSection = e['sidebar']['findOrCreateSection']('Search')
+					;
+					obj.markerSearchSection = searchSection['findOrCreateSection']('Markers', uiItem['searchSection']);
+					obj.markerSearchSection['addListener']('click', function(e){
+						if(e['child']){
+							var
+								pos = Array.prototype['slice']['call'](obj.markerSearchSection['DOM']['querySelectorAll']('ul > li'))['indexOf'](e['child'])
+							;
+							if(pos >= 0){
+								obj['markers'][pos]['fire']('click');
+							}
+						}
+					});
+
+					mapapi['events']['removeListener']('sidebaradded', searchSectionCreator);
+				}
 			}
 		;
+		mapapi['events']['addListener']('sidebaradded', searchSectionCreator);
 		EventTarget['call'](obj);
 		obj['markers'] = [];
 		obj.clustered = [];
@@ -934,27 +974,52 @@
 	}
 	extend(markerManager, EventTarget);
 
-	markerManager.prototype['add'] = function(one){
-		if(one == undefined){
+	markerManager.prototype['add'] = function(){
+		if(arguments.length < 1){
 			throw 'No marker specified';
-		}else if(one instanceof marker){
-			if(this['markers']['indexOf'](one) == -1){
-				this['markers']['push'](one);
+		}
+		var
+			names = []
+		;
+		for(var i=0;i<arguments.length;++i){
+			var
+				one = arguments[i]
+			;
+			if(one instanceof marker){
+				if(this['markers']['indexOf'](one) == -1){
+					this['markers']['push'](one);
+					if(this.markerSearchSection){
+						names.push(one['name']);
+					}
+				}
+			}else{
+				throw 'value is not a marker';
 			}
-		}else{
-			throw 'value is not a marker';
+		}
+		if(names.length > 0){
+			this.markerSearchSection['searchEngine']['add']['apply'](this.markerSearchSection['searchEngine'], names);
 		}
 	}
 
-	markerManager.prototype['remove'] = function(one){
-		if(one != undefined){
+	markerManager.prototype['remove'] = function(){
+		var
+			names = []
+		;
+		for(var i=0;i<arguments.length;++i){
 			var
+				one = arguments[i],
 				pos = this['markers']['indexOf'](one)
 			;
 			if(pos >= 0){
 				this['markers'][i]['close']();
 				this['markers']['splice'](pos, 1);
+				if(this.markerSearchSection){
+					names.push(one['name']);
+				}
 			}
+		}
+		if(names.length > 0){
+			this.markerSearchSection['searchEngine']['remove']['apply'](this.markerSearchSection['searchEngine'], names);
 		}
 	}
 
@@ -981,12 +1046,11 @@
 	}
 
 	mapapi['markerManager'] = markerManager;
-	ui.prototype['addMarker'] = function(one){
-		if(one instanceof marker){
-			this['markerManager']['add'](one);
-		}else{
-			throw 'value must be instance of mapapi.marker';
-		}
+	ui.prototype['addMarker'] = function(){
+		this['markerManager']['add']['apply'](this['markerManager'], arguments);
+	}
+	ui.prototype['removeMarker'] = function(){
+		this['markerManager']['remove']['apply'](this['markerManager'], arguments);
 	}
 
 	function numberedMarker(options){
@@ -1019,11 +1083,10 @@
 		if(wipe || !obj['DOM']){
 			var
 				content = obj['content'](),
+				value   = parseInt(obj['opts']['number']),
 				DOM     = createElement('div'),
-				number  = createElement('p'),
-				value   = parseInt(obj['opts']['number'])
+				number  = createElement('p', value)
 			;
-			number['appendChild'](createText(value));
 			number['setAttribute']('title', value);
 			number['onclick'] = function(){
 				obj['fire']('click');
@@ -1032,7 +1095,7 @@
 			while(DOM['hasChildNodes']()){
 				DOM['removeChild'](DOM['firstChild']);
 			}
-			
+
 			if(content){
 				content['onclick'] = function(){}
 				delete content['onclick'];
@@ -1109,6 +1172,32 @@
 		}
 	}
 
+	sidebar.prototype['findSection'] = function(text){
+		for(var i=0;i<this['sections']['length'];++i){
+			if(this['sections'][i]['text']() == text){
+				return this['sections'][i];
+			}
+		}
+		return false;
+	}
+
+	sidebar.prototype['findOrCreateSection'] = function(text){
+		var
+			type  = arguments['length'] > 1 ? arguments[1] : section,
+			found = this['findSection'](text)
+		;
+		if(type == undefined){
+			throw new Error('Type not found');
+		}else if(!found){
+			if(type != section && !(type.prototype instanceof section) && !(type.prototype instanceof stubSection)){
+				throw new Error('Type should be instance of mapap.ui.section or child class thereof.');
+			}
+			found = new type(text);
+			this['addSection'](found);
+		}
+		return found;
+	}
+
 	ui['sidebar'] = sidebar;
 
 	function section(options){
@@ -1154,4 +1243,35 @@
 	}
 
 	ui['section'] = section;
+
+
+	function stubSection(options){
+		section['call'](this, options);
+		if(!options){
+			return;
+		}
+	}
+
+	extend(stubSection, section);
+
+	stubSection.prototype['addSection']  = function(){
+		throw new Error('Cannot add sections to a stub section');
+	}
+
+	stubSection.prototype['findSection'] = function(){
+		return false;
+	}
+
+	stubSection.prototype['findOrCreateSection'] = function(){
+		throw new Error('Cannot add sections to a stub section');
+	}
+
+	stubSection.prototype['addListener'] = function(){
+		if(arguments.length > 0 && arguments[0] == 'sectionsadded'){
+			return;
+		}
+		section.prototype['addListener']['apply'](this, arguments);
+	}
+
+	section['stub'] = stubSection;
 })(window);

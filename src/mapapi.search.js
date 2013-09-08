@@ -25,11 +25,14 @@
 	'use strict';
 
 	var
-		mapapi = window['mapapi'],
-		Error  = window['Error']
+		EventTarget = window['EventTarget'],
+		mapapi      = window['mapapi'],
+		Error       = window['Error']
 	;
 
-	if(!mapapi){
+	if(!EventTarget){
+		throw new Error('EventTarget not loaded');
+	}else if(!mapapi){
 		throw new Error('mapapi.js not loaded');
 	}
 
@@ -95,6 +98,7 @@
 	}
 
 	function search(index){
+		EventTarget['call'](this);
 		validateIndex(index);
 		this.index = index || [];
 		this.index.forEach(function(e, i){
@@ -102,13 +106,19 @@
 		});
 	}
 
+	search.prototype = new EventTarget;
+	search.prototype['constructor'] = search;
+
 	search.prototype['remove'] = function(){
 		var
+			obj         = this,
+			removeIndex = Array.prototype.slice.call(arguments),
 			removeThese = []
 		;
-		for(var i=0;i<arguments.length;++i){
+		validateIndex(removeIndex);
+		for(var i=0;i<removeIndex.length;++i){
 			this.index.forEach(function(e, j){
-				if(e['entry'] == arguments[i]){
+				if(e['entry'] == removeIndex[i]['entry']){
 					removeThese.push(j);
 				}
 			});
@@ -116,13 +126,21 @@
 		removeThese.sort();
 		removeThese.reverse();
 		removeThese.forEach(function(e){
-			this.index.splice(e, 1);
+			obj.index.splice(e, 1);
 		});
+		this['fire']('removed', {'indices':removeThese});
 	}
 
 
 	search.prototype['removeAll'] = function(){
+		var
+			removeThese = new Array(this.index.length)
+		;
+		for(var i=0;i<removeThese.length;++i){
+			removeThese.push(i);
+		}
 		this.index = [];
+		this['fire']('removed', {'indices':removeThese});
 	}
 
 	search.prototype['add'] = function(){
@@ -148,6 +166,7 @@
 				obj.index.push(e);
 			}
 		});
+		this['fire']('added', {'values':addIndex});
 	}
 
 	search.prototype['search'] = function(term, success, fail){
