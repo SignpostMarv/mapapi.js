@@ -146,7 +146,6 @@
 		this['fire']('removed', {'indices':removeThese});
 	}
 
-
 	search.prototype['removeAll'] = function(){
 		var
 			removeThese = new Array(this.index.length)
