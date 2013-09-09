@@ -99,6 +99,8 @@
 		options['zoom']  = options['zoom'] || 0;
 		options['focus'] = options['focus'] || new gridPoint(0,0);
 
+		options['fps'] = options['fps'] || 30;
+
 		obj.tileSource = gridConf['tileSources'][0];
 
 		obj['options'](options);
@@ -130,7 +132,7 @@
 				checkFunc = hasFunc[i]
 			;
 			if(options[checkFunc] != undefined){
-				obj[checkFunc](options[checkFunc]);
+				this[checkFunc](options[checkFunc]);
 			}
 		}
 	}
