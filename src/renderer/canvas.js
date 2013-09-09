@@ -132,7 +132,7 @@
 				checkFunc = hasFunc[i]
 			;
 			if(options[checkFunc] != undefined){
-				obj[checkFunc](options[checkFunc]);
+				this[checkFunc](options[checkFunc]);
 			}
 		}
 	}
