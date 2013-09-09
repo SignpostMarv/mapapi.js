@@ -57,11 +57,36 @@
 		return el;
 	}
 
+	function doDataList(DOM, keywords){
+		var
+			datalist = DOM['querySelector']('datalist'),
+			input
+		;
+		if(!datalist){
+			input = DOM['querySelector']('input')
+			datalist = element('datalist');
+			input['setAttribute']('list', datalist['id'] = input['id']['replace']('input', 'datalist'));
+			input['parentNode']['appendChild'](datalist);
+		}
+		var
+			datalist = mapapi['utils']['empty'](datalist)
+		;
+		keywords['forEach'](function(e){
+			var
+				option = element('option')
+			;
+			option['setAttribute']('value', e);
+			datalist['appendChild'](option);
+		});
+	}
+
 	function searchSection(){
 		var
-			obj = this
+			obj = this,
+			options = arguments.length > 0 ? arguments[0] : {}
 		;
 		stub['apply'](obj, arguments);
+		obj['datalist'](options['datalist'] != undefined ? options['datalist'] : false);
 		obj['searchEngine'] = obj.searchEngine = new search;
 		obj.searchEngine['addListener']('added', function(e){
 			var
@@ -70,6 +95,7 @@
 			for(var i=0;i<e['values']['length'];++i){
 				resultList.appendChild(element('li', e['values'][i]['entry']));
 			}
+			doDataList(obj['content2DOM'](), obj.searchEngine['keywords']());
 		});
 		obj.searchEngine['addListener']('removed', function(e){
 			var
@@ -81,6 +107,7 @@
 			indices['forEach'](function(i){
 				resultList['removeChild'](resultList['childNodes'][i]);
 			});
+			doDataList(obj['content2DOM'](), obj.searchEngine['keywords']());
 		});
 		window['searchEngineTest'] = obj.searchEngine;
 	}
@@ -131,6 +158,18 @@
 		}, reset);
 	}
 
+	searchSection.prototype['datalist'] = function(value){
+		if(value != undefined){
+			value = !!value;
+			if(value != this['opts']['datalist']){
+				this['opts']['datalist'] = value;
+				this['fire']('content_changed');
+			}
+		}
+
+		return this.opts['datalist'];
+	}
+
 	searchSection.prototype['content2DOM'] = function(wipe){
 		var
 			obj = this
@@ -145,7 +184,7 @@
 				input    = document.createElement('input'),
 				button   = element('button', 'Search')
 			;
-			
+
 			[label, input, button].forEach(function(e){
 				fieldset[0].appendChild(e);
 			});
@@ -154,11 +193,14 @@
 			fieldset.forEach(function(e){
 				form.appendChild(e);
 			});
-			
+
 			label.setAttribute('for', input.id = 'mapapi-ui-search-input-' + (++id));
 			input.setAttribute('type', 'search');
 			input.setAttribute('placeholder', 'search');
-			
+			if(obj['datalist']()){
+				doDataList(form, obj.searchEngine['keywords']());
+			}
+
 			form['onsubmit'] = input['oninput'] = function(e){
 				e['preventDefault']();
 				e['stopPropagation']();
