@@ -109,6 +109,21 @@
 	search.prototype = new EventTarget;
 	search.prototype['constructor'] = search;
 
+	search.prototype['keywords'] = function(){
+		var
+			keywords = []
+		;
+		this.index['forEach'](function(e){
+			e['keywords']['forEach'](function(f){
+				if(keywords.indexOf(f) < 0){
+					keywords.push(f);
+				}
+			});
+		});
+		keywords.sort();
+		return keywords;
+	}
+
 	search.prototype['remove'] = function(){
 		var
 			obj         = this,
