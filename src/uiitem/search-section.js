@@ -156,7 +156,7 @@
 			});
 			
 			label.setAttribute('for', input.id = 'mapapi-ui-search-input-' + (++id));
-			input.setAttribute('placeholder', input.type = 'search');
+			input.setAttribute('placeholder', input.setAttribute('type', 'search'));
 			
 			form['onsubmit'] = input['oninput'] = function(e){
 				e['preventDefault']();
