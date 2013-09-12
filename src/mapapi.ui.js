@@ -807,7 +807,6 @@
 			objM, boundsTimeout,
 			clusterListBounds   = function(){
 				obj.clusterList['close']();
-				obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
 				obj.clusterClosed.forEach(function(f){
 					f['open'](obj['ui']);
 				});
@@ -889,8 +888,7 @@
 						;
 						clusteredStandin['addListener']('click', function(){
 							var
-								content = [],
-								oldObjM = objM
+								content = []
 							;
 							if(objM){
 								objM['show']();
@@ -901,10 +899,9 @@
 							});
 							objM['hide']();
 							obj.clusterList['close']();
-							if(oldObjM != objM){
-								obj.clusterList['content'](content);
-								obj.clusterList['position'](objM['position']());
-							}
+							obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
+							obj.clusterList['content'](content);
+							obj.clusterList['position'](objM['position']());
 							obj.clusterList['open'](obj['ui']);
 							obj.clusterList['show']();
 							obj.clusterList['fire']('click');
