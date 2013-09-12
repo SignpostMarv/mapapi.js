@@ -889,7 +889,8 @@
 						;
 						clusteredStandin['addListener']('click', function(){
 							var
-								content = []
+								content = [],
+								oldObjM = objM
 							;
 							if(objM){
 								objM['show']();
@@ -900,8 +901,10 @@
 							});
 							objM['hide']();
 							obj.clusterList['close']();
-							obj.clusterList['content'](content);
-							obj.clusterList['position'](objM['position']());
+							if(oldObjM != objM){
+								obj.clusterList['content'](content);
+								obj.clusterList['position'](objM['position']());
+							}
 							obj.clusterList['open'](obj['ui']);
 							obj.clusterList['show']();
 							obj.clusterList['fire']('click');
