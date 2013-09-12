@@ -35,33 +35,33 @@ window.onload = function(){
 		mapui = new mapapi.userinterfaces.minimalist({
 			gridConfig : mapapi.gridConfigs['com.secondlife.agni']
 		}),
-		map   = mapui.renderer
+		map   = mapui.renderer,
+		addMarkers = function(){
+			var
+				bounds = map.bounds();
+			;
+			for(var i=0;i<1000;++i){
+				mapui.addMarker(new mapapi.marker({
+					'image'      : '../src/ui/marker-shadows.png',
+					'anchor'     : {'x':16, 'y': 64},
+					'position'   : new mapapi.gridPoint((Math.random() * (bounds.ne.x - bounds.sw.x)) + bounds.sw.x, (Math.random() * (bounds.ne.y - bounds.sw.y)) + bounds.sw.y),
+					'infoWindow' : mapui.infoWindow({
+						'content' : 'Marker ' + (i + 1)
+					})
+				}));
+			}
+			
+			mapui.markerManager.open();
+			console.log('markers: ' + mapui.markerManager.markers.length);
+		}
 	;
-
-	for(var i=0;i<100;++i){
-		mapui.addMarker(new mapapi.marker({
-			'image'      : '../src/ui/marker-shadows.png',
-			'anchor'     : {'x':16, 'y': 64},
-			'position'   : new mapapi.gridPoint(995.5 + ((Math.random() * 10) - 5), 995.5 + ((Math.random() * 10) - 5)),
-			'infoWindow' : mapui.infoWindow({
-				'content' : 'Marker ' + (i + 1)
-			})
-		}), new mapapi.marker({
-			'image'      : '../src/ui/marker-shadows.png',
-			'anchor'     : {'x':16, 'y': 64},
-			'position'   : new mapapi.gridPoint(995.5 + ((Math.random() * 10) - 5), 995.5 + ((Math.random() * 10) - 5)),
-			'infoWindow' : mapui.infoWindow({
-				'content' : 'Marker ' + (i + 1)
-			})
-		}));
-	}
-
-	mapui.markerManager.open();
 
 	map.scrollWheelZoom(true);
 	map.smoothZoom(true);
 	map.draggable(true);
 	map.focus(995.5,995.5,3);
+	setTimeout(addMarkers, 100);
+	window.addMarkers = addMarkers;
 };
 </script>
 </head>
