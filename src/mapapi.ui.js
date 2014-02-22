@@ -805,11 +805,10 @@
 			defaultCellHeight   = options['defaultCellHeight'] ? Math.max(16, parseInt(options['defaultCellHeight'])) : 96,
 			useSearchableList   = true,
 			objM, boundsTimeout,
-			clusterListBounds   = function(e){
+			clusterListBounds   = function(){
 				obj.clusterList['close']();
-				obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
-				obj.clusterClosed.forEach(function(e){
-					e['open'](obj['ui']);
+				obj.clusterClosed.forEach(function(f){
+					f['open'](obj['ui']);
 				});
 				obj.clusterClosed = [];
 				var
@@ -840,39 +839,40 @@
 					}
 				}
 				vertical = horizontal = undefined;
-				obj['markers'].forEach(function(e){
-					if(e['opts']['shown']){
+				obj['markers'].forEach(function(f){
+					if(f['opts']['shown'] || !f['opts']['firstOpenDone']){
 						for(var i=0;i<bounds.length;++i){
-							if(bounds[i]['isWithin'](e['position']())){
-								boundMarkers[i].push(e);
-								obj.clusterClosed.push(e);
-								e['close']();
+							if(bounds[i]['isWithin'](f['position']())){
+								boundMarkers[i].push(f);
+								obj.clusterClosed.push(f);
+								f['close']();
 								break;
 							}
 						}
 					}
 				});
-				obj.clustered.forEach(function(e){
-					if(e){
-						e['close']();
+				obj.clustered.forEach(function(f){
+					if(f){
+						f['close']();
 					}
 				});
 				obj.clustered = [];
-				boundMarkers.forEach(function(e, i){
-					if(e.length == 1){
-						e[0]['open'](obj['ui']);
+				boundMarkers.forEach(function(f, i){
+					if(f.length == 1){
+						f[0]['opts']['firstOpenDone'] = true;
+						f[0]['open'](obj['ui']);
 						obj.clustered.push(false);
-					}else if(e.length > 1){
+					}else if(f.length > 1){
 						var
 							cellBounds = bounds[i],
 							x=0,
 							y=0,
 							clusteredStandin
 						;
-						e.forEach(function(f){
+						f.forEach(function(g){
 							var
-								pos = f['position']()
-							;
+								pos = g['position']()
+							;							
 							x += pos['x'];
 							y += pos['y'];
 						});
@@ -880,10 +880,10 @@
 								'image'    : defaultMarkerImage,
 								'anchor'     : defaultMarkerAnchor,
 								'position' : new gridPoint(
-									x / e.length,
-									y / e.length
+									x / f.length,
+									y / f.length
 								),
-								'number' : e.length
+								'number' : f.length
 							})
 						;
 						clusteredStandin['addListener']('click', function(){
@@ -894,11 +894,12 @@
 								objM['show']();
 							}
 							objM = this;
-							e.forEach(function(f){
-								content.push(f['name']);
+							f.forEach(function(g){
+								content.push(g['name']);
 							});
 							objM['hide']();
 							obj.clusterList['close']();
+							obj.clusterList = new uiItem[useSearchableList ? 'searchList' : 'list']();
 							obj.clusterList['content'](content);
 							obj.clusterList['position'](objM['position']());
 							obj.clusterList['open'](obj['ui']);
@@ -910,7 +911,7 @@
 										pos = Array.prototype['slice']['call'](obj.clusterList['DOM']['querySelectorAll']('ul > li'))['indexOf'](f['child'])
 									;
 									if(pos >= 0){
-										e[pos]['fire']('click');
+										f[pos]['fire']('click');
 									}
 								}else if(hasClass(this['DOM'], 'toggled')){
 									obj.clusterList['hide']();
@@ -921,9 +922,9 @@
 						obj.clustered.push(clusteredStandin);
 					}
 				});
-				obj.clustered.forEach(function(e){
-					if(e){
-						e['open'](obj['ui']);
+				obj.clustered.forEach(function(f){
+					if(f){
+						f['open'](obj['ui']);
 					}
 				});
 			},
@@ -948,6 +949,7 @@
 				}
 			}
 		;
+		this.clusterListBounds = clusterListBounds;
 		mapapi['events']['addListener']('sidebaradded', searchSectionCreator);
 		EventTarget['call'](obj);
 		obj['markers'] = [];
@@ -968,7 +970,7 @@
 				clearTimeout(boundsTimeout);
 			}
 			boundsTimeout = setTimeout(function(){
-				clusterListBounds['call'](ui['renderer'], e);
+				clusterListBounds['call'](ui['renderer']);
 			}, 200);
 		});
 	}
@@ -986,6 +988,8 @@
 				one = arguments[i]
 			;
 			if(one instanceof marker){
+				one['opts'] = one['opts'] || {};
+				one['opts']['firstOpenDone'] = false;
 				if(this['markers']['indexOf'](one) == -1){
 					this['markers']['push'](one);
 					if(this.markerSearchSection){
@@ -1016,6 +1020,7 @@
 				if(this.markerSearchSection){
 					names.push(one['name']);
 				}
+				delete one['opts']['firstOpenDone'];
 			}
 		}
 		if(names.length > 0){
@@ -1024,17 +1029,7 @@
 	}
 
 	markerManager.prototype['open'] = function(){
-		var
-			ui = this['ui'],
-			firstLoadOpen = function(){
-				this['open'](ui);
-				this['removeListener']('content_changed', firstLoadOpen);
-			}
-		;
-		this['markers']['forEach'](function(e){
-			e['open'](ui);
-			e['addListener']('content_changed', firstLoadOpen);
-		});
+		this.clusterListBounds['call'](this['ui']['renderer']);
 		this['fire']('opened');
 	}
 
