@@ -42,6 +42,12 @@ cp ../src/ui/marker-tail-top-slice.png ../mapapi.js/ui/marker-tail-top-slice.png
 lessc --yui-compress ../src/ui/minimalist.less ../mapapi.js/ui/minimalist.css
 cp ../mapapi.js/ui/minimalist.css ../src/ui/minimalist.css
 
+if command -v zopfli 2>/dev/null ;
+then
+	zopfli --i1000 --gzip ../mapapi.js/mapapi-complete.js
+	zopfli --i1000 --gzip ../mapapi.js/mapapi.gridConfigs.js
+	zopfli --i1000 --gzip ../mapapi.js/ui/minimalist.css
+else
 if [ -f ../../7za.exe ];
 then
 	if [ -f ../mapapi.js/mapapi-complete.js.gz ];
@@ -58,6 +64,7 @@ else
 	gzip -cf --best ../mapapi.js/mapapi.gridConfigs.js > ../mapapi.js/mapapi.gridConfigs.js.gz
 	gzip -cf --best ../mapapi.js/ui/minimalist.css > ../mapapi.js/ui/minimalist.css.gz
 fi;
+fi
 
 rm -fr ../build
 mkdir ../build
