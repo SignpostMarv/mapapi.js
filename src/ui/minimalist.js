@@ -174,7 +174,7 @@
 
 	minimalistUI.prototype['css'] = [
 		'ui/minimalist.css',
-		'lib/x-tag-slider.css'
+		'lib/x-tag-slider.min.css'
 	];
 	
 
