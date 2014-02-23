@@ -92,7 +92,6 @@
 				renderer['zoom'](level);
 			}
 		}
-		if(!testStyleProp('transform') || !testInputType('range')){
 			var
 				zoomin        = createElement('p', '+'),
 				zoomout       = createElement('p', '–')
@@ -107,62 +106,6 @@
 			};
 			appendChild(zoomcontrol, zoomin);
 			appendChild(zoomcontrol, zoomout);
-			addClass(zoomcontrol, 'clipped');
-		}else{
-			var
-				activateZoom = document.createElement('x-slider'),
-				changing = false
-			;
-			activateZoom['type']      = 'range';
-			activateZoom['min']       = renderer['minZoom']();
-			activateZoom['max']       = renderer['maxZoom']();
-			activateZoom['step']      = 0.1;
-			activateZoom['value']     = renderer['zoom']();
-			activateZoom['setAttribute']('polyfill', 'polyfill');
-			activateZoom['setAttribute']('vertical', 'vertical');
-			activateZoom['oninput']   = function(){
-				changing = true;
-				changeZoom(this['value']);
-			}
-			activateZoom['onmouseup'] = function(){
-				changing = false;
-			}
-			activateZoom['addEventListener'](/WebKit/.test(window['navigator']['userAgent']) ? 'mousewheel' : 'DOMMouseScroll', function(e){
-				var d=0;
-				if(!e){
-					e = window['event']
-				}else if(e['wheelDelta']){
-					d = e['wheelDelta'] / 120;
-					if(window['opera']){
-						d = -d;
-					}
-				}else if(e['detail']){
-					d = -e['detail'] / 3;
-				}
-				if(d){
-					var
-						zoom = renderer['zoom'](),
-						mod  = (d > 0) ? -1 : 1
-					;
-					changeZoom(zoom + mod);
-				}
-				if(e['preventDefault']){
-					e['preventDefault']();
-				}
-				e['returnValue'] = false;
-				return false;
-			}, false);
-			addClass(activateZoom, 'activate-zoom');
-			renderer['addListener']('bounds_changed', function(){
-				var
-					zoom = renderer['zoom']()
-				;
-				if(!changing && activateZoom['value'] != zoom){
-					activateZoom['value'] = zoom;
-				}
-			});
-			appendChild(zoomcontrol, activateZoom);
-		}
 		appendChild(this['sidebarsContainer'], zoomcontrol);
 
 		mapapi['events']['fire']('uiready',{'ui':obj});
