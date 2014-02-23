@@ -59,48 +59,38 @@
 	.mapapi-ui-sidebars{
 		.zoomcontrol, .menu{
 			position: absolute ;
-			top: 37px ;
-			height: 29px ;
+			top: 0 ;
+			height: 3em ;
+			line-height: 3em ;
 			vertical-align: top ;
 			background: #eee ;
 			font-size: 12px ;
 			cursor: pointer ;
+			> * > *{
+				line-height: 1.5em ;
+			}
 		}
 		.zoomcontrol{
-			right: 8px ;
-			width: 16px ;
+			right: 0 ;
+			width: 2em ;
 			text-align: center ;
 			text-indent: -4px ;
-			.border-radius(0 8px 8px 0);
-			line-height: 14.5px ;
 			z-index: 400 ;
-			box-shadow: 0px 2px 4px #000 ;
-			clip:rect(0,20px,33px,0);
 			overflow: hidden ;
-			&:hover{
-				clip: rect(0, 28px, 1000000000px, 0);
-				overflow: visible;
-				.border-radius(0 8px 0 0);
-				height: 3em ;
-			}
-			&.clipped:hover{
-				box-shadow: 0px 2px 4px #000 ;
-				clip:rect(0,20px,33px,0);
-				overflow: hidden ;
-			}
 			// pseudo element magnifying glass adapted from
 			//  http://nicolasgallagher.com/pure-css-gui-icons/demo/
 			// found via http://css-tricks.com/pseudo-element-roundup/
-			&:before, :after{
+			&:before, &:after{
 				display: block;
 				z-index: 500;
+				.transition(left .5s);
 			}
 			&:before{
 				display: block;
 				background: transparent;
 				position: absolute ;
 				top: .4em ;
-				left: .1em ;
+				left: .5em ;
 				width: .8em;
 				height: .8em;
 				border: .1em solid;
@@ -111,38 +101,35 @@
 				display: block;
 				position: absolute ;
 				top : 1.3em ;
-				left: .3em;
+				left: .7em;
 				width: .1em ;
 				height: .8em ;
 				.transform(rotate(15deg));
 				background: #000 ;
 				content: ' ';
 			}
-			.activate-zoom{
-				max-width: 0 ;
-				height: 0 ;
-				margin-left: -2em;
+			p{
+				line-height: 1.5em ;
+				opacity: 0 ;
+				.transition(opacity .5s);
 			}
-			&:hover .activate-zoom{
-				position: absolute ;
-				bottom: 0 ;
-				margin-left: 0 ;
-				height: 16px ;
-				display: block ;
-				box-shadow: 4px -4px 8px #000;
-				.border-radius(0 2em 2em 0);
-				min-width: 50vh ;
-				max-width: 90vh ;
-				background-color: inherit ;
+			&:hover{
+				&:before{
+					left: 2.5em ;
+				}
+				&:after{
+					left: 2.7em ;
+				}
+				p{
+					opacity: 1 ;
+				}
 			}
 		}
 		.menu{
-			right: 24px ;
-			line-height: 29px ;
+			right: 2em ;
 			max-width: 100vw ;
 			.transition(max-width .5s ease);
-			box-shadow: 0 2px 4px #000 ;
-			z-index: 300 ;
+			z-index: 500 ;
 			&.minimised{
 				max-width: 0 ;
 				> ul{
@@ -150,8 +137,10 @@
 				}
 			}
 			> ul{
+				height: 100% ;
 				padding: 0 .25em ;
 				> li{
+					height: 100% ;
 					display: inline-block ;
 					position: relative ;
 					margin-left: 1em ;
@@ -161,6 +150,8 @@
 					> h1{
 						font-size: 1.2em ;
 						font-weight: bolder ;
+						padding: 0 .5em ;
+						height: 100% ;
 					}
 					> ul, > ul > li > ul{
 						display: none ;
@@ -238,12 +229,13 @@
 				top: 0 ;
 				left: -1em ;
 				z-index: 200 ;
-				padding: 0 4px ;
+				text-align: center ;
 				background: #eee ;
-				.border-radius(8px 0 0 8px);
+				.border-radius(0 0 0 8px);
 				height: 100% ;
-				box-shadow: 0px 2px 4px #000 ;
-				clip:rect(0,1em,33px,0);
+				width: 1em ;
+				font-size: 2em ;
+				line-height: 1.5em ;
 			}
 			li.childless:hover > ul {
 				display: none ;
@@ -281,7 +273,6 @@
 		.waiting{
 			.mapapi-ui-item-contents{
 				font-size: 0 ;
-				line-height: 28px ;
 			}
 			.mapapi-ui-infowindow-close{
 				display: none ;
