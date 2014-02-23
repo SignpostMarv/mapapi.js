@@ -70,4 +70,5 @@ fi
 
 rm -fr ../build
 mkdir ../build
-tar -cjf ../build/mapapi.js.tbz ../mapapi.js
+cd ../
+tar -cjf build/mapapi.js.tbz mapapi.js
