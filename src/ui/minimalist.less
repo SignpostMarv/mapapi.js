@@ -56,6 +56,7 @@
 }
 
 .mapapi-ui-minimalist{
+	font-family: 'Open Sans', sans-serif ;
 	.mapapi-ui-sidebars{
 		.zoomcontrol, .menu{
 			position: absolute ;
@@ -66,9 +67,6 @@
 			background: #eee ;
 			font-size: 12px ;
 			cursor: pointer ;
-			> * > *{
-				line-height: 1.5em ;
-			}
 		}
 		.zoomcontrol{
 			right: 0 ;
@@ -149,7 +147,7 @@
 					}
 					> h1{
 						font-size: 1.2em ;
-						font-weight: bolder ;
+						font-weight: 700 ;
 						padding: 0 .5em ;
 						height: 100% ;
 					}
@@ -161,7 +159,7 @@
 							padding-left: 1em ;
 							white-space: pre ;
 							&.toggled{
-								font-weight: bolder ;
+								font-weight: 700 ;
 							}
 							> ul{
 								max-height: 400px ;
@@ -185,7 +183,7 @@
 							}
 						}
 						> li.toggled, > li:hover{
-							font-weight: bolder ;
+							font-weight: 700 ;
 							> ul{
 								display: block ;
 								position: absolute ;
@@ -200,7 +198,7 @@
 					}
 				}
 				> li.mapapijs > ul > li{
-					font-weight: bolder ;
+					font-weight: 600 ;
 				}
 				> li.toggled, > li:hover{
 					z-index: 300 ;
@@ -235,7 +233,7 @@
 				height: 100% ;
 				width: 1em ;
 				font-size: 2em ;
-				line-height: 1.5em ;
+				line-height: 1.2em ;
 			}
 			li.childless:hover > ul {
 				display: none ;
@@ -389,12 +387,12 @@
 		ul{
 			overflow: auto ;
 			max-height: 50vh ;
-			font-weight: normal ;
+			font-weight: 400 ;
 			.column-width(5em);
 			li{
 				padding-right: 1em ;
 				&:hover{
-					font-weight: bolder ;
+					font-weight: 600 ;
 					border-bottom: 1px dotted ;
 				}
 			}
@@ -428,7 +426,7 @@
 			.transition(@args);
 		}
 		.matching{
-			font-weight: bolder ;
+			font-weight: 600 ;
 		}
 		.not-matching{
 			max-height: 0 ;

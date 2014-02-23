@@ -116,7 +116,8 @@
 	minimalistUI.prototype['description'] = "Provides a minimalist interface to the map.\nUnfinished, made available for feedback.";
 
 	minimalistUI.prototype['css'] = [
-		'ui/minimalist.css'
+		'ui/minimalist.css',
+		'http://fonts.googleapis.com/css?family=Open+Sans:400,700,600'
 	];
 
 	minimalistUI.prototype['less'] = [
