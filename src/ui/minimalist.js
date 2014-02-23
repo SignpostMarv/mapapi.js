@@ -175,7 +175,10 @@
 	minimalistUI.prototype['css'] = [
 		'ui/minimalist.css'
 	];
-	
+
+	minimalistUI.prototype['less'] = [
+		'ui/minimalist.less'
+	];
 
 	mapapi['userinterfaces'][minimalistUI.prototype['name']] = minimalistUI;
 

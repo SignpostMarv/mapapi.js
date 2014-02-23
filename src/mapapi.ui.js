@@ -149,11 +149,15 @@
 		obj['ID']                = uiID++;
 
 		obj['loadCSS']();
+		obj['loadLESS']();
 	}
 
 	ui.prototype['css'] = [
 		'reset.css',
 		'ui.css'
+	];
+
+	ui.prototype['less'] = [
 	];
 
 	ui.prototype.jsPath = function(){
@@ -168,34 +172,28 @@
 		throw 'Could not find mapapi.js UI file';
 	}
 
-	ui.prototype['loadCSS'] = function(){
+	function loadStylesheet(type, attrs, existing){
 		var
 			obj     = this,
 			head    = document.getElementsByTagName('head')[0],
-			links   = head.getElementsByTagName('link'),
 			regexp  = /./,
 			exregex = /^https?/,
-			styles  = [],
+			styles  = existing,
 			css     = [],
 			mapuijs = obj.jsPath(),
 			csspath,
 			csspathregex,
 			cssfound,
 			newcss,
-			jspath
+			jspath,
+			resp = []
 		;
-		for(var i=0;i<links.length;++i){
-			if(/\bstylesheet\b/.test(links[i]['rel'])){
-				styles.push(links[i]);
-			}
-		}
-		links = [];
 		jspath = mapuijs['replace'](uiregex,'');
-		for(var i=0;i<ui.prototype.css.length;++i){
-			css.push(ui.prototype.css[i]);
+		for(var i=0;i<ui.prototype[type].length;++i){
+			css.push(ui.prototype[type][i]);
 		}
-		for(var i=0;i<obj['css']['length'];++i){
-			css.push(obj['css'][i]);
+		for(var i=0;i<obj[type]['length'];++i){
+			css.push(obj[type][i]);
 		}
 		for(var i=0;i<css.length;++i){
 			cssfound     = false;
@@ -214,11 +212,67 @@
 			}
 			if(!cssfound){
 				newcss = createElement('link');
-				newcss['setAttribute']('rel','stylesheet');
-				newcss['setAttribute']('type','text/css');
+				for(var j in attrs){
+					if(attrs.hasOwnProperty(j)){
+						newcss['setAttribute'](j, attrs[j]);
+					}
+				}
 				newcss['setAttribute']('href',exregex.test(csspath) ? csspath : mapuijs['replace'](uiregex,csspath));
 				head['appendChild'](newcss);
+				resp.push(newcss['href']);
 			}
+		}
+
+		return resp;
+	}
+
+	ui.prototype['loadCSS'] = function(){
+		var
+			head    = document.getElementsByTagName('head')[0],
+			links   = head.getElementsByTagName('link'),
+			styles = []
+		;
+		for(var i=0;i<links.length;++i){
+			if(/\bstylesheet\b/.test(links[i]['rel'])){
+				styles.push(links[i]);
+			}
+		}
+		loadStylesheet.apply(this, ['css', {
+			'type' : 'text/css',
+			'rel'  : 'stylesheet'
+		}, styles]);
+	}
+
+	ui.prototype['loadLESS'] = function(){
+		var
+			obj  = this,
+			head    = document.getElementsByTagName('head')[0],
+			less = document.createElement('script'),
+			links   = head.getElementsByTagName('link'),
+			styles = [],
+			loaded = 0
+		;
+		for(var i=0;i<links.length;++i){
+			if(/\bstylesheet\/less\b/.test(links[i]['rel'])){
+				styles.push(links[i]);
+			}
+		}
+		styles = loadStylesheet.apply(obj, ['less', {
+			'type' : 'text/css',
+			'rel'  : 'stylesheet/less'
+		}, styles]);
+		for(var i=0;i<styles.length;++i){
+			var
+				img = document.createElement('img')
+			;
+			img['onerror'] = function(){
+				if(++loaded >= styles.length){
+					less.type = 'text/javascript';
+					less.src = obj.jsPath()['replace'](uiregex,'') + 'lib/less.js';
+					document.getElementsByTagName('head')[0].appendChild(less);
+				}
+			}
+			img['src'] = styles[i];
 		}
 	}
 

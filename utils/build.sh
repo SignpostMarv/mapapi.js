@@ -41,6 +41,9 @@ cp ../src/ui/marker-shadows.png ../mapapi.js/ui/marker-shadows.png
 cp ../src/ui/marker-tail-top-slice.png ../mapapi.js/ui/marker-tail-top-slice.png
 lessc --clean-css --clean-option=--selectors-merge-mode:ie8 ../src/ui/minimalist.less ../mapapi.js/ui/minimalist.css
 
+mkdir ../mapapi.js/lib
+cp ../src/lib/less.js ../mapapi.js/lib/less.js
+
 if command -v zopfli 2>/dev/null ;
 then
 	zopfli --i1000 --gzip ../mapapi.js/mapapi-complete.js
