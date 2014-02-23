@@ -173,8 +173,7 @@
 	minimalistUI.prototype['description'] = "Provides a minimalist interface to the map.\nUnfinished, made available for feedback.";
 
 	minimalistUI.prototype['css'] = [
-		'ui/minimalist.css',
-		'lib/x-tag-slider.min.css'
+		'ui/minimalist.css'
 	];
 	
 

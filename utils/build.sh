@@ -34,17 +34,6 @@ java -jar ../../compiler.jar \
 	--js ../src/gridconfig/opensim.js \
 	--js_output_file ../mapapi.js/mapapi-complete.js
 
-cat \
-	../src/lib/x-tag-core.min.js \
-	../src/lib/x-tag-slider.min.js \
-	../mapapi.js/mapapi-complete.js \
-	> ../mapapi.js/mapapi-complete.tmp
-mv ../mapapi.js/mapapi-complete.tmp ../mapapi.js/mapapi-complete.js
-
-rm -fr ../mapapi.js/lib
-mkdir ../mapapi.js/lib
-cp ../src/lib/x-tag-slider.min.css ../mapapi.js/lib/x-tag-slider.min.css
-
 rm -fr ../mapapi.js/ui
 mkdir ../mapapi.js/ui
 cp ../src/ui/marker.png ../mapapi.js/ui/marker.png
