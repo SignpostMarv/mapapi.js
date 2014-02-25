@@ -84,7 +84,9 @@
 			gridConfig        = options['gridConfig'],
 			rendererNode      = createElement('div'),
 			sidebarsContainer = createElement('ul'),
-			mapuijs           = this.jsPath()
+			mapuijs           = this.jsPath(),
+			loadCSS           = (!options.hasOwnProperty('loadCSS') || !!options['loadCSS']),
+			loadLESS          = (options.hasOwnProperty('loadLESS') && !!options['loadLESS'])
 		;
 		if(container == undefined){
 			container = document['body'];
@@ -148,8 +150,12 @@
 		});
 		obj['ID']                = uiID++;
 
-		obj['loadCSS']();
-		obj['loadLESS']();
+		if(loadCSS){
+			obj['loadCSS']();
+		}
+		if(loadLESS){
+			obj['loadLESS']();
+		}
 	}
 
 	ui.prototype['css'] = [

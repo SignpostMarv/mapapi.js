@@ -28,7 +28,8 @@ html, .mapapi-ui{
 window.onload = function(){
 	var
 		mapui = new mapapi.userinterfaces.minimalist({
-			gridConfig : mapapi.gridConfigs['com.secondlife.agni']
+			gridConfig : mapapi.gridConfigs['com.secondlife.agni'],
+			loadLESS   : true
 		}),
 		map   = mapui.renderer
 	;
