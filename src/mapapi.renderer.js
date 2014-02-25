@@ -93,7 +93,19 @@
 		options['panUnitLR'] = options['panUnitLR'] || 0;
 		options['panUnitUD'] = options['panUnitUD'] || 0;
 
-		['minZoom', 'maxZoom', 'scrollWheelZoom', 'smoothZoom', 'draggable', 'dblclickZoom', 'zoom', 'focus', 'panUnitLR', 'panUnitUD'].forEach(function(e){
+		[
+			'minZoom',
+			'maxZoom',
+			'scrollWheelZoom',
+			'smoothZoom',
+			'draggable',
+			'dblclickZoom',
+			'zoom',
+			'focus',
+			'panUnitLR',
+			'panUnitUD',
+			'touchable'
+		].forEach(function(e){
 			if(options[e] != undefined){
 				obj[e](options[e]);
 			}
@@ -228,6 +240,17 @@
 	}
 
 	renderer.prototype['draggable'] = function(flag){
+		if(flag != undefined){
+			if(flag){ // do stuff to make the map renderer draggable
+				return true;
+			}else{ // do stuff to make it non-draggable
+				return false;
+			}
+		}
+		return flag; // should return from other property
+	}
+
+	renderer.prototype['touchable'] = function(flag){
 		if(flag != undefined){
 			if(flag){ // do stuff to make the map renderer draggable
 				return true;

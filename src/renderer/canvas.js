@@ -502,6 +502,30 @@
 		return opts['draggable'];
 	}
 
+	canvas.prototype['touchable'] = function(flag){
+		var
+			obj  = this,
+			opts = obj['opts'],
+			flag = !!flag
+		;
+
+		if(!opts.hasOwnProperty('touchable') || flag != !!opts['touchable']){
+			opts['touchable'] = flag;
+			if(flag){
+				obj['contentNode']['ontouchstart'] = function(e){
+					e['preventDefault']();
+					console.log('touched');
+					return false;
+				}
+			}else{
+				obj['contentNode']['ontouchstart'] = function(e){
+					e['preventDefault']();
+					return false;
+				}
+			}
+		}
+	}
+
 	canvas.prototype['dblclickZoom'] = function(flag){
 		var
 			obj  = this,
