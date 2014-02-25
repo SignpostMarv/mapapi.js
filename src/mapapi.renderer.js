@@ -85,8 +85,7 @@
 			obj       = this,
 			options   = options || {},
 			opts      = obj['opts'],
-			container = options['container'],
-			checkFunc
+			container = options['container']
 		;
 
 		options['minZoom']   = options['minZoom']   || 0;
