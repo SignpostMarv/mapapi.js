@@ -14,9 +14,12 @@ const dirtymap = new WeakMap();
 
 const animatormap = new WeakMap();
 
+const tilecachemap = new WeakMap();
+
 const ctx = (renderer) => {
     return canvasmap.get(renderer).getContext('2d');
 };
+
 
 export class Canvas2dTileRenderer
 {
@@ -44,6 +47,7 @@ export class Canvas2dTileRenderer
         canvasmap.set(this, canvas);
         dirtymap.set(this, true);
         ctxmap.set(this, ctx(this));
+        tilecachemap.set(tileSource, {});
 
         this.focus.addEventListener('propertyUpdate', (e) => {
             if (['x', 'y'].includes(e.detail.property)) {
@@ -216,12 +220,26 @@ export class Canvas2dTileRenderer
         );
         ctx.scale(tile_width, tile_height);
 
+        const tilecache = tilecachemap.get(tilesource);
+        const xkeys = Object.keys(tilecache);
+
         for (let x = start_x; x <= tr_x; x += zoom_b) {
+            if ( ! xkeys.includes(x + '')) {
+                tilecache[x + ''] = {};
+            }
             for (let y = start_y; y <= tr_y; y += zoom_b) {
-                let tile = tilesource.CoordinatesToTile(zoom, x, y);
+                const ykeys = xkeys.includes(x + '') ? Object.keys(tilecache[x]) : [];
+                let tile =
+                    ykeys.includes(y + '')
+                        ? tilecache[x][y]
+                        : tilesource.CoordinatesToTile(zoom, x, y);
                 try {
                     ctx.drawImage(tile.source, x, -y, zoom_b, zoom_b);
+                    tilecache[x][y] = tile;
                 } catch (err) {
+                    if (ykeys.includes(y)) {
+                        delete tilecache[x][y];
+                    }
                     console.error(err); // eslint-disable-line no-console
                 }
             }
