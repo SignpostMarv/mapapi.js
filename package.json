@@ -1,0 +1,17 @@
+{
+  "name": "mapapi.js",
+  "version": "2.0.0",
+  "description": "map rendering for virtual worlds",
+  "repository": "https://github.com/SignpostMarv/mapapi.js.git",
+  "author": "SignpostMarv <me@signpostmarv.name>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "lint": "eslint ./src/"
+  },
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "sha1-es": "^1.8.2"
+  },
+  "dependencies": {}
+}
