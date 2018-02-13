@@ -47,6 +47,7 @@ const backgroundcolormap = new WeakMap();
 const minzoommap = new WeakMap();
 const maxzoommap = new WeakMap();
 const tilesizemap = new WeakMap();
+const firetileupdateonimgtilemap = new WeakMap();
 
 const imgcache = {};
 const imgerrors = new WeakSet();
@@ -135,6 +136,7 @@ export class TileSource extends EventTarget
         }
 
         tilesizemap.set(this, tileSize);
+        firetileupdateonimgtilemap.set(this, true);
     }
 
     get copyright() {
@@ -165,6 +167,14 @@ export class TileSource extends EventTarget
         return tilesizemap.get(this);
     }
 
+    get fireTileupdateOnImgTile() {
+        return firetileupdateonimgtilemap.get(this);
+    }
+
+    set fireTileupdateOnImgTile(val) {
+        return firetileupdateonimgtilemap.set(this, !! val);
+    }
+
     /**
     * @return string
     */
@@ -188,17 +198,9 @@ export class TileSource extends EventTarget
             )
         );
 
-        const source = document.createElement('canvas');
-        const {x: width, y: height} = this.tileSize;
-        source.width = width;
-        source.height = height;
-
-        const ctx = source.getContext('2d');
-        ctx.fillStyle = this.backgroundColor;
-        ctx.fillRect(0, 0, width, height);
-
         const url = this.CoordinatesToTileUrl(zoom, pos);
         let img = imgcache[url];
+        const {x: width, y: height} = this.tileSize;
 
         if (undefined === img) {
             img = new Image();
@@ -216,8 +218,18 @@ export class TileSource extends EventTarget
             };
 
             imgcache[url] = img;
+        } else if (imgerrors.has(img)) {
+            const source = document.createElement('canvas');
+            source.width = width;
+            source.height = height;
+
+            const ctx = source.getContext('2d');
+            ctx.fillStyle = this.backgroundColor;
+            ctx.fillRect(0, 0, width, height);
+
+            return new Tile(source, width, height, pos);
         }
 
-        return new Tile(imgerrors.has(img) ? source : img, width, height, pos);
+        return new Tile(img, width, height, pos);
     }
 }

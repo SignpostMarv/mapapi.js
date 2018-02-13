@@ -15,11 +15,18 @@ const dirtymap = new WeakMap();
 const animatormap = new WeakMap();
 
 const tilecachemap = new WeakMap();
+const deferreddirtymap = new WeakMap();
 
 const ctx = (renderer) => {
     return canvasmap.get(renderer).getContext('2d');
 };
 
+const deferMakeDirty = (renderer) => {
+    cancelIdleCallback(deferreddirtymap.get(renderer));
+    deferreddirtymap.set(renderer, requestIdleCallback(() => {
+        dirtymap.set(renderer, true);
+    }));
+};
 
 export class Canvas2dTileRenderer
 {
@@ -32,7 +39,7 @@ export class Canvas2dTileRenderer
         }
 
         tileSource.addEventListener('tileupdate', () => {
-            dirtymap.set(this, true);
+            deferMakeDirty(this);
         });
 
         tilesourcemap.set(this, tileSource);
