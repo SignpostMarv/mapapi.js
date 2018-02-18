@@ -206,12 +206,14 @@ export class TileSource extends EventTarget
             img = new Image();
             img.src = url;
 
+            if (this.fireTileupdateOnImgTile) {
             img.onload = () => {
                 this.dispatchEvent(
                     new CustomEvent('tileupdate', {
                     })
                 );
             };
+            }
 
             img.onerror = () => {
                 imgerrors.add(img);

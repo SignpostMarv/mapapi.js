@@ -22,8 +22,8 @@ const ctx = (renderer) => {
 };
 
 const deferMakeDirty = (renderer) => {
-    cancelIdleCallback(deferreddirtymap.get(renderer));
-    deferreddirtymap.set(renderer, requestIdleCallback(() => {
+    cancelAnimationFrame(deferreddirtymap.get(renderer));
+    deferreddirtymap.set(renderer, requestAnimationFrame(() => {
         dirtymap.set(renderer, true);
     }));
 };
@@ -240,6 +240,11 @@ export class Canvas2dTileRenderer
                     ykeys.includes(y + '')
                         ? tilecache[x][y]
                         : tilesource.CoordinatesToTile(zoom, x, y);
+                if ( ! ykeys.includes(y + '') && tile.source instanceof HTMLImageElement) {
+                    tile.source.addEventListener('load', () => {
+                        deferMakeDirty(this);
+                    });
+                }
                 try {
                     ctx.drawImage(tile.source, x, -y, zoom_b, zoom_b);
                     tilecache[x][y] = tile;
