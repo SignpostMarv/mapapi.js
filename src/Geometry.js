@@ -1,43 +1,39 @@
-import {ReadOnlySize} from './Size.js';
-import {ReadOnlyCoordinates, Coordinates} from './Coordinates.js';
+import { ReadOnlySize } from './Size.js';
+import { ReadOnlyCoordinates, Coordinates } from './Coordinates.js';
 
 const bottomleftmap = new WeakMap();
 const toprightmap = new WeakMap();
 const boundsmap = new WeakMap();
 
-const bounds_coords_type = {};
+const boundsCoordsType = {};
 
 const updateBounds = (obj, bottomLeft, topRight) => {
     const type = obj.constructor.name;
-    if ( ! Object.keys(bounds_coords_type).includes(type)) {
-        throw new TypeError(
-            'Coordinates type not set for ' + type
-        );
+    if (!Object.keys(boundsCoordsType).includes(type)) {
+        throw new TypeError(`Coordinates type not set for${type}`);
     }
 
-    const coords = bounds_coords_type[type];
+    const coords = boundsCoordsType[type];
 
-    const {x: blx, y: bly} = coords.Fuzzy(bottomLeft);
-    const {x: trx, y: tr_y} = coords.Fuzzy(topRight);
+    const { x: blx, y: bly } = coords.Fuzzy(bottomLeft);
+    const { x: trx, y: trY } = coords.Fuzzy(topRight);
 
     if (undefined === blx) {
-        throw new TypeError(
-            'no x-coordinate!'
-        );
+        throw new TypeError('no x-coordinate!');
     }
 
     bottomleftmap.set(obj, coords.Fuzzy(
         Math.min(blx, trx),
-        Math.min(bly, tr_y)
+        Math.min(bly, trY)
     ));
     toprightmap.set(obj, coords.Fuzzy(
         Math.max(blx, trx),
-        Math.max(bly, tr_y)
+        Math.max(bly, trY)
     ));
 };
 
 export class ReadOnlyBounds extends EventTarget {
-    constructor (bottomLeft, topRight) {
+    constructor(bottomLeft, topRight) {
         super();
 
         updateBounds(this, bottomLeft, topRight);
@@ -52,11 +48,11 @@ export class ReadOnlyBounds extends EventTarget {
     }
 
     get size() {
-        const {x: bl_x, y: bl_y} = this.bottomLeft;
-        const {y: tr_x, y: tr_y} = this.topRight;
+        const { x: blX, y: blY } = this.bottomLeft;
+        const { y: trX, y: trY } = this.topRight;
         return new ReadOnlySize(
-            tr_x - bl_x,
-            tr_y - bl_y
+            trX - blX,
+            trY - blY
         );
     }
 
@@ -67,33 +63,34 @@ export class ReadOnlyBounds extends EventTarget {
     /**
     * @param ReadOnlyCoordinates... arguments
     */
-    containsCoordinates() {
-        if (arguments.length < 1) {
-            throw new TypeError(
-                'Cannot call ReadOnlyBounds.containsCoordinates with zero arguments!'
-            );
+    containsCoordinates(...args) {
+        if (args.length < 1) {
+            throw new TypeError('Cannot call ReadOnlyBounds.containsCoordinates with zero arguments!');
         }
 
-        for (let pos of arguments) {
-            if ( ! (pos instanceof ReadOnlyCoordinates)) {
-                throw new TypeError(
-                    'Arguments passed to ReadOnlyBounds.containsCoordinates must be insances of ReadOnlyCoordinates!'
-                );
-            }
+        return args.reduce(
+            (out, pos) => {
+                if (out) {
+                    if (!(pos instanceof ReadOnlyCoordinates)) {
+                        throw new TypeError('Arguments passed to ReadOnlyBounds.containsCoordinates must be insances of ReadOnlyCoordinates!');
+                    }
 
-            if (
-                ! (
-                    pos.x >= this.bottomLeft.x &&
-                    pos.x <= this.topRight.x &&
-                    pos.y >= this.bottomLeft.y &&
-                    pos.y <= this.topRight.y
-                )
-            ) {
-                return false;
-            }
-        }
+                    if (
+                        !(
+                            pos.x >= this.bottomLeft.x &&
+                            pos.x <= this.topRight.x &&
+                            pos.y >= this.bottomLeft.y &&
+                            pos.y <= this.topRight.y
+                        )
+                    ) {
+                        return false;
+                    }
+                }
 
-        return true;
+                return true;
+            },
+            true
+        );
     }
 
     toString() {
@@ -101,29 +98,20 @@ export class ReadOnlyBounds extends EventTarget {
     }
 }
 
-export function ConfigureBoundsCoordinatesType(bounds_type, coords_type) {
-    if (
-        bounds_type !== ReadOnlyBounds &&
-        ! (bounds_type.prototype instanceof ReadOnlyBounds)
-    ) {
-        throw new TypeError(
-            'Argument 1 passed to ConfigureBoundsCoordinatesType must be an implementation of ReadOnlyBounds!'
-        );
+export function ConfigureBoundsCoordinatesType(boundsType, coordsType) {
+    if (boundsType !== ReadOnlyBounds && !(boundsType.prototype instanceof ReadOnlyBounds)) {
+        throw new TypeError('Argument 1 passed to ConfigureBoundsCoordinatesType must be an implementation of ReadOnlyBounds!');
     } else if (
-        coords_type !== ReadOnlyCoordinates &&
-        ! (coords_type.prototype instanceof ReadOnlyCoordinates)
+        coordsType !== ReadOnlyCoordinates &&
+        !(coordsType.prototype instanceof ReadOnlyCoordinates)
     ) {
-        throw new TypeError(
-            'Argument 2 passed to ConfigureBoundsCoordinatesType must be an implementation of ReadOnlyCoordinates!'
-        );
+        throw new TypeError('Argument 2 passed to ConfigureBoundsCoordinatesType must be an implementation of ReadOnlyCoordinates!');
     }
 
-    bounds_coords_type[bounds_type.name] = coords_type;
+    boundsCoordsType[boundsType.name] = coordsType;
 }
 
-
-export class Bounds extends ReadOnlyBounds
-{
+export class Bounds extends ReadOnlyBounds {
     get bottomLeft() {
         return super.bottomLeft;
     }
@@ -146,14 +134,10 @@ ConfigureBoundsCoordinatesType(Bounds, Coordinates);
 
 export class ReadOnlyGeometry {
     constructor(pos, bounds) {
-        if ( ! (pos instanceof ReadOnlyCoordinates)) {
-            throw new TypeError(
-                'Argument 1 passed to ReadOnlyGeometry must be an instance of ReadOnlyCoordinates!'
-            );
-        } else if ( ! (bounds instanceof ReadOnlyBounds)) {
-            throw new TypeError(
-                'Argument 2 passed to ReadOnlyGeometry must be an instance of ReadOnlyBounds'
-            );
+        if (!(pos instanceof ReadOnlyCoordinates)) {
+            throw new TypeError('Argument 1 passed to ReadOnlyGeometry must be an instance of ReadOnlyCoordinates!');
+        } else if (!(bounds instanceof ReadOnlyBounds)) {
+            throw new TypeError('Argument 2 passed to ReadOnlyGeometry must be an instance of ReadOnlyBounds');
         }
 
         bottomleftmap.set(this, pos);
@@ -175,16 +159,11 @@ export class ReadOnlyGeometry {
 
 export class ReadOnlyRectangle extends ReadOnlyGeometry {
     constructor(width, height, pos) {
-        if (
-            'undefined' !== typeof(pos) &&
-            ! (pos instanceof ReadOnlyCoordinates)
-        ) {
-            throw new TypeError(
-                'Argument 3 passed to ReadOnlyRectangle must be undefined or an instance of ReadOnlyCoordinates!'
-            );
+        if ('undefined' !== typeof pos && !(pos instanceof ReadOnlyCoordinates)) {
+            throw new TypeError('Argument 3 passed to ReadOnlyRectangle must be undefined or an instance of ReadOnlyCoordinates!');
         }
 
-        const usepos = ('undefined' === typeof(pos)) ? ReadOnlyCoordinates.Zero : pos;
+        const usepos = ('undefined' === typeof pos) ? ReadOnlyCoordinates.Zero : pos;
 
         const bounds = new ReadOnlyBounds(
             usepos,

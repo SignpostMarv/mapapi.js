@@ -3,12 +3,45 @@
         "browser": true,
         "es6": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "eslint-config-airbnb"
+    ],
     "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"
     },
     "rules": {
+        "import/extensions": [
+            "error",
+            {
+                "js": "always"
+            }
+        ],
+        "import/prefer-default-export": [
+            "ignore"
+        ],
+        "comma-dangle": [
+            "error",
+            {
+                "arrays": "always-multiline",
+                "objects": "always-multiline",
+                "imports": "always-multiline",
+                "exports": "always-multiline",
+                "functions": "never"
+            }
+        ],
+        "function-paren-newline": [
+            "error",
+            "multiline"
+        ],
+        "yoda": [
+            "error",
+            "always",
+            {
+                "onlyEquality": true
+            }
+        ],
         "indent": [
             "error",
             4

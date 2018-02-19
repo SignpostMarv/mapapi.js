@@ -3,8 +3,6 @@ import {Canvas2dTileRenderer} from '../src/Renderer.js';
 import {BasicUserInterface} from '../src/UserInterface.js';
 
 export function init() {
-
-
     const AgniInstance = new Agni();
 
     const renderer = new Canvas2dTileRenderer(1, 1, AgniInstance.tileSources[0], 0, [1000, 1000]);

@@ -1,22 +1,17 @@
-import {ReadOnlyCoordinates} from './Coordinates.js';
-import {ReadOnlyBounds, ConfigureBoundsCoordinatesType} from './Geometry.js';
+import { ReadOnlyCoordinates } from './Coordinates.js';
+import { ReadOnlyBounds, ConfigureBoundsCoordinatesType } from './Geometry.js';
 
 const xmap = new WeakMap();
 const ymap = new WeakMap();
 
-export class ReadOnlySize
-{
-    constructor (x = 0, y = 0) {
+export class ReadOnlySize {
+    constructor(x = 0, y = 0) {
         const xIsNumber = (x instanceof Number);
         const yIsNumber = (y instanceof Number);
-        if ( ! xIsNumber && 'number' !== typeof(x)) {
-            throw new TypeError(
-                'x-axis coordinate must be a number!'
-            );
-        } else if ( ! yIsNumber && 'number' !== typeof(y)) {
-            throw new TypeError(
-                'y-axis coordinate must be a number!'
-            );
+        if (!xIsNumber && 'number' !== typeof x) {
+            throw new TypeError('x-axis coordinate must be a number!');
+        } else if (!yIsNumber && 'number' !== typeof y) {
+            throw new TypeError('y-axis coordinate must be a number!');
         }
 
         xmap.set(this, xIsNumber ? x.valueOf() : x);
@@ -31,19 +26,16 @@ export class ReadOnlySize
         return ymap.get(this);
     }
 
-    static Fuzzy()
-    {
-        if (2 === arguments.length) {
-            return new this(arguments[0], arguments[1]);
-        } else if (1 === arguments.length && arguments[0] instanceof Array && 2 === arguments[0].length) {
-            return new this(arguments[0][0], arguments[0][1]);
-        } else if (1 === arguments.length && arguments[0] instanceof ReadOnlyCoordinates) {
-            return arguments[0];
+    static Fuzzy(...args) {
+        if (2 === args.length) {
+            return new this(args[0], args[1]);
+        } else if (1 === args.length && args[0] instanceof Array && 2 === args[0].length) {
+            return new this(args[0][0], args[0][1]);
+        } else if (1 === args.length && args[0] instanceof ReadOnlyCoordinates) {
+            return args[0];
         }
 
-        throw new TypeError(
-            'Unable to resolve instance of ReadOnlySize from arguments!'
-        );
+        throw new TypeError('Unable to resolve instance of ReadOnlySize from arguments!');
     }
 
     toString() {
@@ -51,26 +43,16 @@ export class ReadOnlySize
     }
 }
 
-export class ReadOnlyUintSize extends ReadOnlySize
-{
-    constructor(x = 0, y = 0)
-    {
+export class ReadOnlyUintSize extends ReadOnlySize {
+    constructor(x = 0, y = 0) {
         if (x < 0) {
-            throw new RangeError(
-                'Argument 1 passed to ReadOnlyUintSize must be greater or equal to zero!'
-            );
+            throw new RangeError('Argument 1 passed to ReadOnlyUintSize must be greater or equal to zero!');
         } else if (0 !== (x % 1)) {
-            throw new RangeError(
-                'Argument 1 passed to ReadOnlyUintSize must be an integer!'
-            );
+            throw new RangeError('Argument 1 passed to ReadOnlyUintSize must be an integer!');
         } else if (y < 0) {
-            throw new RangeError(
-                'Argument 2 passed to ReadOnlyUintSize must be greater or equal to zero!'
-            );
+            throw new RangeError('Argument 2 passed to ReadOnlyUintSize must be greater or equal to zero!');
         } else if (0 !== (y % 1)) {
-            throw new RangeError(
-                'Argument 2 passed to ReadOnlyUintSize must be an integer!'
-            );
+            throw new RangeError('Argument 2 passed to ReadOnlyUintSize must be an integer!');
         }
 
         super(x, y);
@@ -85,8 +67,7 @@ export class ReadOnlyUintSize extends ReadOnlySize
     }
 }
 
-export class ReadOnlyGridSize extends ReadOnlyBounds
-{
+export class ReadOnlyGridSize extends ReadOnlyBounds {
     get x() {
         return this.size.x;
     }
@@ -108,23 +89,19 @@ export class Size extends ReadOnlySize {
     }
 
     set x(val) {
-        if ( ! (val instanceof Number) && 'number' !== typeof(val)) {
-            throw new TypeError(
-                'x-axis coordinate must be a number!'
-            );
+        if (!(val instanceof Number) && 'number' !== typeof val) {
+            throw new TypeError('x-axis coordinate must be a number!');
         }
 
-        xmap.set(this, (new Number(val)).valueOf());
+        xmap.set(this, Number(val).valueOf());
     }
 
     set y(val) {
-        if ( ! (val instanceof Number) && 'number' !== typeof(val)) {
-            throw new TypeError(
-                'y-axis coordinate must be a number!'
-            );
+        if (!(val instanceof Number) && 'number' !== typeof val) {
+            throw new TypeError('y-axis coordinate must be a number!');
         }
 
-        ymap.set(this, (new Number(val)).valueOf());
+        ymap.set(this, Number(val).valueOf());
     }
 
     toString() {

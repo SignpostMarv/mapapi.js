@@ -1,5 +1,5 @@
-import {ReadOnlyCoordinates} from './Coordinates.js';
-import {ReadOnlyGeometry} from './Geometry.js';
+import { ReadOnlyCoordinates } from './Coordinates.js';
+import { ReadOnlyGeometry } from './Geometry.js';
 
 const namemap = new WeakMap();
 const coordinatesmap = new WeakMap();
@@ -9,10 +9,8 @@ export class Location {
     constructor(name) {
         if (name instanceof String) {
             namemap.set(this, name.toString());
-        } else if('string' !== typeof(name)) {
-            throw new TypeError(
-                'Argument 1 passed to Location must be a string!'
-            );
+        } else if ('string' !== typeof name) {
+            throw new TypeError('Argument 1 passed to Location must be a string!');
         }
 
         namemap.set(this, name);
@@ -28,10 +26,8 @@ export class LocationWithKnownCoordinates extends Location {
     * @param ReadOnlyCoordinates pos
     */
     constructor(name, pos) {
-        if (! (pos instanceof ReadOnlyCoordinates)) {
-            throw new TypeError(
-                'Argument 2 passed to LocationWithKnownCoordinates must be an instance of ReadOnlyCoordinates!'
-            );
+        if (!(pos instanceof ReadOnlyCoordinates)) {
+            throw new TypeError('Argument 2 passed to LocationWithKnownCoordinates must be an instance of ReadOnlyCoordinates!');
         }
 
         super(name);
@@ -48,10 +44,8 @@ export class LocationWithKnownGeometry extends LocationWithKnownCoordinates {
     * @param ReadOnlyGeometry geom
     */
     constructor(name, pos, geom) {
-        if ( ! (geom instanceof ReadOnlyGeometry)) {
-            throw new TypeError(
-                'Argument 3 passed to LocationWithKnownGeometry must be an instance of ReadOnlyGeometry!'
-            );
+        if (!(geom instanceof ReadOnlyGeometry)) {
+            throw new TypeError('Argument 3 passed to LocationWithKnownGeometry must be an instance of ReadOnlyGeometry!');
         }
 
         super(name, pos);

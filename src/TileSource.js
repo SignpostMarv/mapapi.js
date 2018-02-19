@@ -1,30 +1,29 @@
-import {ReadOnlyCoordinates} from './Coordinates.js';
-import {ReadOnlyGridSize, ReadOnlyUintSize} from './Size.js';
-import {Color} from './Color.js';
+import { ReadOnlyCoordinates } from './Coordinates.js';
+import { ReadOnlyGridSize, ReadOnlyUintSize } from './Size.js';
+import { Color } from './Color.js';
 
 const sizemap = new WeakMap();
 const sources = new WeakMap();
 const posmap = new WeakMap();
+const zoommap = new WeakMap();
 
-export class Tile
-{
-    constructor(source, width, height, pos)
-    {
+export class Tile {
+    constructor(source, width, height, pos, zoom) {
         if (
-            ! (source instanceof Image) &&
-            ! (source instanceof HTMLCanvasElement)
+            !(source instanceof Image) &&
+            !(source instanceof HTMLCanvasElement)
         ) {
-            throw new TypeError(
-                'Source must be an image or canvas'
-            );
+            throw new TypeError('Source must be an image or canvas');
+        } else if (!(zoom instanceof Number) && 'number' !== typeof zoom) {
+            throw new TypeError('Argument 5 passed to Tile::constructor() must be a number!');
         }
         sizemap.set(this, new ReadOnlyUintSize(width, height));
         sources.set(this, source);
         posmap.set(this, ReadOnlyCoordinates.Fuzzy(pos));
+        zoommap.set(this, Number(zoom).valueOf());
     }
 
-    get size()
-    {
+    get size() {
         return sizemap.get(this);
     }
 
@@ -36,8 +35,8 @@ export class Tile
         return posmap.get(this);
     }
 
-    set position(pos) {
-        posmap.set(this, ReadOnlyCoordinates.Fuzzy(pos));
+    get zoom() {
+        return zoommap.get(this);
     }
 }
 
@@ -52,8 +51,7 @@ const firetileupdateonimgtilemap = new WeakMap();
 const imgcache = {};
 const imgerrors = new WeakSet();
 
-export class TileSource extends EventTarget
-{
+export class TileSource extends EventTarget {
     /**
     * @param string copyright
     * @param string label
@@ -76,63 +74,49 @@ export class TileSource extends EventTarget
 
         const copyrightIsString = (copyright instanceof String);
 
-        if (copyrightIsString || 'string' === typeof(copyright)) {
+        if (copyrightIsString || 'string' === typeof copyright) {
             copyrightmap.set(this, copyrightIsString ? copyright.valueOf() : copyright);
         } else {
-            throw new TypeError(
-                'Argument 1 passed to TileSource must be a string!'
-            );
+            throw new TypeError('Argument 1 passed to TileSource must be a string!');
         }
 
         const labelIsString = (label instanceof String);
 
-        if (labelIsString || 'string' === typeof(label)) {
+        if (labelIsString || 'string' === typeof label) {
             labelmap.set(this, labelIsString ? label.valueOf() : label);
         } else {
-            throw new TypeError(
-                'Argument 2 passed to TileSource must be a string!'
-            );
+            throw new TypeError('Argument 2 passed to TileSource must be a string!');
         }
 
         backgroundcolormap.set(this, Color.Fuzzy(backgroundColor));
 
         const minZoomIsNumber = (minZoom instanceof Number);
 
-        if (minZoomIsNumber || 'number' === typeof(minZoom)) {
+        if (minZoomIsNumber || 'number' === typeof minZoom) {
             minzoommap.set(this, minZoomIsNumber ? minZoom.valueOf() : minZoom);
         } else {
-            throw new TypeError(
-                'Argument 4 passed to TileSource must be a number!'
-            );
+            throw new TypeError('Argument 4 passed to TileSource must be a number!');
         }
 
         const maxZoomIsNumber = (maxZoom instanceof Number);
 
-        if (maxZoomIsNumber || 'number' === typeof(maxZoom)) {
+        if (maxZoomIsNumber || 'number' === typeof maxZoom) {
             if (maxZoom < minZoom) {
-                throw new TypeError(
-                    'Argument 5 passed to TileSource must be lower than argument 3!'
-                );
+                throw new TypeError('Argument 5 passed to TileSource must be lower than argument 3!');
             }
             maxzoommap.set(this, maxZoomIsNumber ? maxZoom.valueOf() : maxZoom);
         } else {
-            throw new TypeError(
-                'Argument 5 passed to TileSource must be a number!'
-            );
+            throw new TypeError('Argument 5 passed to TileSource must be a number!');
         }
 
-        if ( ! (size instanceof ReadOnlyGridSize)) {
-            throw new TypeError(
-                'Argument 6 passed to TileSource must be an instance of ReadOnlyGridSize!'
-            );
+        if (!(size instanceof ReadOnlyGridSize)) {
+            throw new TypeError('Argument 6 passed to TileSource must be an instance of ReadOnlyGridSize!');
         }
 
         sizemap.set(this, size);
 
-        if ( ! (tileSize instanceof ReadOnlyUintSize)) {
-            throw new TypeError(
-                'Argument 7 passed to TileSource must be an instance of ReadOnlyUintSize!'
-            );
+        if (!(tileSize instanceof ReadOnlyUintSize)) {
+            throw new TypeError('Argument 7 passed to TileSource must be an instance of ReadOnlyUintSize!');
         }
 
         tilesizemap.set(this, tileSize);
@@ -172,47 +156,29 @@ export class TileSource extends EventTarget
     }
 
     set fireTileupdateOnImgTile(val) {
-        return firetileupdateonimgtilemap.set(this, !! val);
+        return firetileupdateonimgtilemap.set(this, !!val);
     }
 
     /**
     * @return string
     */
-    CoordinatesToTileUrl() {
-        throw new TypeError(
-            'TileSource.CoordinatesToTile has not been implemented!'
-        );
+    CoordinatesToTileUrl() { // eslint-disable-line class-methods-use-this
+        throw new TypeError('TileSource.CoordinatesToTile has not been implemented!');
     }
 
-    CoordinatesToTile(zoom) {
-        if (arguments.length < 2) {
-            throw new TypeError(
-                'Position not specified!'
-            );
-        }
-        const pos = ReadOnlyCoordinates.Fuzzy(
-            ...(
-                arguments.length >= 3
-                    ? [arguments[1], arguments[2]]
-                    : [arguments[1]]
-            )
-        );
+    CoordinatesToTile(zoom, position) {
+        const pos = ReadOnlyCoordinates.Fuzzy(position);
 
         const url = this.CoordinatesToTileUrl(zoom, pos);
         let img = imgcache[url];
-        const {x: width, y: height} = this.tileSize;
+        const { x: width, y: height } = this.tileSize;
 
         if (undefined === img) {
             img = new Image();
             img.src = url;
 
             if (this.fireTileupdateOnImgTile) {
-                img.onload = () => {
-                    this.dispatchEvent(
-                        new CustomEvent('tileupdate', {
-                        })
-                    );
-                };
+                img.onload = () => { this.dispatchEvent(new CustomEvent('tileupdate')); };
             }
 
             img.onerror = () => {
@@ -229,9 +195,9 @@ export class TileSource extends EventTarget
             ctx.fillStyle = this.backgroundColor;
             ctx.fillRect(0, 0, width, height);
 
-            return new Tile(source, width, height, pos);
+            return new Tile(source, width, height, pos, zoom);
         }
 
-        return new Tile(img, width, height, pos);
+        return new Tile(img, width, height, pos, zoom);
     }
 }

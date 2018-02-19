@@ -1,14 +1,14 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable class-methods-use-this */
+
 export class Api {
     /**
     * @param ../ReadOnlyCoordinates pos
     *
     * @return LocationWithKnownCoordinates
     */
-    async CoordinatesToLocation (pos) {
-        console.log(pos); // eslint-disable-line no-console
-        throw new TypeError(
-            'CoordinatesToLocation API method has not been defined!'
-        );
+    async CoordinatesToLocation(pos) {
+        throw new TypeError('CoordinatesToLocation API method has not been defined!');
     }
 
     /**
@@ -16,10 +16,7 @@ export class Api {
     *
     * @return {LocationWithKnownCoordinates} from '../Location.js';
     */
-    async LocationNameToCoordiantes (locationName) {
-        console.log(locationName); // eslint-disable-line no-console
-        throw new TypeError(
-            'LocationNameToCoordiantes API method has not been defined!'
-        );
+    async LocationNameToCoordiantes(locationName) {
+        throw new TypeError('LocationNameToCoordiantes API method has not been defined!');
     }
 }

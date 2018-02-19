@@ -3,25 +3,17 @@ const ymap = new WeakMap();
 const haltautodispatch = new WeakMap();
 
 export class ReadOnlyCoordinates extends EventTarget {
-    constructor (x = 0, y = 0) {
+    constructor(x = 0, y = 0) {
         const xIsNumber = (x instanceof Number);
         const yIsNumber = (y instanceof Number);
-        if ( ! xIsNumber && 'number' !== typeof(x)) {
-            throw new TypeError(
-                'x-axis coordinate must be a number!'
-            );
-        } else if ( ! yIsNumber && 'number' !== typeof(y)) {
-            throw new TypeError(
-                'y-axis coordinate must be a number!'
-            );
-        } else if (isNaN(x)) {
-            throw new TypeError(
-                'x-axis coordinate must be a valid number!'
-            );
-        } else if (isNaN(y)) {
-            throw new TypeError(
-                'y-axis coordinate must be a valid number!'
-            );
+        if (!xIsNumber && 'number' !== typeof x) {
+            throw new TypeError('x-axis coordinate must be a number!');
+        } else if (!yIsNumber && 'number' !== typeof y) {
+            throw new TypeError('y-axis coordinate must be a number!');
+        } else if (Number.isNaN(x)) {
+            throw new TypeError('x-axis coordinate must be a valid number!');
+        } else if (Number.isNaN(y)) {
+            throw new TypeError('y-axis coordinate must be a valid number!');
         }
 
         super();
@@ -54,33 +46,27 @@ export class ReadOnlyCoordinates extends EventTarget {
         return new this(0, 0);
     }
 
-    static Fuzzy() {
-        if (2 === arguments.length) {
-            return new this(arguments[0], arguments[1]);
-        } else if (1 === arguments.length && arguments[0] instanceof Array && 2 === arguments[0].length) {
-            const out = new this(...arguments[0]);
-
-            return out;
-        } else if (1 === arguments.length && arguments[0] instanceof ReadOnlyCoordinates) {
-            return new this(arguments[0].x, arguments[0].y);
+    static Fuzzy(...args) {
+        if (2 === args.length) {
+            return new this(args[0], args[1]);
+        } else if (1 === args.length && args[0] instanceof Array && 2 === args[0].length) {
+            return new this(...args[0]);
+        } else if (1 === args.length && args[0] instanceof ReadOnlyCoordinates) {
+            return new this(args[0].x, args[0].y);
         }
 
-        throw new TypeError(
-            'Unable to resolve instance of ReadOnlyCoordinates from arguments!'
-        );
+        throw new TypeError('Unable to resolve instance of ReadOnlyCoordinates from arguments!');
     }
 
     toString() {
         return `${this.constructor.name}<${this.x}, ${this.y}>`;
     }
 
-    get halt_auto_dispatch()
-    {
-        return !! haltautodispatch.get(this);
+    get haltAutoDispatch() {
+        return !!haltautodispatch.get(this);
     }
 
-    set halt_auto_dispatch(val)
-    {
+    set haltAutoDispatch(val) {
         return haltautodispatch.set(this, !!val);
     }
 }
@@ -95,61 +81,55 @@ export class Coordinates extends ReadOnlyCoordinates {
     }
 
     set x(val) {
-        if ( ! (val instanceof Number) && 'number' !== typeof(val)) {
-            throw new TypeError(
-                'x-axis coordinate must be a number!'
-            );
-        } else if (isNaN(val)) {
-            throw new TypeError(
-                'x-axis coordinate must be a valid number!'
-            );
+        if (!(val instanceof Number) && 'number' !== typeof val) {
+            throw new TypeError('x-axis coordinate must be a number!');
+        } else if (Number.isNaN(val)) {
+            throw new TypeError('x-axis coordinate must be a valid number!');
         }
 
         const was = xmap.get(this);
-        const is = (new Number(val)).valueOf();
+        const is = Number(val).valueOf();
 
         xmap.set(this, is);
 
-        if (was !== is && ! this.halt_auto_dispatch) {
-            this.dispatchEvent(
-                new CustomEvent('propertyUpdate', {
+        if (was !== is && !this.haltAutoDispatch) {
+            this.dispatchEvent(new CustomEvent(
+                'propertyUpdate',
+                {
                     detail: {
                         property: 'x',
                         was,
-                        is
-                    }
-                })
-            );
+                        is,
+                    },
+                }
+            ));
         }
     }
 
     set y(val) {
         const yIsNumber = (val instanceof Number);
-        if ( ! yIsNumber && 'number' !== typeof(val)) {
-            throw new TypeError(
-                'y-axis coordinate must be a number!'
-            );
-        } else if (isNaN(val)) {
-            throw new TypeError(
-                'y-axis coordinate must be a valid number!'
-            );
+        if (!yIsNumber && 'number' !== typeof val) {
+            throw new TypeError('y-axis coordinate must be a number!');
+        } else if (Number.isNaN(val)) {
+            throw new TypeError('y-axis coordinate must be a valid number!');
         }
 
         const was = ymap.get(this);
-        const is = (new Number(val)).valueOf();
+        const is = Number(val).valueOf();
 
         ymap.set(this, is);
 
-        if (was !== is && ! this.halt_auto_dispatch) {
-            this.dispatchEvent(
-                new CustomEvent('propertyUpdate', {
+        if (was !== is && !this.haltAutoDispatch) {
+            this.dispatchEvent(new CustomEvent(
+                'propertyUpdate',
+                {
                     detail: {
                         property: 'y',
                         was,
-                        is
-                    }
-                })
-            );
+                        is,
+                    },
+                }
+            ));
         }
     }
 }
