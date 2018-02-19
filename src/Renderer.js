@@ -255,10 +255,11 @@ export class Canvas2dTileRenderer {
 
         const { x: focusX, y: focusY } = this.focus;
         const { x: tileWidth, y: tileHeight } = tilesourcemap.get(this).tileSize;
+        const tilesPerImageEdge = 2 ** Math.floor(this.zoom);
 
         return new ReadOnlyCoordinates(
-            focusX + ((px.x - (clientWidth / 2)) / tileWidth),
-            focusY + (((clientHeight - px.y) - (clientHeight / 2)) / tileHeight)
+            focusX + ((px.x - (clientWidth / 2)) / (tileWidth / tilesPerImageEdge)),
+            focusY + (((clientHeight - px.y) - (clientHeight / 2)) / (tileHeight / tilesPerImageEdge))
         );
     }
 
