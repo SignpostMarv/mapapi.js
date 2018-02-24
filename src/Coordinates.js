@@ -121,8 +121,8 @@ export class Coordinates extends ReadOnlyCoordinates {
     }
 
     atomicUpdate(val) {
-        const {x: newX, y: newY} = this.constructor.Fuzzy(val);
-        const {x: wasX, y: wasY} = this;
+        const { x: newX, y: newY } = this.constructor.Fuzzy(val);
+        const { x: wasX, y: wasY } = this;
         const properties = [];
 
         if (newX !== wasX) {

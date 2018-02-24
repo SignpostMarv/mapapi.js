@@ -260,7 +260,10 @@ export class Canvas2dTileRenderer {
 
         return new ReadOnlyCoordinates(
             focusX + ((px.x - (clientWidth / 2)) / (tileWidth / tilesPerImageEdge)),
-            focusY + (((clientHeight - px.y) - (clientHeight / 2)) / (tileHeight / tilesPerImageEdge))
+            (
+                focusY +
+                (((clientHeight - px.y) - (clientHeight / 2)) / (tileHeight / tilesPerImageEdge))
+            )
         );
     }
 

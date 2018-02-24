@@ -33,7 +33,7 @@ export class BasicUserInterface extends EventTarget {
                 (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
             );
             clearTimeout(mousedownTimer.get(this));
-            dragstartmap.set(this, [startMouse, startFocusX, startFocusY])
+            dragstartmap.set(this, [startMouse, startFocusX, startFocusY]);
             draggingmap.set(this, true);
             mousedownTimer.set(
                 this,
@@ -86,21 +86,18 @@ export class BasicUserInterface extends EventTarget {
         }, { passive: true });
         this.rendererDOMNode.addEventListener('mousemove', (e) => {
             if (draggingmap.get(this)) {
-            const hasOffsetX = Object.keys(e).includes('offsetX');
-            const { x: newPosX, y: newPosY } = this.renderer.pixelsToCoordinates(
-                (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
-                (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
-            );
-            const [ startMouse, startFocusX, startFocusY ] = dragstartmap.get(this);
-            const pos = mouseposmap.get(this);
-            const was = ReadOnlyCoordinates.Fuzzy(pos);
+                const hasOffsetX = Object.keys(e).includes('offsetX');
+                const { x: newPosX, y: newPosY } = this.renderer.pixelsToCoordinates(
+                    (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
+                    (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
+                );
+                const [startMouse, startFocusX, startFocusY] = dragstartmap.get(this);
+                const pos = mouseposmap.get(this);
                 pos.atomicUpdate([newPosX, newPosY]);
                 renderer.get(this).focus.atomicUpdate([
                     startFocusX + (startMouse.x - newPosX),
-                    startFocusY + (startMouse.y - newPosY)
+                    startFocusY + (startMouse.y - newPosY),
                 ]);
-            } else {
-                console.log('not dragging');
             }
         }, { passive: true });
     }
