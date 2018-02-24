@@ -59,11 +59,8 @@ export class Animator {
             const deltaY = startY + ((pos.y - startY) * delta);
             const deltaZoom = startZoom + ((zoom - startZoom) * delta);
 
-            if (renderer.focus.x !== deltaX) {
-                renderer.focus.x = deltaX;
-            }
-            if (renderer.focus.y !== deltaY) {
-                renderer.focus.y = deltaY;
+            if (renderer.focus.x !== deltaX || renderer.focus.y !== deltaY) {
+                renderer.focus.atomicUpdate([deltaX, deltaY]);
             }
             if (renderer.zoom !== deltaZoom) {
                 renderer.zoom = deltaZoom;

@@ -48,7 +48,7 @@ export class Canvas2dTileRenderer {
         ctxmap.set(this, canvasmap.get(this).getContext('2d'));
 
         this.focus.addEventListener('propertyUpdate', (e) => {
-            if (['x', 'y'].includes(e.detail.property)) {
+            if (e.detail.properties.includes('x') || e.detail.properties.includes('y')) {
                 dirtymap.set(this, true);
             }
         });
@@ -69,10 +69,7 @@ export class Canvas2dTileRenderer {
     }
 
     set focus(val) {
-        const pos = ReadOnlyCoordinates.Fuzzy(val);
-
-        this.focus.x = pos.x;
-        this.focus.y = pos.y;
+        this.focus.atomicUpdate(val);
     }
 
     get size() {
@@ -125,10 +122,14 @@ export class Canvas2dTileRenderer {
             const viewWidthHalf = (contentWidth / tileWidth) / 2.0;
             const viewHeightHalf = (contentHeight / tileHeight) / 2.0;
 
-            bounds.bottomLeft.x = focusX - viewWidthHalf;
-            bounds.bottomLeft.y = focusY - viewHeightHalf;
-            bounds.topRight.x = focusX + viewWidthHalf;
-            bounds.topRight.y = focusY + viewHeightHalf;
+            bounds.bottomLeft.atomicUpdate([
+                focusX - viewWidthHalf,
+                focusY - viewHeightHalf,
+            ]);
+            bounds.topRight.atomicUpdate([
+                focusX + viewWidthHalf,
+                focusY + viewHeightHalf,
+            ]);
 
             const { x: isBlX, y: isBlY } = bounds.bottomLeft;
             const { x: isTrX, y: isTrY } = bounds.topRight;

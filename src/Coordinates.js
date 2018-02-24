@@ -1,6 +1,5 @@
 const xmap = new WeakMap();
 const ymap = new WeakMap();
-const haltautodispatch = new WeakMap();
 
 export class ReadOnlyCoordinates extends EventTarget {
     constructor(x = 0, y = 0) {
@@ -61,14 +60,6 @@ export class ReadOnlyCoordinates extends EventTarget {
     toString() {
         return `${this.constructor.name}<${this.x}, ${this.y}>`;
     }
-
-    get haltAutoDispatch() {
-        return !!haltautodispatch.get(this);
-    }
-
-    set haltAutoDispatch(val) {
-        return haltautodispatch.set(this, !!val);
-    }
 }
 
 export class Coordinates extends ReadOnlyCoordinates {
@@ -92,14 +83,12 @@ export class Coordinates extends ReadOnlyCoordinates {
 
         xmap.set(this, is);
 
-        if (was !== is && !this.haltAutoDispatch) {
+        if (was !== is) {
             this.dispatchEvent(new CustomEvent(
                 'propertyUpdate',
                 {
                     detail: {
-                        property: 'x',
-                        was,
-                        is,
+                        properties: ['x'],
                     },
                 }
             ));
@@ -119,14 +108,38 @@ export class Coordinates extends ReadOnlyCoordinates {
 
         ymap.set(this, is);
 
-        if (was !== is && !this.haltAutoDispatch) {
+        if (was !== is) {
             this.dispatchEvent(new CustomEvent(
                 'propertyUpdate',
                 {
                     detail: {
-                        property: 'y',
-                        was,
-                        is,
+                        properties: ['y'],
+                    },
+                }
+            ));
+        }
+    }
+
+    atomicUpdate(val) {
+        const {x: newX, y: newY} = this.constructor.Fuzzy(val);
+        const {x: wasX, y: wasY} = this;
+        const properties = [];
+
+        if (newX !== wasX) {
+            properties.push('x');
+            xmap.set(this, newX);
+        }
+        if (newY !== wasY) {
+            properties.push('y');
+            ymap.set(this, newY);
+        }
+
+        if (properties.length) {
+            this.dispatchEvent(new CustomEvent(
+                'propertyUpdate',
+                {
+                    detail: {
+                        properties,
                     },
                 }
             ));
