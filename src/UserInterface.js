@@ -10,6 +10,7 @@ const mousedownHandler = new WeakMap();
 const mouseupHandler = new WeakMap();
 const wheelHandler = new WeakMap();
 const mouseposmap = new WeakMap();
+const dragstartmap = new WeakMap();
 
 export class BasicUserInterface extends EventTarget {
     constructor(renderer) {
@@ -24,8 +25,15 @@ export class BasicUserInterface extends EventTarget {
         this.draggable = false;
         this.wheelZoom = false;
 
-        mousedownHandler.set(this, () => {
+        mousedownHandler.set(this, (e) => {
+            const hasOffsetX = Object.keys(e).includes('offsetX');
+            const { x: startFocusX, y: startFocusY } = renderermap.get(this).focus;
+            const startMouse = renderermap.get(this).pixelsToCoordinates(
+                (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
+                (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
+            );
             clearTimeout(mousedownTimer.get(this));
+            dragstartmap.set(this, [startMouse, startFocusX, startFocusY])
             draggingmap.set(this, true);
             mousedownTimer.set(
                 this,
@@ -77,26 +85,22 @@ export class BasicUserInterface extends EventTarget {
             mouseposmap.set(this, Coordinates.Fuzzy(0, 0));
         }, { passive: true });
         this.rendererDOMNode.addEventListener('mousemove', (e) => {
+            if (draggingmap.get(this)) {
             const hasOffsetX = Object.keys(e).includes('offsetX');
             const { x: newPosX, y: newPosY } = this.renderer.pixelsToCoordinates(
                 (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
                 (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
             );
+            const [ startMouse, startFocusX, startFocusY ] = dragstartmap.get(this);
             const pos = mouseposmap.get(this);
             const was = ReadOnlyCoordinates.Fuzzy(pos);
-            pos.x = newPosX;
-            pos.y = newPosY;
-
-            if (this.dragging) {
-                this.dispatchEvent(new CustomEvent(
-                    'dragmove',
-                    {
-                        detail: {
-                            from: was,
-                            position: ReadOnlyCoordinates.Fuzzy(pos),
-                        },
-                    }
-                ));
+                pos.atomicUpdate([newPosX, newPosY]);
+                renderer.get(this).focus.atomicUpdate([
+                    startFocusX + (startMouse.x - newPosX),
+                    startFocusY + (startMouse.y - newPosY)
+                ]);
+            } else {
+                console.log('not dragging');
             }
         }, { passive: true });
     }
