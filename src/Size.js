@@ -1,5 +1,6 @@
 import { ReadOnlyCoordinates } from './Coordinates.js';
 import { ReadOnlyBounds, ConfigureBoundsCoordinatesType } from './Geometry.js';
+import { ConstructorArgumentGTE } from './ErrorFormatting.js';
 
 const xmap = new WeakMap();
 const ymap = new WeakMap();
@@ -46,11 +47,19 @@ export class ReadOnlySize {
 export class ReadOnlyUintSize extends ReadOnlySize {
     constructor(x = 0, y = 0) {
         if (x < 0) {
-            throw new RangeError('Argument 1 passed to ReadOnlyUintSize must be greater or equal to zero!');
+            throw new RangeError(ConstructorArgumentGTE(
+                this, // eslint-disable-line no-this-before-super
+                1,
+                'zero'
+            ));
         } else if (0 !== (x % 1)) {
             throw new RangeError('Argument 1 passed to ReadOnlyUintSize must be an integer!');
         } else if (y < 0) {
-            throw new RangeError('Argument 2 passed to ReadOnlyUintSize must be greater or equal to zero!');
+            throw new RangeError(ConstructorArgumentGTE(
+                this, // eslint-disable-line no-this-before-super
+                2,
+                'zero'
+            ));
         } else if (0 !== (y % 1)) {
             throw new RangeError('Argument 2 passed to ReadOnlyUintSize must be an integer!');
         }
@@ -105,6 +114,6 @@ export class Size extends ReadOnlySize {
     }
 
     toString() {
-        return `[<${this.bottomLeft.x}, ${this.bottomLeft.y}>, <${this.topRight.x}, ${this.topRight.y}>]`;
+        return `${this.constructor.name}[${this.bottomLeft}, ${this.topRight.x}]`;
     }
 }

@@ -1,5 +1,9 @@
 import { TileSource } from './TileSource.js';
 import { Api } from './GridConfig/Api.js';
+import {
+    ConstructorArgumentExpectedClass,
+    ClassMethodArgumentExpectedType,
+} from './ErrorFormatting.js';
 
 const tilesourcemap = new WeakMap();
 const gridconfigapimap = new WeakMap();
@@ -11,18 +15,23 @@ export class GridConfig {
     */
     constructor(tileSources, api) {
         if (!(tileSources instanceof Array)) {
-            throw new TypeError('Argument 1 passed to GridConfig must be an array!');
+            throw new TypeError(ConstructorArgumentExpectedClass(this, 1, Array));
         } else if (tileSources.length < 1) {
             throw new TypeError('At least one tile source must be passed to GridConfig!');
         }
         tileSources.forEach((source) => {
             if (!(source instanceof TileSource)) {
-                throw new TypeError('Argument 1 passed to GridConfig must be an array of TileSource objects!');
+                throw new TypeError(ClassMethodArgumentExpectedType(
+                    this,
+                    this.constructor,
+                    1,
+                    `${TileSource.constuctor.name} object array`
+                ));
             }
         });
 
         if (!(api instanceof Api)) {
-            throw new TypeError('Argument 2 passed to GridConfig must be an instance of GridConfig\\Api!');
+            throw new TypeError(ConstructorArgumentExpectedClass(this, 2, Api));
         }
 
         tilesourcemap.set(this, tileSources);

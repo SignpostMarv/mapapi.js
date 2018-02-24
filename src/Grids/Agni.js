@@ -6,6 +6,10 @@ import { Api } from '../GridConfig/Api.js';
 import { ReadOnlyCoordinates } from '../Coordinates.js';
 import { LocationWithKnownGeometry } from '../Location.js';
 import SHA1 from '../../node_modules/sha1-es/src/sha1.js';
+import {
+    ClassMethodArgumentExpectedType,
+    ClassMethodArgumentExpectedClass,
+} from '../ErrorFormatting.js';
 
 const AgniSize = new ReadOnlyGridSize(
     new ReadOnlyCoordinates(0, 0),
@@ -33,7 +37,11 @@ class AgniTileSource extends TileSource {
         const zoomIsNumber = (zoom instanceof Number);
 
         if (!(zoomIsNumber) && 'number' !== typeof zoom) {
-            throw new TypeError('Argument 1 passed to AgniTileSource.CoordinatesToTileUrl must be a number!');
+            throw new TypeError(ClassMethodArgumentExpectedType(
+                this,
+                this.CoordinatesToTileUrl,
+                'number'
+            ));
         }
 
         const slZoom = Math.floor(zoom + 1);
@@ -43,8 +51,9 @@ class AgniTileSource extends TileSource {
 
         const x = pos.x - (pos.x % tilesPerImageEdge);
         const y = pos.y - (pos.y % tilesPerImageEdge);
+        const domain = 'secondlife-maps-cdn.akamaized.net';
 
-        return `https://secondlife-maps-cdn.akamaized.net/map-${escape(slZoom)}-${escape(x)}-${escape(y)}-objects.jpg`;
+        return `https://${domain}/map-${escape(slZoom)}-${escape(x)}-${escape(y)}-objects.jpg`;
     }
 
     CoordinatesToTile(zoom, position) {
@@ -108,9 +117,18 @@ class AgniApi extends Api {
     async CoordinatesToLocation(...args) { // eslint-disable-line class-methods-use-this
         const pos = ReadOnlyCoordinates.Fuzzy(...args);
         if (!(pos instanceof ReadOnlyCoordinates)) {
-            throw new TypeError('Argument 1 passed to Api.CoordinatesToLocation must be an instance of ReadOnlyCoordinates');
+            throw new TypeError(ClassMethodArgumentExpectedClass(
+                this,
+                this.CoordinatesToLocation,
+                1,
+                ReadOnlyCoordinates
+            ));
         } else if (!AgniSize.containsCoordinates(pos)) {
-            throw new RangeError(`Argument 1 passed to AgniApi.CoordinatesToLocation must be in the range ${AgniSize}`);
+            throw new RangeError(ClassMethodArgumentExpectedType(
+                this,
+                this.CoordinatesToLocation,
+                ` value in the range ${AgniSize}`
+            ));
         }
 
         const gridX = Math.floor(pos.x);
@@ -153,7 +171,10 @@ class AgniApi extends Api {
                     grid_y: gridY,
                 };
 
-                script.src = `https://cap.secondlife.com/cap/0/b713fe80-283b-4585-af4d-a3b7d9a32492?${new URLSearchParams(urlargs)}`;
+                const path =
+                    'https://cap.secondlife.com/cap/0/b713fe80-283b-4585-af4d-a3b7d9a32492';
+
+                script.src = `${path}?${new URLSearchParams(urlargs)}`;
                 script.async = true;
 
                 document.head.appendChild(script);
@@ -167,7 +188,12 @@ class AgniApi extends Api {
         const isString = locationName instanceof String;
 
         if (!isString && 'string' !== typeof locationName) {
-            throw new TypeError('Argument 1 passed to AgniApi.LocationNameToCoordiantes must be a string!');
+            throw new TypeError(ClassMethodArgumentExpectedType(
+                this,
+                this.LocationNameToCoordiantes,
+                1,
+                'string'
+            ));
         }
 
         const simName = locationName.trim().toLocaleLowerCase();
@@ -211,8 +237,11 @@ class AgniApi extends Api {
                     var: varname,
                     sim_name: simName,
                 };
+                const path =
+                    'https://cap.secondlife.com/cap/0/d661249b-2b5a-4436-966a-3d3b8d7a574f';
 
-                script.src = `https://cap.secondlife.com/cap/0/d661249b-2b5a-4436-966a-3d3b8d7a574f?${new URLSearchParams(args)}`;
+                script.src =
+                    `${path}?${new URLSearchParams(args)}`;
                 script.async = true;
 
                 document.head.appendChild(script);

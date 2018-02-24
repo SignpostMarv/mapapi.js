@@ -1,6 +1,7 @@
 import { ReadOnlyCoordinates } from './Coordinates.js';
 import { ReadOnlyGridSize, ReadOnlyUintSize } from './Size.js';
 import { Color } from './Color.js';
+import { ConstructorArgumentExpectedClass } from './ErrorFormatting.js';
 
 const sizemap = new WeakMap();
 const sources = new WeakMap();
@@ -90,33 +91,25 @@ export class TileSource extends EventTarget {
 
         backgroundcolormap.set(this, Color.Fuzzy(backgroundColor));
 
-        const minZoomIsNumber = (minZoom instanceof Number);
-
-        if (minZoomIsNumber || 'number' === typeof minZoom) {
-            minzoommap.set(this, minZoomIsNumber ? minZoom.valueOf() : minZoom);
-        } else {
+        if (!((minZoom instanceof Number) || 'number' === typeof minZoom)) {
             throw new TypeError('Argument 4 passed to TileSource must be a number!');
-        }
-
-        const maxZoomIsNumber = (maxZoom instanceof Number);
-
-        if (maxZoomIsNumber || 'number' === typeof maxZoom) {
-            if (maxZoom < minZoom) {
-                throw new TypeError('Argument 5 passed to TileSource must be lower than argument 3!');
-            }
-            maxzoommap.set(this, maxZoomIsNumber ? maxZoom.valueOf() : maxZoom);
-        } else {
+        } else if (!((maxZoom instanceof Number) || 'number' === typeof maxZoom)) {
             throw new TypeError('Argument 5 passed to TileSource must be a number!');
         }
 
+        const minZoomNumber = Number(minZoom).valueOf();
+        const maxZoomNumber = Number(maxZoom).valueOf();
+        minzoommap.set(this, Math.min(minZoomNumber, maxZoomNumber));
+        maxzoommap.set(this, Math.max(minZoomNumber, maxZoomNumber));
+
         if (!(size instanceof ReadOnlyGridSize)) {
-            throw new TypeError('Argument 6 passed to TileSource must be an instance of ReadOnlyGridSize!');
+            throw new TypeError(ConstructorArgumentExpectedClass(this, 6, ReadOnlyGridSize));
         }
 
         sizemap.set(this, size);
 
         if (!(tileSize instanceof ReadOnlyUintSize)) {
-            throw new TypeError('Argument 7 passed to TileSource must be an instance of ReadOnlyUintSize!');
+            throw new TypeError(ConstructorArgumentExpectedClass(this, 7, ReadOnlyUintSize));
         }
 
         tilesizemap.set(this, tileSize);

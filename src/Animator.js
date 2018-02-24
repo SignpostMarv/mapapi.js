@@ -1,5 +1,6 @@
 import { ReadOnlyCoordinates } from './Coordinates.js';
 import { Canvas2dTileRenderer } from './Renderer.js';
+import { ConstructorArgumentExpectedClass } from './ErrorFormatting.js';
 
 const transitiontimemap = new WeakMap();
 const rafmap = new WeakMap();
@@ -8,7 +9,7 @@ const renderermap = new WeakMap();
 export class Animator {
     constructor(renderer) {
         if (!(renderer instanceof Canvas2dTileRenderer)) {
-            throw new TypeError('Argument 1 passed to Animator must be an instance of Canvas2dTileRenderer!');
+            throw new TypeError(ConstructorArgumentExpectedClass(this, 1, Canvas2dTileRenderer));
         }
 
         this.transitionTime = 1000;
@@ -28,14 +29,21 @@ export class Animator {
     }
 
     animate(newpos, newzoom) {
-        if ('undefined' !== typeof newzoom && !(newzoom instanceof Number) && 'number' !== typeof newzoom) {
+        if (
+            'undefined' !== typeof newzoom &&
+            !(newzoom instanceof Number) &&
+            'number' !== typeof newzoom
+        ) {
             throw new TypeError('Argument 2 passed to Animator::animate() must be a number!');
         }
 
         const renderer = renderermap.get(this);
         const { minZoom, maxZoom } = renderer.tileSource;
 
-        const zoom = Math.min(maxZoom, Math.max(minZoom, 'undefined' !== typeof newzoom ? newzoom : renderer.zoom));
+        const zoom = Math.min(
+            maxZoom,
+            Math.max(minZoom, 'undefined' !== typeof newzoom ? newzoom : renderer.zoom)
+        );
         const pos = ReadOnlyCoordinates.Fuzzy(newpos);
         cancelAnimationFrame(rafmap.get(this));
 

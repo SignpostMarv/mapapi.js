@@ -1,5 +1,6 @@
 import { Canvas2dTileRenderer } from './Renderer.js';
 import { ReadOnlyCoordinates, Coordinates } from './Coordinates.js';
+import { ConstructorArgumentExpectedClass } from './ErrorFormatting.js';
 
 const renderermap = new WeakMap();
 const mousedownTimer = new WeakMap();
@@ -15,7 +16,11 @@ const dragstartmap = new WeakMap();
 export class BasicUserInterface extends EventTarget {
     constructor(renderer) {
         if (!(renderer instanceof Canvas2dTileRenderer)) {
-            throw new TypeError('Argument 1 passed to BasicUserInterface must be an instance of Canvas2dTileRenderer!');
+            throw new TypeError(ConstructorArgumentExpectedClass(
+                this, // eslint-disable-line no-this-before-super
+                1,
+                Canvas2dTileRenderer
+            ));
         }
 
         super();

@@ -1,5 +1,6 @@
 import { ReadOnlyCoordinates } from './Coordinates.js';
 import { ReadOnlyGeometry } from './Geometry.js';
+import { ConstructorArgumentExpectedClass } from './ErrorFormatting.js';
 
 const namemap = new WeakMap();
 const coordinatesmap = new WeakMap();
@@ -27,7 +28,11 @@ export class LocationWithKnownCoordinates extends Location {
     */
     constructor(name, pos) {
         if (!(pos instanceof ReadOnlyCoordinates)) {
-            throw new TypeError('Argument 2 passed to LocationWithKnownCoordinates must be an instance of ReadOnlyCoordinates!');
+            throw new TypeError(ConstructorArgumentExpectedClass(
+                this, // eslint-disable-line no-this-before-super
+                2,
+                ReadOnlyCoordinates
+            ));
         }
 
         super(name);
@@ -45,11 +50,14 @@ export class LocationWithKnownGeometry extends LocationWithKnownCoordinates {
     */
     constructor(name, pos, geom) {
         if (!(geom instanceof ReadOnlyGeometry)) {
-            throw new TypeError('Argument 3 passed to LocationWithKnownGeometry must be an instance of ReadOnlyGeometry!');
+            throw new TypeError(ConstructorArgumentExpectedClass(
+                this, // eslint-disable-line no-this-before-super
+                3,
+                ReadOnlyGeometry
+            ));
         }
 
         super(name, pos);
-
         geommap.set(this, geom);
     }
 

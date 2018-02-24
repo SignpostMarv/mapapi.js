@@ -1,5 +1,10 @@
 import { ReadOnlySize } from './Size.js';
 import { ReadOnlyCoordinates, Coordinates } from './Coordinates.js';
+import {
+    ConstructorArgumentExpectedClass,
+    ClassMethodArgumentExpectedType,
+    ClassMethodArgumentExpectedClass,
+} from './ErrorFormatting.js';
 
 const bottomleftmap = new WeakMap();
 const toprightmap = new WeakMap();
@@ -65,14 +70,19 @@ export class ReadOnlyBounds extends EventTarget {
     */
     containsCoordinates(...args) {
         if (args.length < 1) {
-            throw new TypeError('Cannot call ReadOnlyBounds.containsCoordinates with zero arguments!');
+            return false;
         }
 
         return args.reduce(
-            (out, pos) => {
+            (out, pos, i) => {
                 if (out) {
                     if (!(pos instanceof ReadOnlyCoordinates)) {
-                        throw new TypeError('Arguments passed to ReadOnlyBounds.containsCoordinates must be insances of ReadOnlyCoordinates!');
+                        throw new TypeError(ClassMethodArgumentExpectedClass(
+                            this,
+                            this.containsCoordinates,
+                            i,
+                            ReadOnlyCoordinates
+                        ));
                     }
 
                     if (
@@ -100,12 +110,22 @@ export class ReadOnlyBounds extends EventTarget {
 
 export function ConfigureBoundsCoordinatesType(boundsType, coordsType) {
     if (boundsType !== ReadOnlyBounds && !(boundsType.prototype instanceof ReadOnlyBounds)) {
-        throw new TypeError('Argument 1 passed to ConfigureBoundsCoordinatesType must be an implementation of ReadOnlyBounds!');
+        throw new TypeError(ClassMethodArgumentExpectedType(
+            this,
+            this.ConfigureBoundsCoordinatesType,
+            2,
+            `${ReadOnlyBounds.constuctor.name} implementation`
+        ));
     } else if (
         coordsType !== ReadOnlyCoordinates &&
         !(coordsType.prototype instanceof ReadOnlyCoordinates)
     ) {
-        throw new TypeError('Argument 2 passed to ConfigureBoundsCoordinatesType must be an implementation of ReadOnlyCoordinates!');
+        throw new TypeError(ClassMethodArgumentExpectedType(
+            this,
+            this.ConfigureBoundsCoordinatesType,
+            2,
+            `${ReadOnlyCoordinates.constuctor.name} implementation`
+        ));
     }
 
     boundsCoordsType[boundsType.name] = coordsType;
@@ -135,9 +155,9 @@ ConfigureBoundsCoordinatesType(Bounds, Coordinates);
 export class ReadOnlyGeometry {
     constructor(pos, bounds) {
         if (!(pos instanceof ReadOnlyCoordinates)) {
-            throw new TypeError('Argument 1 passed to ReadOnlyGeometry must be an instance of ReadOnlyCoordinates!');
+            throw new TypeError(ConstructorArgumentExpectedClass(this, 1, ReadOnlyCoordinates));
         } else if (!(bounds instanceof ReadOnlyBounds)) {
-            throw new TypeError('Argument 2 passed to ReadOnlyGeometry must be an instance of ReadOnlyBounds');
+            throw new TypeError(ConstructorArgumentExpectedClass(this, 2, ReadOnlyBounds));
         }
 
         bottomleftmap.set(this, pos);
@@ -160,7 +180,11 @@ export class ReadOnlyGeometry {
 export class ReadOnlyRectangle extends ReadOnlyGeometry {
     constructor(width, height, pos) {
         if ('undefined' !== typeof pos && !(pos instanceof ReadOnlyCoordinates)) {
-            throw new TypeError('Argument 3 passed to ReadOnlyRectangle must be undefined or an instance of ReadOnlyCoordinates!');
+            throw new TypeError(ConstructorArgumentExpectedClass(
+                this, // eslint-disable-line no-this-before-super
+                3,
+                ReadOnlyCoordinates
+            ));
         }
 
         const usepos = ('undefined' === typeof pos) ? ReadOnlyCoordinates.Zero : pos;

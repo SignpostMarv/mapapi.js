@@ -3,6 +3,7 @@ import { Bounds, ReadOnlyBounds } from './Geometry.js';
 import { TileSource } from './TileSource.js';
 import { Coordinates, ReadOnlyCoordinates } from './Coordinates.js';
 import { Animator } from './Animator.js';
+import { ConstructorArgumentExpectedClass } from './ErrorFormatting.js';
 
 const sizemap = new WeakMap();
 const canvasmap = new WeakMap();
@@ -27,7 +28,7 @@ const deferMakeDirty = (renderer) => {
 export class Canvas2dTileRenderer {
     constructor(width, height, tileSource, zoom = 0, focus = [0, 0]) {
         if (!(tileSource instanceof TileSource)) {
-            throw new TypeError('Argument 1 passed to Canvas2dTileRenderer must be an instance of TileSource!');
+            throw new TypeError(ConstructorArgumentExpectedClass(this, 1, TileSource));
         }
 
         tileSource.addEventListener('tileupdate', () => {
