@@ -38,7 +38,7 @@ export class Canvas2dTileRenderer {
         tilesourcemap.set(this, tileSource);
         this.zoom = zoom;
         sizemap.set(this, ReadOnlyUintSize.Fuzzy(width, height));
-        focusmap.set(this, Coordinates.Fuzzy(...((focus instanceof Array) ? focus : [focus])));
+        focusmap.set(this, Coordinates.Fuzzy(focus));
 
         const canvas = document.createElement('canvas');
         canvas.width = width;
