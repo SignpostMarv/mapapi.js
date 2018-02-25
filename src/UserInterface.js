@@ -53,7 +53,7 @@ export class BasicUserInterface extends EventTarget {
 
         mouseupHandler.set(this, (e) => {
             clearTimeout(mousedownTimer.get(this));
-            if (!this.dragging) {
+            if (!draggingmap.get(this)) {
                 const hasOffsetX = Object.keys(e).includes('offsetX');
                 this.dispatchEvent(new CustomEvent(
                     'click',
@@ -94,16 +94,16 @@ export class BasicUserInterface extends EventTarget {
             mouseposmap.set(this, Coordinates.Fuzzy(0, 0));
         }, { passive: true });
         this.rendererDOMNode.addEventListener('mousemove', (e) => {
-            if (draggingmap.get(this)) {
                 const hasOffsetX = Object.keys(e).includes('offsetX');
                 const { x: newPosX, y: newPosY } = this.renderer.pixelsToCoordinates(
                     (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
                     (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
                 );
-                const [startMouse, startFocusX, startFocusY] = dragstartmap.get(this);
                 const pos = mouseposmap.get(this);
                 pos.atomicUpdate([newPosX, newPosY]);
-                renderer.get(this).focus.atomicUpdate([
+            if (draggingmap.get(this)) {
+                const [startMouse, startFocusX, startFocusY] = dragstartmap.get(this);
+                this.renderer.focus.atomicUpdate([
                     startFocusX + (startMouse.x - newPosX),
                     startFocusY + (startMouse.y - newPosY),
                 ]);
