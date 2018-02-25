@@ -19,8 +19,8 @@ const animatormap = new WeakMap();
 const deferreddirtymap = new WeakMap();
 
 const deferMakeDirty = (renderer) => {
-    cancelAnimationFrame(deferreddirtymap.get(renderer));
-    deferreddirtymap.set(renderer, requestAnimationFrame(() => {
+    cancelIdleCallback(deferreddirtymap.get(renderer));
+    deferreddirtymap.set(renderer, requestIdleCallback(() => {
         dirtymap.set(renderer, true);
     }));
 };
