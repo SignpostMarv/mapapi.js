@@ -15,13 +15,6 @@ export function init() {
     };
     UI.addEventListener('click', move);
     UI.addEventListener('dragmove', move);
-    UI.addEventListener('wheel', (e) => {
-        const renderer = e.target.renderer;
-        renderer.animator.animate(
-            UI.mousePosition,
-            renderer.zoom + ((e.detail.zoomIn ? -.5 : +.5) * (e.detail.amount / 100))
-        );
-    });
     UI.draggable = true;
     UI.wheelZoom = true;
 

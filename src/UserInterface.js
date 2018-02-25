@@ -72,6 +72,10 @@ export class BasicUserInterface extends EventTarget {
         }, { passive: true });
 
         wheelHandler.set(this, (e) => {
+            this.renderer.animator.animate(
+                this.mousePosition,
+                this.renderer.zoom + (((e.deltaY < 0) ? -.5 : +.5) * (Math.abs(e.deltaY) / 100))
+            );
             this.dispatchEvent(new CustomEvent(
                 'wheel',
                 {
