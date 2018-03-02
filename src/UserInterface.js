@@ -103,10 +103,10 @@ export class BasicUserInterface extends EventTarget {
             pos.atomicUpdate([newPosX, newPosY]);
             if (draggingmap.get(this)) {
                 const [startMouse, startFocusX, startFocusY] = dragstartmap.get(this);
-                this.renderer.focus.atomicUpdate([
+                this.renderer.focus = [
                     startFocusX + (startMouse.x - newPosX),
                     startFocusY + (startMouse.y - newPosY),
-                ]);
+                ];
             }
         }, { passive: true });
     }
