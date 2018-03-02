@@ -180,7 +180,7 @@ export class TileSource extends EventTarget {
                     if (this.fireTileupdateOnImgTile) {
                         this.dispatchEvent(new CustomEvent('tileupdate'));
                     }
-                }).catch((err) => {
+                }).catch(() => {
                     imgerrors.add(img);
                     imgloading.delete(img);
                 });

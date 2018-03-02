@@ -1,5 +1,5 @@
 import { GridConfig } from '../GridConfig.js';
-import { Tile, TileSource } from '../TileSource.js';
+import { TileSource } from '../TileSource.js';
 import { ReadOnlyGridSize, ReadOnlyUintSize } from '../Size.js';
 import { ReadOnlyRectangle } from '../Geometry.js';
 import { Api } from '../GridConfig/Api.js';
@@ -16,8 +16,6 @@ const AgniSize = new ReadOnlyGridSize(
     new ReadOnlyCoordinates(1048576, 1048576)
 );
 
-const tileCacheMap = new WeakMap();
-
 class AgniTileSource extends TileSource {
     constructor() {
         super(
@@ -29,8 +27,6 @@ class AgniTileSource extends TileSource {
             AgniSize,
             new ReadOnlyUintSize(256, 256)
         );
-
-        tileCacheMap.set(this, {});
     }
 
     CoordinatesToTileUrl(zoom, coords) { // eslint-disable-line class-methods-use-this
@@ -57,35 +53,16 @@ class AgniTileSource extends TileSource {
     }
 
     CoordinatesToTile(zoom, position) {
-        const zoomKey = `${Math.floor(zoom)}`;
         const tilesPerImageEdge = 2 ** Math.floor(zoom);
-        const pos = ReadOnlyCoordinates.Fuzzy(position);
-        const { x, y } = pos;
-        const xKey = `${x - (x % tilesPerImageEdge)}`;
-        const yKey = `${y - (y % tilesPerImageEdge)}`;
+        const { x, y } = ReadOnlyCoordinates.Fuzzy(position);
 
-        const tilecache = tileCacheMap.get(this);
-
-        const zoomKeys = Object.keys(tilecache);
-
-        let createZoomCache = true;
-        let createXCache = true;
-
-        if (zoomKeys.includes(zoomKey)) {
-            const xKeys = Object.keys(tilecache[zoomKey]);
-            createZoomCache = false;
-
-            if (xKeys.includes(xKey)) {
-                const yKeys = Object.keys(tilecache[zoomKey][xKey]);
-                createXCache = false;
-
-                if (yKeys.includes(yKey) && tilecache[zoomKey][xKey][yKey] instanceof Tile) {
-                    return tilecache[zoomKey][xKey][yKey];
-                }
-            }
-        }
-
-        return super.CoordinatesToTile(Math.floor(zoom), pos);
+        return super.CoordinatesToTile(
+            Math.floor(zoom),
+            ReadOnlyCoordinates.Fuzzy(
+                x - (x % tilesPerImageEdge),
+                y - (y % tilesPerImageEdge)
+            )
+        );
     }
 }
 

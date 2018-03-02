@@ -74,7 +74,7 @@ export class BasicUserInterface extends EventTarget {
         wheelHandler.set(this, (e) => {
             this.renderer.animator.animate(
                 this.mousePosition,
-                this.renderer.zoom + (((e.deltaY < 0) ? -.5 : +.5) * (Math.abs(e.deltaY) / 100))
+                this.renderer.zoom + (((e.deltaY < 0) ? -0.5 : +0.5) * (Math.abs(e.deltaY) / 100))
             );
             this.dispatchEvent(new CustomEvent(
                 'wheel',
@@ -94,13 +94,13 @@ export class BasicUserInterface extends EventTarget {
             mouseposmap.set(this, Coordinates.Fuzzy(0, 0));
         }, { passive: true });
         this.rendererDOMNode.addEventListener('mousemove', (e) => {
-                const hasOffsetX = Object.keys(e).includes('offsetX');
-                const { x: newPosX, y: newPosY } = this.renderer.pixelsToCoordinates(
-                    (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
-                    (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
-                );
-                const pos = mouseposmap.get(this);
-                pos.atomicUpdate([newPosX, newPosY]);
+            const hasOffsetX = Object.keys(e).includes('offsetX');
+            const { x: newPosX, y: newPosY } = this.renderer.pixelsToCoordinates(
+                (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
+                (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
+            );
+            const pos = mouseposmap.get(this);
+            pos.atomicUpdate([newPosX, newPosY]);
             if (draggingmap.get(this)) {
                 const [startMouse, startFocusX, startFocusY] = dragstartmap.get(this);
                 this.renderer.focus.atomicUpdate([
