@@ -51,6 +51,7 @@ const firetileupdateonimgtilemap = new WeakMap();
 
 const imgcache = {};
 const imgerrors = new WeakSet();
+const imgloading = new WeakSet();
 
 export class TileSource extends EventTarget {
     /**
@@ -168,18 +169,24 @@ export class TileSource extends EventTarget {
 
         if (undefined === img) {
             img = new Image();
-            img.src = url;
-
-            if (this.fireTileupdateOnImgTile) {
-                img.onload = () => { this.dispatchEvent(new CustomEvent('tileupdate')); };
-            }
-
-            img.onerror = () => {
-                imgerrors.add(img);
-            };
-
             imgcache[url] = img;
-        } else if (imgerrors.has(img)) {
+            imgloading.add(img);
+
+            requestIdleCallback(() => {
+                img.src = url;
+                img.decode().then(() => {
+                    imgloading.delete(img);
+                    imgerrors.delete(img);
+                    if (this.fireTileupdateOnImgTile) {
+                        this.dispatchEvent(new CustomEvent('tileupdate'));
+                    }
+                }).catch((err) => {
+                    imgerrors.add(img);
+                    imgloading.delete(img);
+                });
+            });
+        }
+        if (imgerrors.has(img) || imgloading.has(img)) {
             const source = document.createElement('canvas');
             source.width = width;
             source.height = height;

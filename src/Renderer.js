@@ -217,11 +217,6 @@ export class Canvas2dTileRenderer {
         for (let x = startX; x <= trX; x += zoomB) {
             for (let y = startY; y <= trY; y += zoomB) {
                 const tile = tilesource.CoordinatesToTile(zoom, [x, y]);
-                if (tile.source instanceof HTMLImageElement) {
-                    tile.source.addEventListener('load', () => {
-                        deferMakeDirty(this);
-                    });
-                }
                 try {
                     ctx.drawImage(tile.source, x, -y, zoomB, zoomB);
                 } catch (err) {

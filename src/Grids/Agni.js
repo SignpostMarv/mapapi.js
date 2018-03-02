@@ -85,17 +85,7 @@ class AgniTileSource extends TileSource {
             }
         }
 
-        const tile = super.CoordinatesToTile(Math.floor(zoom), pos);
-
-        if (createZoomCache) {
-            tilecache[zoomKey] = {};
-        }
-        if (createXCache) {
-            tilecache[zoomKey][xKey] = {};
-        }
-        tilecache[zoomKey][xKey][yKey] = tile;
-
-        return tile;
+        return super.CoordinatesToTile(Math.floor(zoom), pos);
     }
 }
 

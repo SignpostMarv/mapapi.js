@@ -7,8 +7,6 @@ export function init() {
 
     const renderer = new Canvas2dTileRenderer(1, 1, AgniInstance.tileSources[0], 0, [1000, 1000]);
 
-    AgniInstance.tileSources[0].fireTileupdateOnImgTile = false;
-
     const UI = new BasicUserInterface(renderer);
     const move = (e) => {
         e.target.renderer.animator.animate(e.detail.position);
