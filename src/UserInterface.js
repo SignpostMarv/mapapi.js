@@ -27,49 +27,7 @@ export class BasicUserInterface extends EventTarget {
 
         renderermap.set(this, renderer);
         draggingmap.set(this, false);
-        this.draggable = false;
         this.wheelZoom = false;
-
-        mousedownHandler.set(this, (e) => {
-            const hasOffsetX = Object.keys(e).includes('offsetX');
-            const { x: startFocusX, y: startFocusY } = renderermap.get(this).focus;
-            const startMouse = renderermap.get(this).pixelsToCoordinates(
-                (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
-                (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
-            );
-            clearTimeout(mousedownTimer.get(this));
-            dragstartmap.set(this, [startMouse, startFocusX, startFocusY]);
-            draggingmap.set(this, true);
-            mousedownTimer.set(
-                this,
-                setTimeout(
-                    () => {
-                        draggingmap.set(this, true);
-                    },
-                    100
-                )
-            );
-        });
-
-        mouseupHandler.set(this, (e) => {
-            clearTimeout(mousedownTimer.get(this));
-            if (!draggingmap.get(this)) {
-                const hasOffsetX = Object.keys(e).includes('offsetX');
-                this.dispatchEvent(new CustomEvent(
-                    'click',
-                    {
-                        detail: {
-                            position: renderermap.get(this).pixelsToCoordinates(
-                                (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
-                                (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
-                            ),
-                        },
-                    }
-                ));
-            }
-
-            draggingmap.set(this, false);
-        }, { passive: true });
 
         wheelHandler.set(this, (e) => {
             this.renderer.animator.animate(
@@ -87,6 +45,20 @@ export class BasicUserInterface extends EventTarget {
             ));
         });
 
+        this.rendererDOMNode.addEventListener('click', (e) => {
+            this.dispatchEvent(new CustomEvent(
+                'click',
+                {
+                    detail: {
+                        position: renderermap.get(this).pixelsToCoordinates(
+                            e.offsetX,
+                            e.offsetY
+                        ),
+                    },
+                }
+            ));
+        });
+
         this.rendererDOMNode.addEventListener('mouseleave', () => {
             mouseposmap.delete(this);
         }, { passive: true });
@@ -94,18 +66,31 @@ export class BasicUserInterface extends EventTarget {
             mouseposmap.set(this, Coordinates.Fuzzy(0, 0));
         }, { passive: true });
         this.rendererDOMNode.addEventListener('mousemove', (e) => {
-            const hasOffsetX = Object.keys(e).includes('offsetX');
-            const { x: newPosX, y: newPosY } = this.renderer.pixelsToCoordinates(
-                (hasOffsetX ? e.offsetX : (e.pageX - e.target.offsetLeft)),
-                (hasOffsetX ? e.offsetY : (e.pageY - e.target.offsetTop))
-            );
-            const pos = mouseposmap.get(this);
-            pos.atomicUpdate([newPosX, newPosY]);
-            if (draggingmap.get(this)) {
+            mouseposmap.get(this).atomicUpdate(this.renderer.pixelsToCoordinates(
+                e.offsetX,
+                e.offsetY
+            ));
+        });
+
+        this.rendererDOMNode.addEventListener('dragstart', (e) => {
+            const { x, y } = renderermap.get(this).focus;
+            dragstartmap.set(this, [
+                renderermap.get(this).pixelsToCoordinates(e.offsetX, e.offsetY),
+                x,
+                y,
+            ]);
+        });
+        this.rendererDOMNode.addEventListener('dragover', (e) => {
+            if (this.draggable) {
+                const { x: newPosX, y: newPosY } = this.renderer.pixelsToCoordinates(
+                    e.offsetX,
+                    e.offsetY
+                );
                 const [startMouse, startFocusX, startFocusY] = dragstartmap.get(this);
+                const { x: focusX, y: focusY } = this.renderer.focus;
                 this.renderer.focus = [
-                    startFocusX + (startMouse.x - newPosX),
-                    startFocusY + (startMouse.y - newPosY),
+                    focusX - (newPosX - startMouse.x),
+                    focusY - (newPosY - startMouse.y),
                 ];
             }
         }, { passive: true });
@@ -120,7 +105,7 @@ export class BasicUserInterface extends EventTarget {
     }
 
     get draggable() {
-        return draggablemap.get(this);
+        return this.rendererDOMNode.draggable;
     }
 
     set draggable(val) {
@@ -130,6 +115,8 @@ export class BasicUserInterface extends EventTarget {
             const DOM = this.rendererDOMNode;
 
             const opts = { passive: true };
+
+            DOM.draggable = !!val;
 
             if (!was) {
                 DOM.addEventListener('mousedown', mousedownHandler.get(this), opts);
