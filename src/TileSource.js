@@ -171,17 +171,17 @@ export class TileSource extends EventTarget {
             img = new Image();
             imgcache[url] = img;
             imgloading.add(img);
-                img.src = url;
-                img.decode().then(() => {
-                    imgloading.delete(img);
-                    imgerrors.delete(img);
-                    if (this.fireTileupdateOnImgTile) {
-                        this.dispatchEvent(new CustomEvent('tileupdate'));
-                    }
-                }).catch(() => {
-                    imgerrors.add(img);
-                    imgloading.delete(img);
-                });
+            img.src = url;
+            img.decode().then(() => {
+                imgloading.delete(img);
+                imgerrors.delete(img);
+                if (this.fireTileupdateOnImgTile) {
+                    this.dispatchEvent(new CustomEvent('tileupdate'));
+                }
+            }).catch(() => {
+                imgerrors.add(img);
+                imgloading.delete(img);
+            });
         }
         if (imgerrors.has(img) || imgloading.has(img)) {
             const source = document.createElement('canvas');
