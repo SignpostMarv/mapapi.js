@@ -171,8 +171,6 @@ export class TileSource extends EventTarget {
             img = new Image();
             imgcache[url] = img;
             imgloading.add(img);
-
-            requestIdleCallback(() => {
                 img.src = url;
                 img.decode().then(() => {
                     imgloading.delete(img);
@@ -184,7 +182,6 @@ export class TileSource extends EventTarget {
                     imgerrors.add(img);
                     imgloading.delete(img);
                 });
-            });
         }
         if (imgerrors.has(img) || imgloading.has(img)) {
             const source = document.createElement('canvas');

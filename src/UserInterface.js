@@ -3,9 +3,7 @@ import { ReadOnlyCoordinates, Coordinates } from './Coordinates.js';
 import { ConstructorArgumentExpectedClass } from './ErrorFormatting.js';
 
 const renderermap = new WeakMap();
-const mousedownTimer = new WeakMap();
 const draggingmap = new WeakMap();
-const draggablemap = new WeakMap();
 const wheelzoommap = new WeakMap();
 const mousedownHandler = new WeakMap();
 const mouseupHandler = new WeakMap();
@@ -86,7 +84,7 @@ export class BasicUserInterface extends EventTarget {
                     e.offsetX,
                     e.offsetY
                 );
-                const [startMouse, startFocusX, startFocusY] = dragstartmap.get(this);
+                const [startMouse] = dragstartmap.get(this);
                 const { x: focusX, y: focusY } = this.renderer.focus;
                 this.renderer.focus = [
                     focusX - (newPosX - startMouse.x),
