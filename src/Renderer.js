@@ -25,11 +25,12 @@ const deferMakeDirty = (renderer) => {
     }));
 };
 
-export class Canvas2dTileRenderer {
+export class Canvas2dTileRenderer extends EventTarget {
     constructor(width, height, tileSource, zoom = 0, focus = [0, 0]) {
         if (!(tileSource instanceof TileSource)) {
             throw new TypeError(ConstructorArgumentExpectedClass(this, 1, TileSource));
         }
+        super();
 
         tileSource.addEventListener('tileupdate', () => {
             deferMakeDirty(this);

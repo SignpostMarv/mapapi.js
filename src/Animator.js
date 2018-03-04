@@ -2,7 +2,6 @@ import { ReadOnlyCoordinates } from './Coordinates.js';
 import { Canvas2dTileRenderer } from './Renderer.js';
 import { ConstructorArgumentExpectedClass } from './ErrorFormatting.js';
 
-const transitiontimemap = new WeakMap();
 const rafmap = new WeakMap();
 const renderermap = new WeakMap();
 
@@ -12,29 +11,23 @@ export class Animator {
             throw new TypeError(ConstructorArgumentExpectedClass(this, 1, Canvas2dTileRenderer));
         }
 
-        this.transitionTime = 1000;
         renderermap.set(this, renderer);
     }
 
-    get transitionTime() {
-        return transitiontimemap.get(this);
-    }
-
-    set transitionTime(val) {
-        if (!(val instanceof Number) && 'number' !== typeof val) {
-            throw new TypeError('Animator::transitionTime must be a Number!');
-        }
-
-        transitiontimemap.set(this, Math.max(0, Number(val).valueOf()));
-    }
-
-    animate(newpos, newzoom) {
+    animate(newpos, newzoom, ms = 1000) {
+        const transitionTime = Number(ms);
         if (
             'undefined' !== typeof newzoom &&
             !(newzoom instanceof Number) &&
             'number' !== typeof newzoom
         ) {
             throw new TypeError('Argument 2 passed to Animator::animate() must be a number!');
+        } else if ('number' !== typeof transitionTime) {
+            throw new TypeError('Argument 3 passed to Animator::animate() must be a number!');
+        } else if (! Number.isFinite(transitionTime)) {
+            throw new TypeError('Argument 3 must be a finite number!');
+        } else if (transitionTime <= 0) {
+            throw new TypeError('Argument 3 must be a positive number!');
         }
 
         const renderer = renderermap.get(this);
@@ -48,12 +41,21 @@ export class Animator {
         cancelAnimationFrame(rafmap.get(this));
 
         const startTime = performance.now();
-        const endTime = startTime + this.transitionTime;
+        const endTime = startTime + transitionTime;
 
         const { x: startX, y: startY } = renderer.focus;
         const startZoom = renderer.zoom;
 
+        const done = () => {
+            renderer.dispatchEvent(new CustomEvent('transitionend', {detail :{
+                position: ReadOnlyCoordinates.Fuzzy(pos),
+                zoom: zoom
+            }}));
+        }
+
         if (pos.x === startX && pos.y === startY && zoom === startZoom) {
+            done();
+
             return;
         }
 
@@ -86,8 +88,15 @@ export class Animator {
                 if (renderer.zoom !== zoom) {
                     renderer.zoom = zoom;
                 }
+
+                done();
             }
         };
+
+        renderer.dispatchEvent(new CustomEvent('transitionstart', {detail :{
+            position: ReadOnlyCoordinates.Fuzzy(startX, startY),
+            zoom: startZoom
+        }}));
 
         sync();
     }
