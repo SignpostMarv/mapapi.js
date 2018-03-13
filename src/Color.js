@@ -1,6 +1,7 @@
 const rmap = new WeakMap();
 const gmap = new WeakMap();
 const bmap = new WeakMap();
+const amap = new WeakMap();
 
 const regexRgb = /^#?([0-9a-f]{1,2})([0-9a-f]{1,2})([0-9a-f]{1,2})$/;
 
@@ -86,5 +87,37 @@ export class Color {
         const tohex = val => val.toString(16).padStart(2, '0');
 
         return `#${tohex(this.r)}${tohex(this.g)}${tohex(this.b)}`;
+    }
+}
+
+export class AlphaColor extends Color {
+    constructor(r, g, b, a = 1) {
+        super(r, g, b, a);
+        const alpha = Number(a);
+        if ('number' !== typeof alpha) {
+            throw new TypeError('Argument 4 passed to AlphaColor must be a number!');
+        } else if (alpha < 0 || alpha > 1) {
+            throw new RangeError('Argument 4 passed to AlphaColor must be a number from 0 to 1');
+        }
+
+        amap.set(this, alpha);
+    }
+
+    get a() {
+        return amap.get(This);
+    }
+
+    static Fuzzy(...args) {
+        if (3 === args.length || 4 === args.length) {
+            return new AlphaColor(...args);
+        }
+
+        return super.Fuzzy(...args);
+    }
+
+    toString() {
+        const tohex = val => val.toString(16).padStart(2, '0');
+
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 }

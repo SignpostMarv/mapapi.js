@@ -11,15 +11,40 @@ body {
     overflow: hidden ;
     background: #1d475f ;
 }
-canvas {
+
+.mapapijs-container
+{
     width: 100vw ;
     height: 100vh ;
+    position: relative ;
+}
+.mapapijs-container > *
+{
+    position: absolute ;
+    top: 0 ;
+    left: 0 ;
+    width: 100% ;
+    height: 100% ;
+}
+.mapapijs-container > div > *
+{
+    position: absolute ;
+}
+.mapapijs-infowindow--inner
+{
+    background: #fff ;
+    padding: .25em ;
+    border-radius: .25em ;
+}
+.mapapijs-infowindow--inner a
+{
+    display: block ;
 }
 </style>
 </head>
 <body>
 <script type="module">
-import {init} from './index.js';
+import init from './index.js';
 
 init();
 </script>

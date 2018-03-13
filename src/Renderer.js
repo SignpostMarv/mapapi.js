@@ -4,6 +4,9 @@ import { TileSource } from './TileSource.js';
 import { Coordinates, ReadOnlyCoordinates } from './Coordinates.js';
 import { Animator } from './Animator.js';
 import { ConstructorArgumentExpectedClass } from './ErrorFormatting.js';
+import { ShapeGroups } from './Shapes.js';
+import { WidgetGroup } from './Html.js';
+import { html, render as htmlrender } from '../node_modules/lit-html/lit-html.js';
 
 const sizemap = new WeakMap();
 const canvasmap = new WeakMap();
@@ -25,6 +28,10 @@ const deferMakeDirty = (renderer) => {
     }));
 };
 
+const shapeGroupsMap = new WeakMap();
+const widgets = new WeakMap();
+const domNodeMap = new WeakMap();
+
 export class Canvas2dTileRenderer extends EventTarget {
     constructor(width, height, tileSource, zoom = 0, focus = [0, 0]) {
         if (!(tileSource instanceof TileSource)) {
@@ -44,10 +51,44 @@ export class Canvas2dTileRenderer extends EventTarget {
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
+        canvas.style.width = '100% !important';
+        canvas.style.height = '100% !important';
 
         canvasmap.set(this, canvas);
         dirtymap.set(this, true);
         ctxmap.set(this, canvasmap.get(this).getContext('2d'));
+
+        shapeGroupsMap.set(this, new ShapeGroups());
+        widgets.set(this, new WidgetGroup());
+
+        const node = new DocumentFragment();
+        htmlrender(html`
+            <div class="mapapijs-container">
+                ${canvas}
+                <div style="
+                    transform-origin:0 100%;
+                    transform:
+                        translate(var(--bounds-bl-x), var(--bounds-bl-y)))
+                    ;
+                "></div>
+            </div>`,
+            node
+        );
+
+        const ro = new ResizeObserver((entries) => {
+            if (entries.map(e => e.target).includes(this.DOMNode)) {
+                this.updateAsClientSize();
+            }
+        });
+
+        domNodeMap.set(this, node.querySelector('div'));
+        ro.observe(this.DOMNode);
+
+        const transformingDom = this.DOMNode.querySelector('div');
+
+        let ptrUpdate;
+        let updateTransformZoom = false;
+        let updateTransformBounds = false;
 
         this.focus.addEventListener('propertyUpdate', (e) => {
             if (e.detail.properties.includes('x') || e.detail.properties.includes('y')) {
@@ -55,15 +96,33 @@ export class Canvas2dTileRenderer extends EventTarget {
             }
         });
 
-        const node = this.DOMNode;
+        const focusWasUpdated = (e) => {
+            const { x, y } = e.target;
+            transformingDom.style.setProperty('--focus-x', x);
+            transformingDom.style.setProperty('--focus-y', y);
+        };
+        const zoomWasUpdated = (e) => {
+            const { zoom } = e.target;
+            const zoomA = 0.5 + (0.5 * (1 - (zoom % 1)));
+            const zoomB = 2 ** Math.floor(zoom);
+            transformingDom.style.setProperty('--scale', (1 * zoomA) / zoomB);;
+        };
 
-        const ro = new ResizeObserver((entries) => {
-            if (entries.map(e => e.target).includes(node)) {
-                this.updateAsClientSize();
+        this.focus.addEventListener('propertyUpdate', focusWasUpdated);
+
+        const { x: tileSourceWidth, y: tileSourceHeight } = tileSource.tileSize;
+
+        transformingDom.style.setProperty('--tilesource-width', tileSourceWidth);
+        transformingDom.style.setProperty('--tilesource-height', tileSourceHeight);
+        focusWasUpdated({ target : this.focus });
+
+        this.addEventListener('propertyUpdate', (e) => {
+            const { properties } = e.detail;
+            if (properties.includes('zoom')) {
+                zoomWasUpdated(e);
             }
         });
-
-        ro.observe(node);
+        zoomWasUpdated({ target: this });
     }
 
     get focus() {
@@ -82,6 +141,10 @@ export class Canvas2dTileRenderer extends EventTarget {
         return dirtymap.get(this);
     }
 
+    set dirty (val) {
+        dirtymap.set(this, !!val);
+    }
+
     get zoom() {
         return zoommap.get(this);
     }
@@ -98,6 +161,11 @@ export class Canvas2dTileRenderer extends EventTarget {
         zoommap.set(this, Math.min(maxZoom, Math.max(minZoom, zoom)));
 
         if (was !== this.zoom) {
+            this.dispatchEvent(new CustomEvent('propertyUpdate', {
+                detail: {
+                    properties: ['zoom'],
+                }
+            }));
             dirtymap.set(this, true);
         }
     }
@@ -145,18 +213,16 @@ export class Canvas2dTileRenderer extends EventTarget {
 
             if (!boundsmap.has(this)) {
                 boundsmap.set(this, bounds);
-                bounds.addEventListener('propertyUpdate', () => {
-                    if (hasChanged) {
-                        this.dispatchEvent('propertyUpdate', {
+            }
+
+
+            if (hasChanged) {
+                        this.dispatchEvent(new CustomEvent('propertyUpdate', {
                             detail: {
-                                property: 'bounds',
-                                was: new ReadOnlyBounds([wasBlX, wasBlY], [wasTrX, wasTrY]),
-                                is: new ReadOnlyBounds([isBlX, isBlY], [isTrX, isTrY]),
+                                properties: ['bounds'],
                             },
-                        });
+                        }));
                         dirtymap.set(this, true);
-                    }
-                }, { passive: true });
             }
         }
 
@@ -169,13 +235,14 @@ export class Canvas2dTileRenderer extends EventTarget {
     updateAsClientSize() {
         const { x: wasWidth, y: wasHeight } = this.size;
         const canvas = canvasmap.get(this);
-        const { clientWidth: width, clientHeight: height } = canvas;
+        const { clientWidth: width, clientHeight: height } = this.DOMNode;
 
         if (wasWidth !== width || wasHeight !== height) {
             sizemap.set(this, Size.Fuzzy(width, height));
             dirtymap.set(this, true);
-            this.DOMNode.width = width;
-            this.DOMNode.height = height;
+            const canvas = canvasmap.get(this);
+            canvas.width = width;
+            canvas.height = height;
 
             boundsmap.delete(this);
         }
@@ -228,11 +295,19 @@ export class Canvas2dTileRenderer extends EventTarget {
 
         ctx.restore();
 
+        const transformingDom = this.DOMNode.querySelector('div');
+
+        this.widgets.forEach((widget) => {
+            if (bounds.containsCoordinates(widget.position)) {
+                widget.render(transformingDom);
+            }
+        });
+
         dirtymap.set(this, false);
     }
 
     get DOMNode() {
-        return canvasmap.get(this);
+        return domNodeMap.get(this);
     }
 
     get animator() {
@@ -266,5 +341,13 @@ export class Canvas2dTileRenderer extends EventTarget {
 
     get tileSource() {
         return tilesourcemap.get(this);
+    }
+
+    get shapeGroups() {
+        return shapeGroupsMap.get(this);
+    }
+
+    get widgets() {
+        return widgets.get(this);
     }
 }

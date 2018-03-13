@@ -1,59 +1,7 @@
-import {Agni} from '../src/Grids/Agni.js';
-import {Canvas2dTileRenderer} from '../src/Renderer.js';
-import {BasicUserInterface} from '../src/UserInterface.js';
+import { init } from './init.js';
 
-export function init() {
-    const AgniInstance = new Agni();
+export default function() {
+    const minimalist = init();
 
-    const renderer = new Canvas2dTileRenderer(1, 1, AgniInstance.tileSources[0], 0, [1000, 1000]);
-
-    const UI = new BasicUserInterface(renderer);
-    const move = (e) => {
-        e.target.renderer.animator.animate(e.detail.position);
-    };
-    UI.addEventListener('click', move);
-    UI.addEventListener('dragmove', move);
-    UI.draggable = true;
-    UI.wheelZoom = true;
-
-    document.body.appendChild(renderer.DOMNode);
-
-    const sync = () => {
-        if (renderer.dirty) {
-            renderer.render();
-        }
-
-        requestAnimationFrame(sync);
-    };
-
-    requestAnimationFrame(() => {
-        renderer.updateAsClientSize();
-
-        sync();
-    });
-
-    window.Agni = AgniInstance;
-    window.renderer = renderer;
-    window.ui = UI;
-
-
-    let stateIndex = 0;
-    const states = [
-        [[1000, 1000], 0, 1000],
-        [[1000, 1001], 0, 2000],
-        [[1000, 1001], 1, 500],
-        [[1000, 1000], 7, 10000],
-        [[1000, 1000], 0, 10000],
-    ];
-    const advanceState = () => {
-        if (stateIndex >= states.length) {
-            renderer.removeEventListener('transitionend', advanceState);
-            return;
-        }
-
-        renderer.animator.animate(...states[stateIndex++]);
-    };
-    renderer.addEventListener('transitionend', advanceState);
-
-    advanceState();
+    window.UI = minimalist;
 }

@@ -103,6 +103,12 @@ export class ReadOnlyBounds extends EventTarget {
         );
     }
 
+    static Fuzzy(...args) {
+        if (args.length === 4) {
+            return new this([args[0], args[1]], [args[2], args[3]]);
+        }
+    }
+
     toString() {
         return `${this.constructor.name}[${this.bottomLeft}, ${this.topRight}]`;
     }
