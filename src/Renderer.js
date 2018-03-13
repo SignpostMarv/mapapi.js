@@ -34,10 +34,10 @@ const domNodeMap = new WeakMap();
 
 export class Canvas2dTileRenderer extends EventTarget {
     constructor(width, height, tileSource, zoom = 0, focus = [0, 0]) {
+        super();
         if (!(tileSource instanceof TileSource)) {
             throw new TypeError(ConstructorArgumentExpectedClass(this, 1, TileSource));
         }
-        super();
 
         tileSource.addEventListener('tileupdate', () => {
             deferMakeDirty(this);
@@ -62,7 +62,8 @@ export class Canvas2dTileRenderer extends EventTarget {
         widgets.set(this, new WidgetGroup());
 
         const node = new DocumentFragment();
-        htmlrender(html`
+        htmlrender(
+            html`
             <div class="mapapijs-container">
                 ${canvas}
                 <div style="
@@ -86,10 +87,6 @@ export class Canvas2dTileRenderer extends EventTarget {
 
         const transformingDom = this.DOMNode.querySelector('div');
 
-        let ptrUpdate;
-        let updateTransformZoom = false;
-        let updateTransformBounds = false;
-
         this.focus.addEventListener('propertyUpdate', (e) => {
             if (e.detail.properties.includes('x') || e.detail.properties.includes('y')) {
                 dirtymap.set(this, true);
@@ -102,10 +99,10 @@ export class Canvas2dTileRenderer extends EventTarget {
             transformingDom.style.setProperty('--focus-y', y);
         };
         const zoomWasUpdated = (e) => {
-            const { zoom } = e.target;
-            const zoomA = 0.5 + (0.5 * (1 - (zoom % 1)));
-            const zoomB = 2 ** Math.floor(zoom);
-            transformingDom.style.setProperty('--scale', (1 * zoomA) / zoomB);;
+            const { zoom: currentzoom } = e.target;
+            const zoomA = 0.5 + (0.5 * (1 - (currentzoom % 1)));
+            const zoomB = 2 ** Math.floor(currentzoom);
+            transformingDom.style.setProperty('--scale', (1 * zoomA) / zoomB);
         };
 
         this.focus.addEventListener('propertyUpdate', focusWasUpdated);
@@ -114,7 +111,7 @@ export class Canvas2dTileRenderer extends EventTarget {
 
         transformingDom.style.setProperty('--tilesource-width', tileSourceWidth);
         transformingDom.style.setProperty('--tilesource-height', tileSourceHeight);
-        focusWasUpdated({ target : this.focus });
+        focusWasUpdated({ target: this.focus });
 
         this.addEventListener('propertyUpdate', (e) => {
             const { properties } = e.detail;
@@ -141,7 +138,7 @@ export class Canvas2dTileRenderer extends EventTarget {
         return dirtymap.get(this);
     }
 
-    set dirty (val) {
+    set dirty(val) {
         dirtymap.set(this, !!val);
     }
 
@@ -164,7 +161,7 @@ export class Canvas2dTileRenderer extends EventTarget {
             this.dispatchEvent(new CustomEvent('propertyUpdate', {
                 detail: {
                     properties: ['zoom'],
-                }
+                },
             }));
             dirtymap.set(this, true);
         }
@@ -205,10 +202,10 @@ export class Canvas2dTileRenderer extends EventTarget {
             const { x: isTrX, y: isTrY } = bounds.topRight;
 
             hasChanged = (
-                wasBlX !== bounds.bottomLeft.x ||
-                wasBlY !== bounds.bottomLeft.y ||
-                wasTrX !== bounds.topRight.x ||
-                wasTrY !== bounds.topRight.y
+                wasBlX !== isBlX ||
+                wasBlY !== isBlY ||
+                wasTrX !== isTrX ||
+                wasTrY !== isTrY
             );
 
             if (!boundsmap.has(this)) {
@@ -217,12 +214,12 @@ export class Canvas2dTileRenderer extends EventTarget {
 
 
             if (hasChanged) {
-                        this.dispatchEvent(new CustomEvent('propertyUpdate', {
-                            detail: {
-                                properties: ['bounds'],
-                            },
-                        }));
-                        dirtymap.set(this, true);
+                this.dispatchEvent(new CustomEvent('propertyUpdate', {
+                    detail: {
+                        properties: ['bounds'],
+                    },
+                }));
+                dirtymap.set(this, true);
             }
         }
 
@@ -240,7 +237,6 @@ export class Canvas2dTileRenderer extends EventTarget {
         if (wasWidth !== width || wasHeight !== height) {
             sizemap.set(this, Size.Fuzzy(width, height));
             dirtymap.set(this, true);
-            const canvas = canvasmap.get(this);
             canvas.width = width;
             canvas.height = height;
 
