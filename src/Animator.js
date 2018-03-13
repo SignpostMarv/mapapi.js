@@ -24,7 +24,7 @@ export class Animator {
             throw new TypeError('Argument 2 passed to Animator::animate() must be a number!');
         } else if ('number' !== typeof transitionTime) {
             throw new TypeError('Argument 3 passed to Animator::animate() must be a number!');
-        } else if (! Number.isFinite(transitionTime)) {
+        } else if (!Number.isFinite(transitionTime)) {
             throw new TypeError('Argument 3 must be a finite number!');
         } else if (transitionTime <= 0) {
             throw new TypeError('Argument 3 must be a positive number!');
@@ -47,11 +47,16 @@ export class Animator {
         const startZoom = renderer.zoom;
 
         const done = () => {
-            renderer.dispatchEvent(new CustomEvent('transitionend', {detail :{
+            renderer.dispatchEvent(new CustomEvent(
+                'transitionend',
+                {
+                    detail: {
                 position: ReadOnlyCoordinates.Fuzzy(pos),
-                zoom: zoom
-            }}));
-        }
+                        zoom,
+                    },
+                }
+            ));
+        };
 
         if (pos.x === startX && pos.y === startY && zoom === startZoom) {
             done();
@@ -93,10 +98,15 @@ export class Animator {
             }
         };
 
-        renderer.dispatchEvent(new CustomEvent('transitionstart', {detail :{
+        renderer.dispatchEvent(new CustomEvent(
+            'transitionstart',
+            {
+                detail: {
             position: ReadOnlyCoordinates.Fuzzy(startX, startY),
-            zoom: startZoom
-        }}));
+                    zoom: startZoom,
+                },
+            }
+        ));
 
         sync();
     }
