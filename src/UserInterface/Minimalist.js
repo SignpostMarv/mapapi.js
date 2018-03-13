@@ -16,12 +16,12 @@ const uiClickHandler = (e) => {
 };
 
 export class Minimalist {
-    constructor (gridConfig, initialFocus = [0, 0], zoomLevel = 0) {
-        if (!(gridConfig.constructor instanceof GridConfig.constructor)) {
+    constructor(GridConfigClass, initialFocus = [0, 0], zoomLevel = 0) {
+        if (!(GridConfigClass.constructor instanceof GridConfig.constructor)) {
             throw new TypeError(ConstructorArgumentExpectedClass(this, 1, GridConfig));
         }
 
-        gridConfigMap.set(this, new gridConfig());
+        gridConfigMap.set(this, new GridConfigClass());
         rendererMap.set(
             this,
             new Canvas2dTileRenderer(
@@ -41,20 +41,23 @@ export class Minimalist {
         let infoWindowX = 0;
         let infoWindowY = 0;
         let infoWindowTpl = '';
-        infoWindowMap.set(this.ui, new Widget(
+        infoWindowMap.set(
+            this.ui,
+            new Widget(
             (pos, offset) => {
                 const { x, y } = pos;
                 if (infoWindowPosFound && (infoWindowX !== x || infoWindowY !== y)) {
                     infoWindowTpl = 'Searching...';
                     infoWindowPosFound = false;
-                    this.gridConfig.api.CoordinatesToLocation(pos).then(res => {
+                    this.gridConfig.api.CoordinatesToLocation(pos).then((res) => {
                         infoWindowTpl = html`
                             ${res.name}
                             <a
                                 href="secondlife://${
-                                    encodeURIComponent(res.name)}/${
+                                    encodeURIComponent(res.name)
+                                }/${
                                     encodeURIComponent(Math.floor(256 * (x % 1)))
-                                    }/${
+                                }/${
                                     encodeURIComponent(Math.floor(256 * (y % 1)))
                                 }"
                             >Teleport</a>
@@ -65,21 +68,52 @@ export class Minimalist {
                         this.renderer.animator.animate(pos);
                     });
                 }
-                infoWindowX = x ;
+                infoWindowX = x;
                 infoWindowY = y;
                 return html`
                     <div
                         class="mapapijs-infowindow"
                         style="
-                            bottom:calc(50% - (((1px * var(--scale)) * var(--tilesource-width)) * (var(--focus-y) - (${pos.y + offset.y}))));
-                            left:calc(50% - (((1px * var(--scale)) * var(--tilesource-height)) * (var(--focus-x) - (${pos.x + offset.x}))));"
+                            bottom:
+                                calc(
+                                    50% -
+                                    (
+                                        (
+                                            (1px * var(--scale)) *
+                                            var(--tilesource-width)
+                                        ) *
+                                        (
+                                            var(--focus-y) -
+                                            (
+                                                ${pos.y + offset.y}
+                                            )
+                                        )
+                                    )
+                                );
+                            left:
+                                calc(
+                                    50% -
+                                    (
+                                        (
+                                            (1px * var(--scale)) *
+                                            var(--tilesource-height)
+                                        ) *
+                                        (
+                                            var(--focus-x) -
+                                            (
+                                                ${pos.x + offset.x}
+                                            )
+                                        )
+                                    )
+                                );"
                     >
                         <div class="mapapijs-infowindow--inner">
                             ${infoWindowTpl}
                         </div>
                     </div>`;
             }
-        ));
+            )
+        );
         this.renderer.widgets.push(infoWindowMap.get(this.ui));
 
         const sync = () => {
@@ -110,7 +144,7 @@ export class Minimalist {
     }
 
     set zoom(val) {
-        return this.renderer.zoom = val;
+        this.renderer.zoom = val;
     }
 
     get focus() {
@@ -118,6 +152,6 @@ export class Minimalist {
     }
 
     set focus(val) {
-        return this.renderer.focus = val;
+        this.renderer.focus = val;
     }
 }
