@@ -51,7 +51,7 @@ export class Animator {
                 'transitionend',
                 {
                     detail: {
-                position: ReadOnlyCoordinates.Fuzzy(pos),
+                        position: ReadOnlyCoordinates.Fuzzy(pos),
                         zoom,
                     },
                 }
@@ -102,7 +102,7 @@ export class Animator {
             'transitionstart',
             {
                 detail: {
-            position: ReadOnlyCoordinates.Fuzzy(startX, startY),
+                    position: ReadOnlyCoordinates.Fuzzy(startX, startY),
                     zoom: startZoom,
                 },
             }
