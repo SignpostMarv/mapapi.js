@@ -1,9 +1,8 @@
 import {
     ConstructorArgumentExpectedClass,
     ClassMethodArgumentExpectedType,
-    ConstructorArgumentGT,
-    ClassPropertyArgumentGT,
-    ClassMethodPropertytExpectedType
+    ClassMethodPropertytExpectedType,
+    ConstructorArgumentGTE,
 } from './ErrorFormatting.js';
 import { ReadOnlyCoordinates } from './Coordinates.js';
 import { Color, AlphaColor } from './Color.js';
@@ -20,7 +19,10 @@ const updateFillStyle = (obj, arg) => {
 
     const is = fillStyleMap.get(obj);
 
-    return (undefined === was || (was.r != is.r || was.r !== is.r || was.b !== is.b || was.a !== is.a));
+    return (
+        undefined === was ||
+        (was.r !== is.r || was.g !== is.g || was.b !== is.b || was.a !== is.a)
+    );
 };
 const updateStrokeStyle = (obj, arg) => {
     const was = fillStyleMap.get(obj);
@@ -29,13 +31,16 @@ const updateStrokeStyle = (obj, arg) => {
 
     const is = fillStyleMap.get(obj);
 
-    return (undefined === was || (was.r != is.r || was.r !== is.r || was.b !== is.b || was.a !== is.a));
+    return (
+        undefined === was ||
+        (was.r !== is.r || was.g !== is.g || was.b !== is.b || was.a !== is.a)
+    );
 };
 const updateLineWidth = (obj, arg, name, argNum) => {
     const was = lineWidthMap.get(obj);
     const width = Number(arg);
 
-    if ('number' !== typeof width || ! Number.isFinite(width)) {
+    if ('number' !== typeof width || !Number.isFinite(width)) {
         throw new TypeError(ClassMethodPropertytExpectedType(obj, name, argNum, 'finite number'));
     } else if (width < 0) {
         throw new RangeError(ConstructorArgumentGTE(obj, argNum, 0));
@@ -46,19 +51,26 @@ const updateLineWidth = (obj, arg, name, argNum) => {
     return was !== width;
 };
 
-const dispatchPropertyUpdate = (obj, properties) => {
-    return obj.dispatchEvent(new CustomEvent('propertyUpdate', { detail: { properties } }));
-};
+const dispatchPropertyUpdate = (obj, properties) => obj.dispatchEvent(new CustomEvent(
+    'propertyUpdate',
+    { detail: { properties } }
+));
 
 export class ShapeStyle extends EventTarget {
     constructor(fillStyle, strokeStyle, strokeWidth) {
         const width = Number(strokeWidth);
-        if ( ! (fillStyle instanceof Color)) {
+        super();
+        if (!(fillStyle instanceof Color)) {
             throw new TypeError(ConstructorArgumentExpectedClass(this, 1, Color));
-        } else if ( ! (strokeStyle instanceof Color)) {
+        } else if (!(strokeStyle instanceof Color)) {
             throw new TypeError(ConstructorArgumentExpectedClass(this, 2, Color));
-        } else if ('number' !== typeof width || ! Number.isFinite(width)) {
-            throw new TypeError(ClassMethodArgumentExpectedType(this, this.constructor, 3, 'finite number'));
+        } else if ('number' !== typeof width || !Number.isFinite(width)) {
+            throw new TypeError(ClassMethodArgumentExpectedType(
+                this,
+                this.constructor,
+                3,
+                'finite number'
+            ));
         } else if (width < 0) {
             throw new RangeError(ConstructorArgumentGTE(this, 3, 0));
         }
@@ -79,12 +91,22 @@ export class ShapeStyle extends EventTarget {
     }
 
     static Fuzzy(args) {
-        if (args.length === 3) {
+        if (3 === args.length) {
             return new this(...args);
         } else if (args instanceof ShapeStyle) {
             return new this(
-                AlphaColor.Fuzzy(args.fillStyle.r, args.fillStyle.g, args.fillStyle.b, args.fillStyle.a),
-                AlphaColor.Fuzzy(args.strokeStyle.r, args.strokeStyle.g, args.strokeStyle.b, args.strokeStyle.a),
+                AlphaColor.Fuzzy(
+                    args.fillStyle.r,
+                    args.fillStyle.g,
+                    args.fillStyle.b,
+                    args.fillStyle.a
+                ),
+                AlphaColor.Fuzzy(
+                    args.strokeStyle.r,
+                    args.strokeStyle.g,
+                    args.strokeStyle.b,
+                    args.strokeStyle.a
+                ),
                 args.lineWidth
             );
         }
@@ -95,15 +117,15 @@ export class ShapeStyle extends EventTarget {
     atomicUpdate(fillStyle, strokeStyle, strokeWidth) {
         const properties = [];
 
-        if (updateFillStyle(this, arg)) {
+        if (updateFillStyle(this, fillStyle)) {
             properties.push('fillStyle');
         }
 
-        if (updateStrokeStyle(this, arg)) {
+        if (updateStrokeStyle(this, strokeStyle)) {
             properties.push('strokeStyle');
         }
 
-        if (updateLineWidth(this, value, 'lineWidth', 1)) {
+        if (updateLineWidth(this, strokeWidth, 'lineWidth', 1)) {
             properties.push('lineWidth');
         }
 
@@ -148,12 +170,13 @@ const coordsMap = new WeakMap();
 const clickableMap = new WeakMap();
 const titleMap = new WeakMap();
 
-export class Shape extends EventTarget
-{
+export class Shape extends EventTarget {
     constructor(style, clickable, title, ...coords) {
         if (coords.length < 0) {
             throw new TypeError('At least one coordinate must be specified!');
         }
+
+        super();
 
         coordsMap.set(this, coords.map(ReadOnlyCoordinates.Fuzzy));
 
@@ -228,10 +251,12 @@ export class Line extends Shape {
         let distance = 0;
         let against = coords[0];
 
-        for (let i=1; i< length; i += 1) {
-            let current = coords[i];
+        for (let i = 1; i < length; i += 1) {
+            const current = coords[i];
+            const xDiff = against.x - current.x;
+            const yDiff = against.y - current.y;
 
-            distance += Math.sqrt(Math.pow(against.x - current.x, 2) + Math.pow(against.y - current.y, 2));
+            distance += Math.sqrt((xDiff ** 2) + (yDiff ** 2));
 
             against = current;
         }
@@ -244,7 +269,7 @@ export class Circle extends Line {
     get radius() {
         const [center, edge] = this.Coordinates;
 
-        return Math.sqrt(Math.pow(center.x - edge.x, 2) + Math.pow(center.y - edge.y, 2));
+        return Math.sqrt(((center.x - edge.x) ** 2) + ((center.y - edge.y) ** 2));
     }
 
     get length() {
@@ -252,7 +277,7 @@ export class Circle extends Line {
     }
 
     get bounds() {
-        const {x, y} = this.Coordinates[0];
+        const { x, y } = this.Coordinates[0];
         const { radius } = this;
 
         return ReadOnlyBounds.Fuzzy([[x - radius, y - radius], [x + radius, y + radius]]);
@@ -279,8 +304,6 @@ export class Polygon extends Line {
     }
 }
 
-const shapeMap = new WeakMap();
-
 const shapeFilter = e => e instanceof Shape;
 
 export class ShapeGroup extends Array {
@@ -303,14 +326,14 @@ export class ShapeGroup extends Array {
     }
 
     concat(...groups) {
-        return super.concat(...groups.map((e) => e.filter(shapeFilter)));
+        return super.concat(...groups.map(e => e.filter(shapeFilter)));
     }
 
     push(...shapes) {
         return super.push(shapes.filter(shapeFilter));
     }
 
-    fill (...args) {
+    fill() { // eslint-disable-line class-methods-use-this
         throw new TypeError('ShapeGroup cannot be filled!');
     }
 
@@ -330,19 +353,19 @@ export class ShapeGroups extends Array {
         super(groups.filter(shapeGroupFilter));
     }
 
-    static of (...groups) {
+    static of(...groups) {
         return new this(groups.filter(shapeGroupFilter));
     }
 
     concat(...groups) {
-        return super.concat(...groups.map((e) => e.filter(shapeGroupFilter)));
+        return super.concat(...groups.map(e => e.filter(shapeGroupFilter)));
     }
 
     push(...shapes) {
         return super.push(shapes.filter(shapeGroupFilter));
     }
 
-    fill (...args) {
+    fill() { // eslint-disable-line class-methods-use-this
         throw new TypeError('ShapeGroups cannot be filled!');
     }
 
