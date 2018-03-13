@@ -10,7 +10,6 @@ import {
     ClassMethodArgumentExpectedType,
     ClassMethodArgumentExpectedClass,
 } from '../ErrorFormatting.js';
-import { Widget } from '../Html.js';
 
 const AgniSize = new ReadOnlyGridSize(
     new ReadOnlyCoordinates(0, 0),

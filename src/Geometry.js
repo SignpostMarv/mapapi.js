@@ -104,9 +104,11 @@ export class ReadOnlyBounds extends EventTarget {
     }
 
     static Fuzzy(...args) {
-        if (args.length === 4) {
+        if (4 === args.length) {
             return new this([args[0], args[1]], [args[2], args[3]]);
         }
+
+        throw new TypeError('Unable to resolve instance of ReadOnlyBounds from arguments!');
     }
 
     toString() {

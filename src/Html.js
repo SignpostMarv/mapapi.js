@@ -51,14 +51,14 @@ export class WidgetGroup extends Array {
     }
 
     concat(...groups) {
-        return super.concat(...groups.map((e) => e.filter(widgetFilter)));
+        return super.concat(...groups.map(e => e.filter(widgetFilter)));
     }
 
     push(...widgets) {
         return super.push(...widgets.filter(widgetFilter));
     }
 
-    fill (...args) {
+    fill() { // eslint-disable-line class-methods-use-this
         throw new TypeError('WidgetGroup cannot be filled!');
     }
 

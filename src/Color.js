@@ -104,7 +104,7 @@ export class AlphaColor extends Color {
     }
 
     get a() {
-        return amap.get(This);
+        return amap.get(this);
     }
 
     static Fuzzy(...args) {
@@ -116,8 +116,6 @@ export class AlphaColor extends Color {
     }
 
     toString() {
-        const tohex = val => val.toString(16).padStart(2, '0');
-
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 }
