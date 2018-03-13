@@ -43,23 +43,19 @@ export class Minimalist {
         let infoWindowTpl = '';
         infoWindowMap.set(
             this.ui,
-            new Widget(
-            (pos, offset) => {
+            new Widget((pos, offset) => {
                 const { x, y } = pos;
                 if (infoWindowPosFound && (infoWindowX !== x || infoWindowY !== y)) {
                     infoWindowTpl = 'Searching...';
                     infoWindowPosFound = false;
                     this.gridConfig.api.CoordinatesToLocation(pos).then((res) => {
+                        const uriRegion = encodeURIComponent(res.name);
+                        const uriX = encodeURIComponent(Math.floor(256 * (x % 1)));
+                        const uriY = encodeURIComponent(Math.floor(256 * (y % 1)));
                         infoWindowTpl = html`
                             ${res.name}
                             <a
-                                href="secondlife://${
-                                    encodeURIComponent(res.name)
-                                }/${
-                                    encodeURIComponent(Math.floor(256 * (x % 1)))
-                                }/${
-                                    encodeURIComponent(Math.floor(256 * (y % 1)))
-                                }"
+                                href="secondlife://${uriRegion}/${uriX}/${uriY}"
                             >Teleport</a>
                         `;
                         infoWindowPosFound = true;
@@ -111,8 +107,7 @@ export class Minimalist {
                             ${infoWindowTpl}
                         </div>
                     </div>`;
-            }
-            )
+            })
         );
         this.renderer.widgets.push(infoWindowMap.get(this.ui));
 
