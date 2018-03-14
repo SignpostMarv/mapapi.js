@@ -173,8 +173,7 @@ export class Canvas2dTileRenderer extends EventTarget {
         if (!boundsmap.has(this) || this.dirty) {
             bounds = boundsmap.has(this) ? boundsmap.get(this) : Bounds.Zero;
 
-            const { x: wasBlX, y: wasBlY } = bounds.bottomLeft;
-            const { x: wasTrX, y: wasTrY } = bounds.topRight;
+            const [ wasBlX, wasBlY, wasTrX, wasTrY ] = bounds.toArray();
 
             const { zoom } = this;
             const zoomA = 0.5 + (0.5 * (1 - (zoom % 1)));

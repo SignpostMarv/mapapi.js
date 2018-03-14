@@ -52,9 +52,15 @@ export class ReadOnlyBounds extends EventTarget {
         return toprightmap.get(this);
     }
 
+    toArray() {
+        const [ blX, blY ] = bottomleftmap.get(this).toArray();
+        const [ trX, trY ] = toprightmap.get(this).toArray();
+
+        return [blX, blY, trX, trY];
+    }
+
     get size() {
-        const { x: blX, y: blY } = this.bottomLeft;
-        const { y: trX, y: trY } = this.topRight;
+        const [ blX, blY, trX, trY ] = bounds.toArray();
         return new ReadOnlySize(
             trX - blX,
             trY - blY

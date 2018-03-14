@@ -29,6 +29,10 @@ export class ReadOnlyCoordinates extends EventTarget {
         return ymap.get(this);
     }
 
+    toArray() {
+        return [ xmap.get(this), ymap.get(this) ];
+    }
+
     compare(pos) {
         const comparingTo = this.Fuzzy(pos);
 
