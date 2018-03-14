@@ -115,6 +115,7 @@ class AgniApi extends Api {
                 };
 
                 script.onload = () => {
+                    try {
                     const regionName = handleScriptRes(varname, 'string');
                     const resPos = new ReadOnlyCoordinates(gridX, gridY);
 
@@ -125,6 +126,9 @@ class AgniApi extends Api {
                     ));
 
                     cleanup();
+                    } catch (err) {
+                        nope(err);
+                    }
                 };
 
                 script.onerror = () => {
@@ -178,6 +182,7 @@ class AgniApi extends Api {
                 };
 
                 script.onload = async () => {
+                    try {
                     const pos = handleScriptRes(varname, 'object');
 
                     const poskeys = Object.keys(pos);
@@ -191,7 +196,10 @@ class AgniApi extends Api {
                             cleanup();
                         }
                     } else {
-                        throw new TypeError('API result did not contain coordiantes!');
+                        throw new TypeError('API result did not contain coordinates!');
+                    }
+                    } catch (err) {
+                        nope(err);
                     }
                 };
 
