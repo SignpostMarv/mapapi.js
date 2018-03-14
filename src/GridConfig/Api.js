@@ -16,7 +16,7 @@ export class Api {
     *
     * @return {LocationWithKnownCoordinates} from '../Location.js';
     */
-    async LocationNameToCoordiantes(locationName) {
-        throw new TypeError('LocationNameToCoordiantes API method has not been defined!');
+    async LocationNameToCoordinates(locationName) {
+        throw new TypeError('LocationNameToCoordinates API method has not been defined!');
     }
 }

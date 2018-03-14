@@ -151,13 +151,13 @@ class AgniApi extends Api {
         return inProgress[key];
     }
 
-    async LocationNameToCoordiantes(locationName) {
+    async LocationNameToCoordinates(locationName) {
         const isString = locationName instanceof String;
 
         if (!isString && 'string' !== typeof locationName) {
             throw new TypeError(ClassMethodArgumentExpectedType(
                 this,
-                this.LocationNameToCoordiantes,
+                this.LocationNameToCoordinates,
                 1,
                 'string'
             ));
