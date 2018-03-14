@@ -118,16 +118,16 @@ class AgniApi extends Api {
 
                 script.onload = () => {
                     try {
-                    const regionName = handleScriptRes(varname, 'string');
-                    const resPos = new ReadOnlyCoordinates(gridX, gridY);
+                        const regionName = handleScriptRes(varname, 'string');
+                        const resPos = new ReadOnlyCoordinates(gridX, gridY);
 
-                    yup(new LocationWithKnownGeometry(
-                        regionName,
-                        resPos,
-                        new ReadOnlyRectangle(1, 1, resPos)
-                    ));
+                        yup(new LocationWithKnownGeometry(
+                            regionName,
+                            resPos,
+                            new ReadOnlyRectangle(1, 1, resPos)
+                        ));
 
-                    cleanup();
+                        cleanup();
                     } catch (err) {
                         nope(err);
                     }
@@ -185,21 +185,21 @@ class AgniApi extends Api {
 
                 script.onload = async () => {
                     try {
-                    const pos = handleScriptRes(varname, 'object');
+                        const pos = handleScriptRes(varname, 'object');
 
-                    const poskeys = Object.keys(pos);
+                        const poskeys = Object.keys(pos);
 
-                    if (poskeys.includes('x') && poskeys.includes('y')) {
-                        try {
-                            yup(await this.CoordinatesToLocation(ReadOnlyCoordinates.Fuzzy(pos)));
-                        } catch (err) {
-                            nope(err);
-                        } finally {
-                            cleanup();
+                        if (poskeys.includes('x') && poskeys.includes('y')) {
+                            try {
+                                yup(await this.CoordinatesToLocation(ReadOnlyCoordinates.Fuzzy(pos)));
+                            } catch (err) {
+                                nope(err);
+                            } finally {
+                                cleanup();
+                            }
+                        } else {
+                            throw new TypeError('API result did not contain coordinates!');
                         }
-                    } else {
-                        throw new TypeError('API result did not contain coordinates!');
-                    }
                     } catch (err) {
                         nope(err);
                     }
