@@ -37,79 +37,9 @@ export class Minimalist {
         this.ui.draggable = true;
         this.ui.wheelZoom = true;
         this.ui.addEventListener('click', uiClickHandler);
-        let infoWindowPosFound = true;
-        let infoWindowX = 0;
-        let infoWindowY = 0;
-        let infoWindowTpl = '';
-        infoWindowMap.set(
-            this.ui,
-            new Widget((pos, offset) => {
-                const { x, y } = pos;
-                if (infoWindowPosFound && (infoWindowX !== x || infoWindowY !== y)) {
-                    infoWindowTpl = 'Searching...';
-                    infoWindowPosFound = false;
-                    this.gridConfig.api.CoordinatesToLocation(pos).then((res) => {
-                        const uriRegion = encodeURIComponent(res.name);
-                        const uriX = encodeURIComponent(Math.floor(256 * (x % 1)));
-                        const uriY = encodeURIComponent(Math.floor(256 * (y % 1)));
-                        infoWindowTpl = html`
-                            ${res.name}
-                            <a
-                                href="secondlife://${uriRegion}/${uriX}/${uriY}"
-                            >Teleport</a>
-                        `;
-                        infoWindowPosFound = true;
-                        infoWindowMap.get(this.ui).updateDomNode();
-                        this.renderer.dirty = true;
-                        this.renderer.animator.animate(pos);
-                    });
-                }
-                infoWindowX = x;
-                infoWindowY = y;
-                return html`
-                    <div
-                        class="mapapijs-infowindow"
-                        style="
-                            bottom:
-                                calc(
-                                    50% -
-                                    (
-                                        (
-                                            (1px * var(--scale)) *
-                                            var(--tilesource-width)
-                                        ) *
-                                        (
-                                            var(--focus-y) -
-                                            (
-                                                ${pos.y + offset.y}
-                                            )
-                                        )
-                                    )
-                                );
-                            left:
-                                calc(
-                                    50% -
-                                    (
-                                        (
-                                            (1px * var(--scale)) *
-                                            var(--tilesource-height)
-                                        ) *
-                                        (
-                                            var(--focus-x) -
-                                            (
-                                                ${pos.x + offset.x}
-                                            )
-                                        )
-                                    )
-                                );"
-                    >
-                        <div class="mapapijs-infowindow--inner">
-                            ${infoWindowTpl}
-                        </div>
-                    </div>`;
-            })
-        );
-        this.renderer.widgets.push(infoWindowMap.get(this.ui));
+        const infoWindow = this.gridConfig.api.LocationInfoWindowFactory()(this.ui.renderer);
+        infoWindowMap.set(this.ui, infoWindow);
+        this.renderer.widgets.push(infoWindow);
 
         const sync = () => {
             if (this.renderer.dirty) {

@@ -19,4 +19,8 @@ export class Api {
     async LocationNameToCoordinates(locationName) {
         throw new TypeError('LocationNameToCoordinates API method has not been defined!');
     }
+
+    LocationInfoWindowFactory(renderer) {
+        throw new TypeError('LocationInfoWindowFactory API method has not been defined!');
+    }
 }

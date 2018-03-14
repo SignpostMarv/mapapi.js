@@ -10,6 +10,8 @@ import {
     ClassMethodArgumentExpectedType,
     ClassMethodArgumentExpectedClass,
 } from '../ErrorFormatting.js';
+import { Widget } from '../Html.js';
+import { html } from '../../node_modules/lit-html/lit-html.js';
 
 const AgniSize = new ReadOnlyGridSize(
     new ReadOnlyCoordinates(0, 0),
@@ -224,6 +226,104 @@ class AgniApi extends Api {
         }
 
         return inProgress[key];
+    }
+
+    LocationInfoWindowFactory() {
+        return (renderer) => {
+            let infoWindowPosFound = true;
+            let infoWindowX = 0;
+            let infoWindowY = 0;
+            let infoWindowTpl = '';
+            let infoWindowProm;
+
+            const update = () => {
+                widget.updateDomNode();
+                renderer.dirty = true;
+            };
+
+            const widget = new Widget(async(pos, offset) => {
+                let { x, y } = pos;
+                x -= x % 1;
+                y -= y % 1;
+                if (infoWindowX != x || infoWindowY != y) {
+                    infoWindowPosFound = false;
+                    this.CoordinatesToLocation(pos).then((res) => {
+                        let { x: resX, y: resY } = res.coordinates;
+                        resX -= resX % 1;
+                        resY -= resY % 1;
+                        if (infoWindowX === resX && infoWindowY === resY) {
+                            const uriRegion = encodeURIComponent(res.name);
+                            const uriX = encodeURIComponent(Math.floor(256 * (x % 1)));
+                            const uriY = encodeURIComponent(Math.floor(256 * (y % 1)));
+                            infoWindowTpl = html`
+                                ${res.name}
+                                <a
+                                    href="secondlife://${uriRegion}/${uriX}/${uriY}"
+                                >Teleport</a>
+                            `;
+                            infoWindowPosFound = true;
+                            update();
+                    }).catch((err) => {
+                        infoWindowTpl = html`Error`;
+                        infoWindowPosFound = true;
+                        console.error(err);
+                        update();
+                    });
+                }
+                if (! infoWindowPosFound) {
+                    const doUpdate = infoWindowTpl !== 'Searching...';
+                    infoWindowTpl = 'Searching...';
+                    if (doUpdate) {
+                        update();
+                    }
+                }
+                infoWindowX = x;
+                infoWindowY = y;
+                return html`
+                    <div
+                        class="mapapijs-infowindow"
+                        style="
+                            bottom:
+                                calc(
+                                    50% -
+                                    (
+                                        (
+                                            (1px * var(--scale)) *
+                                            var(--tilesource-width)
+                                        ) *
+                                        (
+                                            var(--focus-y) -
+                                            (
+                                                ${pos.y + offset.y}
+                                            )
+                                        )
+                                    )
+                                );
+                            left:
+                                calc(
+                                    50% -
+                                    (
+                                        (
+                                            (1px * var(--scale)) *
+                                            var(--tilesource-height)
+                                        ) *
+                                        (
+                                            var(--focus-x) -
+                                            (
+                                                ${pos.x + offset.x}
+                                            )
+                                        )
+                                    )
+                                );"
+                    >
+                        <div class="mapapijs-infowindow--inner">
+                            ${infoWindowTpl}
+                        </div>
+                    </div>`;
+            });
+
+            return widget;
+        };
     }
 }
 
