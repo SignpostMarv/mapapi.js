@@ -263,6 +263,7 @@ class AgniApi extends Api {
                             `;
                             infoWindowPosFound = true;
                             update();
+                        }
                     }).catch((err) => {
                         infoWindowTpl = html`Error`;
                         infoWindowPosFound = true;
