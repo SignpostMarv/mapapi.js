@@ -234,18 +234,12 @@ class AgniApi extends Api {
             let infoWindowX = 0;
             let infoWindowY = 0;
             let infoWindowTpl = '';
-            let infoWindowProm;
 
-            const update = () => {
-                widget.updateDomNode();
-                renderer.dirty = true;
-            };
-
-            const widget = new Widget(async(pos, offset) => {
+            const widget = new Widget((pos, offset) => {
                 let { x, y } = pos;
                 x -= x % 1;
                 y -= y % 1;
-                if (infoWindowX != x || infoWindowY != y) {
+                if (infoWindowX !== x || infoWindowY !== y) {
                     infoWindowPosFound = false;
                     this.CoordinatesToLocation(pos).then((res) => {
                         let { x: resX, y: resY } = res.coordinates;
@@ -262,20 +256,23 @@ class AgniApi extends Api {
                                 >Teleport</a>
                             `;
                             infoWindowPosFound = true;
-                            update();
+                            widget.updateDomNode();
+                            renderer.dirty = true;
                         }
                     }).catch((err) => {
                         infoWindowTpl = html`Error`;
                         infoWindowPosFound = true;
-                        console.error(err);
-                        update();
+                        console.error(err); // eslint-disable-line no-console
+                        widget.updateDomNode();
+                        renderer.dirty = true;
                     });
                 }
-                if (! infoWindowPosFound) {
+                if (!infoWindowPosFound) {
                     const doUpdate = infoWindowTpl !== 'Searching...';
                     infoWindowTpl = 'Searching...';
                     if (doUpdate) {
-                        update();
+                        widget.updateDomNode();
+                        renderer.dirty = true;
                     }
                 }
                 infoWindowX = x;

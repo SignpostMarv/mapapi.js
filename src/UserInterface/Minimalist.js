@@ -2,8 +2,6 @@ import { GridConfig } from '../GridConfig.js';
 import { ConstructorArgumentExpectedClass } from '../ErrorFormatting.js';
 import { Canvas2dTileRenderer } from '../Renderer.js';
 import { BasicUserInterface } from '../UserInterface.js';
-import { Widget } from '../Html.js';
-import { html } from '../../node_modules/lit-html/lit-html.js';
 
 const gridConfigMap = new WeakMap();
 const uiMap = new WeakMap();
