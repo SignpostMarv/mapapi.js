@@ -191,7 +191,7 @@ class AgniApi extends Api {
 
                         if (poskeys.includes('x') && poskeys.includes('y')) {
                             try {
-                                yup(await this.CoordinatesToLocation(ReadOnlyCoordinates.Fuzzy(pos)));
+                                yup(await this.CoordinatesToLocation(pos));
                             } catch (err) {
                                 nope(err);
                             } finally {
