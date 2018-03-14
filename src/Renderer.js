@@ -138,8 +138,8 @@ export class Canvas2dTileRenderer extends EventTarget {
         return dirtymap.get(this);
     }
 
-    set dirty(val) {
-        dirtymap.set(this, !!val);
+    ForceDirty() {
+        dirtymap.set(this, true);
     }
 
     get zoom() {

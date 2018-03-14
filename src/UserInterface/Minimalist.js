@@ -10,7 +10,7 @@ const infoWindowMap = new WeakMap();
 
 const uiClickHandler = (e) => {
     infoWindowMap.get(e.target).position = e.detail.position;
-    e.target.renderer.dirty = true;
+    e.target.renderer.ForceDirty();
 };
 
 export class Minimalist {

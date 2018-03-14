@@ -257,14 +257,14 @@ class AgniApi extends Api {
                             `;
                             infoWindowPosFound = true;
                             widget.updateDomNode();
-                            renderer.dirty = true;
+                            renderer.ForceDirty();
                         }
                     }).catch((err) => {
                         infoWindowTpl = html`Error`;
                         infoWindowPosFound = true;
                         console.error(err); // eslint-disable-line no-console
                         widget.updateDomNode();
-                        renderer.dirty = true;
+                        renderer.ForceDirty();
                     });
                 }
                 if (!infoWindowPosFound) {
@@ -272,7 +272,7 @@ class AgniApi extends Api {
                     infoWindowTpl = 'Searching...';
                     if (doUpdate) {
                         widget.updateDomNode();
-                        renderer.dirty = true;
+                        renderer.ForceDirty();
                     }
                 }
                 infoWindowX = x;
