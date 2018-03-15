@@ -32,12 +32,32 @@ export class Minimalist {
         );
         uiMap.set(this, new BasicUserInterface(this.renderer));
 
-        this.ui.draggable = true;
-        this.ui.wheelZoom = true;
-        this.ui.addEventListener('click', uiClickHandler);
-        const infoWindow = this.gridConfig.api.LocationInfoWindowFactory()(this.ui.renderer);
-        infoWindowMap.set(this.ui, infoWindow);
-        this.renderer.widgets.push(infoWindow);
+        const { ui, renderer } = this;
+        const { widgets, shapeGroups } = renderer;
+
+        ui.draggable = true;
+        ui.wheelZoom = true;
+        ui.addEventListener('click', uiClickHandler);
+        const { api } = this.gridConfig;
+        const infoWindow = api.LocationInfoWindowFactory()(renderer);
+        infoWindowMap.set(ui, infoWindow);
+        widgets.push(infoWindow);
+
+        api.DefaultShapeGroups().then((groups) => {
+            shapeGroups.push(...groups);
+            renderer.dispatchEvent(new CustomEvent('propertyUpdate', {
+                detail: {
+                    properties: [
+                        'shapeGroups',
+                    ],
+                }
+            }));
+
+            console.log(shapeGroups[0][0].widget);
+
+            widgets.push(shapeGroups[0][0].widget);
+            renderer.ForceDirty();
+        });
 
         const sync = () => {
             if (this.renderer.dirty) {

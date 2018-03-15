@@ -12,6 +12,8 @@ import {
 } from '../ErrorFormatting.js';
 import { Widget } from '../Html.js';
 import { html } from '../../node_modules/lit-html/lit-html.js';
+import { ShapeGroup, Polygon, ShapeStyle } from '../Shapes.js';
+import { AlphaColor } from '../Color.js';
 
 const AgniSize = new ReadOnlyGridSize(
     new ReadOnlyCoordinates(0, 0),
@@ -322,6 +324,22 @@ class AgniApi extends Api {
 
             return widget;
         };
+    }
+
+    async DefaultShapeGroups() {
+        const oldagni = (await import('./Agni/OldGridSizes.js')).default;
+
+        const oldagnistyle = new ShapeStyle(
+            AlphaColor.Fuzzy(255, 255, 255, .5),
+            AlphaColor.Fuzzy(255, 255, 0, .5),
+            10
+        );
+
+        return [
+            new ShapeGroup('Old Grid Size', ...Object.keys(oldagni).map((title) => {
+                return new Polygon(oldagnistyle, false, title, ...oldagni[title]);
+            })),
+        ];
     }
 }
 
