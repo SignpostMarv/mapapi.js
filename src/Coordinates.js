@@ -30,7 +30,7 @@ export class ReadOnlyCoordinates extends EventTarget {
     }
 
     toArray() {
-        return [ xmap.get(this), ymap.get(this) ];
+        return [xmap.get(this), ymap.get(this)];
     }
 
     compare(pos) {
