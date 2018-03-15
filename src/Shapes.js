@@ -328,6 +328,11 @@ export class Polygon extends Line {
                 const { fillStyle, strokeStyle, lineWidth } = style;
                 const [width, height] = bounds.size.toArray();
                 const pointerEvents = clickable ? '' : 'pointer-events:none;';
+                const points = Coordinates.map((e) => {
+                    const [x, y] = e.toArray();
+
+                    return [x - posX, y - posY].join(',');
+                }).join(' ');
                 return html`<svg
                     width="${width}"
                     height="${height}"
@@ -371,13 +376,7 @@ export class Polygon extends Line {
                             );
                     "
                 >${svg`
-                    <polygon points="${
-                        Coordinates.map((e) => {
-                            const [x, y] = e.toArray();
-
-                            return [x - posX, y - posY].join(',');
-                        }).join(' ')
-                    }" />
+                    <polygon points="${points}" />
                 `}</svg>`;
             });
             widget.position = this.bounds.bottomLeft;
