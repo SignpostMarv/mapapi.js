@@ -50,10 +50,8 @@ export class Minimalist {
                     properties: [
                         'shapeGroups',
                     ],
-                }
+                },
             }));
-
-            console.log(shapeGroups[0][0].widget);
 
             widgets.push(shapeGroups[0][0].widget);
             renderer.ForceDirty();

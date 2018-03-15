@@ -318,7 +318,13 @@ export class Polygon extends Line {
         if (!widgetMap.has(this)) {
             const widget = new Widget((pos, offset) => {
                 const [posX, posY] = pos.toArray();
-                const { bounds, Coordinates, clickable, style, title } = this;
+                const {
+                    bounds,
+                    Coordinates,
+                    clickable,
+                    style,
+                    title,
+                } = this;
                 const { fillStyle, strokeStyle, lineWidth } = style;
                 const [width, height] = bounds.size.toArray();
                 const pointerEvents = clickable ? '' : 'pointer-events:none;';
@@ -375,7 +381,6 @@ export class Polygon extends Line {
                 `}</svg>`;
             });
             widget.position = this.bounds.bottomLeft;
-            console.log(this.Coordinates);
             widgetMap.set(this, widget);
         }
 
@@ -444,7 +449,7 @@ export class ShapeGroups extends Array {
     }
 
     push(...val) {
-        const groupNames = this.map(e => { console.log(e); return e.name; });
+        const groupNames = this.map(e => e.name);
         const groups = val.filter(shapeGroupFilter);
         groups.forEach((group) => {
             const index = groupNames.indexOf(group.name);
