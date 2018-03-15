@@ -326,19 +326,22 @@ class AgniApi extends Api {
         };
     }
 
-    async DefaultShapeGroups() {
+    async DefaultShapeGroups() { // eslint-disable-line class-methods-use-this
         const oldagni = (await import('./Agni/OldGridSizes.js')).default;
 
         const oldagnistyle = new ShapeStyle(
-            AlphaColor.Fuzzy(255, 255, 255, .5),
-            AlphaColor.Fuzzy(255, 255, 0, .5),
+            AlphaColor.Fuzzy(255, 255, 255, 0.5),
+            AlphaColor.Fuzzy(255, 255, 0, 0.5),
             10
         );
 
         return [
-            new ShapeGroup('Old Grid Size', ...Object.keys(oldagni).map((title) => {
-                return new Polygon(oldagnistyle, false, title, ...oldagni[title]);
-            })),
+            new ShapeGroup('Old Grid Size', ...Object.keys(oldagni).map(title => new Polygon(
+                oldagnistyle,
+                false,
+                title,
+                ...oldagni[title]
+            ))),
         ];
     }
 }
