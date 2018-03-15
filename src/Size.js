@@ -42,6 +42,10 @@ export class ReadOnlySize {
     toString() {
         return `<${this.x}, ${this.y}>`;
     }
+
+    toArray() {
+        return [xmap.get(this), ymap.get(this)];
+    }
 }
 
 export class ReadOnlyUintSize extends ReadOnlySize {

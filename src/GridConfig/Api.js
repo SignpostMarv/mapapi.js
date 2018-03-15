@@ -23,4 +23,8 @@ export class Api {
     LocationInfoWindowFactory(renderer) {
         throw new TypeError('LocationInfoWindowFactory API method has not been defined!');
     }
+
+    async DefaultShapeGroups() {
+        throw new TypeError('DefaultShapeGroups API method has not been defined!');
+    }
 }

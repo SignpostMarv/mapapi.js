@@ -36,9 +36,14 @@ body {
     padding: .25em ;
     border-radius: .25em ;
 }
-.mapapijs-infowindow--inner a
+.mapapijs-infowindow--inner > div > div a
 {
     display: block ;
+}
+.mapapijs-container > div > svg
+{
+    transform-origin: 0 100% ;
+    transform: scale(calc(var(--tilesource-width) * var(--scale))) ;
 }
 </style>
 </head>

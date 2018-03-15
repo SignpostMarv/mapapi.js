@@ -7,10 +7,13 @@ import {
 import { ReadOnlyCoordinates } from './Coordinates.js';
 import { Color, AlphaColor } from './Color.js';
 import { ReadOnlyBounds } from './Geometry.js';
+import { Widget } from './Html.js';
+import { html, svg } from '../node_modules/lit-html/lit-html.js';
 
 const fillStyleMap = new WeakMap();
 const strokeStyleMap = new WeakMap();
 const lineWidthMap = new WeakMap();
+const widgetMap = new WeakMap();
 
 const updateFillStyle = (obj, arg) => {
     const was = fillStyleMap.get(obj);
@@ -178,7 +181,7 @@ export class Shape extends EventTarget {
 
         super();
 
-        coordsMap.set(this, coords.map(ReadOnlyCoordinates.Fuzzy));
+        coordsMap.set(this, coords.map(e => ReadOnlyCoordinates.Fuzzy(...e)));
 
         styleMap.set(this, ShapeStyle.Fuzzy(style));
 
@@ -220,29 +223,37 @@ export class Shape extends EventTarget {
     }
 
     get bounds() {
-        let blX = 0;
-        let blY = 0;
-        let trX = 0;
-        let trY = 0;
+        let blX = NaN;
+        let blY = NaN;
+        let trX = NaN;
+        let trY = NaN;
 
         this.Coordinates.forEach((coord) => {
-            blX = Math.min(coord.x, blX);
-            blY = Math.min(coord.y, blY);
-            trX = Math.max(coord.x, trX);
-            trY = Math.max(coord.y, trY);
+            blX = Number.isNaN(blX) ? coord.x : Math.min(coord.x, blX);
+            blY = Number.isNaN(blY) ? coord.y : Math.min(coord.y, blY);
+            trX = Number.isNaN(trX) ? coord.x : Math.max(coord.x, trX);
+            trY = Number.isNaN(trY) ? coord.y : Math.max(coord.y, trY);
         });
 
-        return ReadOnlyBounds.Fuzzy([blX, blY], [trX, trY]);
+        return ReadOnlyBounds.Fuzzy(blX, blY, trX, trY);
+    }
+
+    get widget() {
+        if (!widgetMap.has(this)) {
+            throw new TypeError('Shape does not support widgets!');
+        }
+
+        return widgetMap.get(this);
     }
 }
 
 export class Line extends Shape {
-    constructor(style, ...coords) {
+    constructor(style, clickable, title, ...coords) {
         if (coords.length < 2) {
             throw new TypeError('At least two coordinates must be specified!');
         }
 
-        super(style, ...coords);
+        super(style, clickable, title, ...coords);
     }
 
     get length() {
@@ -285,22 +296,90 @@ export class Circle extends Line {
 }
 
 export class Rectangle extends Line {
-    constructor(style, ...coords) {
+    constructor(style, clickable, title, ...coords) {
         if (coords.length < 2) {
             throw new TypeError('At least two coordinates must be specified!');
         }
 
-        super(style, ...coords);
+        super(style, clickable, title, ...coords);
     }
 }
 
 export class Polygon extends Line {
-    constructor(style, ...coords) {
+    constructor(style, clickable, title, ...coords) {
         if (coords.length < 3) {
             throw new TypeError('At least three coordinates must be specified!');
         }
 
-        super(style, ...coords);
+        super(style, clickable, title, ...coords);
+    }
+
+    get widget() {
+        if (!widgetMap.has(this)) {
+            const widget = new Widget((pos, offset) => {
+                const [posX, posY] = pos.toArray();
+                const { bounds, Coordinates, clickable, style, title } = this;
+                const { fillStyle, strokeStyle, lineWidth } = style;
+                const [width, height] = bounds.size.toArray();
+                const pointerEvents = clickable ? '' : 'pointer-events:none;';
+                return html`<svg
+                    width="${width}"
+                    height="${height}"
+                    title="${title}"
+                    style="
+                        fill:${fillStyle};
+                        stroke:${strokeStyle};
+                        stroke-width:calc((${lineWidth} / var(--tilesource-width)) * var(--scale));
+                        ${pointerEvents}
+                        bottom:
+                            calc(
+                                50% -
+                                (
+                                    (
+                                        (1px * var(--scale)) *
+                                        var(--tilesource-width)
+                                    ) *
+                                    (
+                                        var(--focus-y) -
+                                        (
+                                            ${pos.y + offset.y}
+                                        )
+                                    )
+                                )
+                            );
+                        left:
+                            calc(
+                                50% -
+                                (
+                                    (
+                                        (1px * var(--scale)) *
+                                        var(--tilesource-height)
+                                    ) *
+                                    (
+                                        var(--focus-x) -
+                                        (
+                                            ${pos.x + offset.x}
+                                        )
+                                    )
+                                )
+                            );
+                    "
+                >${svg`
+                    <polygon points="${
+                        Coordinates.map((e) => {
+                            const [x, y] = e.toArray();
+
+                            return [x - posX, y - posY].join(',');
+                        }).join(' ')
+                    }" />
+                `}</svg>`;
+            });
+            widget.position = this.bounds.bottomLeft;
+            console.log(this.Coordinates);
+            widgetMap.set(this, widget);
+        }
+
+        return super.widget;
     }
 }
 
@@ -350,7 +429,7 @@ const shapeGroupFilter = e => e instanceof ShapeGroup;
 
 export class ShapeGroups extends Array {
     constructor(...groups) {
-        super(groups.filter(shapeGroupFilter));
+        super(...groups.filter(shapeGroupFilter));
     }
 
     static of(...groups) {
@@ -358,11 +437,27 @@ export class ShapeGroups extends Array {
     }
 
     concat(...groups) {
-        return super.concat(...groups.map(e => e.filter(shapeGroupFilter)));
+        const res = new this();
+        groups.forEach(e => res.push(e));
+
+        return res;
     }
 
-    push(...shapes) {
-        return super.push(shapes.filter(shapeGroupFilter));
+    push(...val) {
+        const groupNames = this.map(e => { console.log(e); return e.name; });
+        const groups = val.filter(shapeGroupFilter);
+        groups.forEach((group) => {
+            const index = groupNames.indexOf(group.name);
+
+            if (index >= 0) {
+                this[index].push(...group);
+            } else {
+                groupNames.push(group.name);
+                super.push(group);
+            }
+        });
+
+        return this.length;
     }
 
     fill() { // eslint-disable-line class-methods-use-this
