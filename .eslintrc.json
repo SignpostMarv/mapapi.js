@@ -7,10 +7,7 @@
         "eslint:recommended",
         "eslint-config-airbnb"
     ],
-    "parserOptions": {
-        "ecmaVersion": 2017,
-        "sourceType": "module"
-    },
+    "parser": "babel-eslint",
     "rules": {
         "max-len": [
             "error",

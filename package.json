@@ -10,6 +10,7 @@
     "lint": "eslint ./src/ && eslint ./example-src/"
   },
   "devDependencies": {
+    "babel-eslint": "^8.2.2",
     "eslint": "^4.17.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
