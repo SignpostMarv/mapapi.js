@@ -20,6 +20,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.6.1",
     "postcss-cli": "^5.0.0",
+    "postcss-nested": "^3.0.0",
     "rollup": "^0.57.1"
   },
   "dependencies": {
