@@ -1,0 +1,48 @@
+*, *:before, *:after {
+    content: none ;
+    margin: 0 ;
+    padding: 0 ;
+}
+body {
+    overflow: hidden ;
+    background: #1d475f ;
+}
+
+.mapapijs-container
+{
+    width: 100vw ;
+    height: 100vh ;
+    position: relative ;
+}
+.mapapijs-container > *
+{
+    position: absolute ;
+    top: 0 ;
+    left: 0 ;
+    width: 100% ;
+    height: 100% ;
+}
+.mapapijs-widgets
+{
+    transform-origin:0 100%;
+    transform: translate(var(--bounds-bl-x, 0), var(--bounds-bl-y, 0)));
+}
+.mapapijs-widgets > *
+{
+    position: absolute ;
+}
+.mapapijs-infowindow--inner
+{
+    background: #fff ;
+    padding: .25em ;
+    border-radius: .25em ;
+}
+.mapapijs-infowindow--inner > div > div a
+{
+    display: block ;
+}
+.mapapijs-widgets > svg
+{
+    transform-origin: 0 100% ;
+    transform: scale(calc(var(--tilesource-width) * var(--scale))) ;
+}

@@ -7,16 +7,19 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "rollup -c && copyfiles -f \"./examples-src/**/*.html\" ./examples/",
-    "lint": "eslint ./src/ && eslint ./example-src/ && eslint rollup.config.js"
+    "prep": "postcss ./examples-src/css-src/ -d ./examples-src/css/ -c ./postcss.config.js",
+    "build": "rollup -c && copyfiles -f \"./examples-src/**/*.html\" ./examples/ && postcss ./examples-src/css-src/ -d ./examples/css/ -c ./postcss.config.js",
+    "lint": "eslint ./src/ && eslint ./example-src/ && eslint *.config.js"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.2",
+    "copyfiles": "^2.0.0",
     "eslint": "^4.17.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.6.1",
+    "postcss-cli": "^5.0.0",
     "rollup": "^0.57.1"
   },
   "dependencies": {
