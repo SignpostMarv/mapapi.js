@@ -9,6 +9,7 @@ const posMap = new WeakMap();
 const offsetMap = new WeakMap();
 const gettplMap = new WeakMap();
 const isWithinBoundsProxyMap = new WeakMap();
+const fragMap = new WeakMap();
 
 export class Widget {
     constructor(gettpl, pos = [0, 0], offset = [0, 0], isWithinBoundsProxy) {
@@ -18,6 +19,7 @@ export class Widget {
         if (isWithinBoundsProxy instanceof Shape) {
             isWithinBoundsProxyMap.set(this, isWithinBoundsProxy);
         }
+        fragMap.set(this, new DocumentFragment());
         this.updateDomNode();
     }
 
@@ -37,12 +39,13 @@ export class Widget {
     }
 
     render(into) {
-        htmlrender(domNodeMap.get(this), into);
+        into.appendChild(fragMap.get(this));
     }
 
     updateDomNode() {
         const gettpl = gettplMap.get(this);
         domNodeMap.set(this, html`${gettpl(this.position, this.offset)}`);
+        htmlrender(domNodeMap.get(this), fragMap.get(this));
     }
 
     isWithinBounds(bounds) {
