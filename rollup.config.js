@@ -1,12 +1,12 @@
 export default {
-    input:[
+    input: [
         './examples-src/index.js',
         './examples-src/renderer.transitionend.js',
     ],
     output: {
         format: 'es',
-        dir: './examples/'
+        dir: './examples/',
     },
     experimentalCodeSplitting: true,
-    experimentalDynamicImport: true
-}
+    experimentalDynamicImport: true,
+};
