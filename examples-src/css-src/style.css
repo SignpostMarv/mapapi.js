@@ -12,42 +12,42 @@ body {
 {
     &-container
     {
-    width: 100vw ;
-    height: 100vh ;
-    position: relative ;
-    > *
-    {
-    position: absolute ;
-    top: 0 ;
-    left: 0 ;
-    width: 100% ;
-    height: 100% ;
-    }
+        width: 100vw ;
+        height: 100vh ;
+        position: relative ;
+        > *
+        {
+            position: absolute ;
+            top: 0 ;
+            left: 0 ;
+            width: 100% ;
+            height: 100% ;
+        }
     }
     &-widgets
     {
-    transform-origin:0 100%;
-    transform: translate(var(--bounds-bl-x, 0), var(--bounds-bl-y, 0)));
-    > *
-    {
-    position: absolute ;
-    }
-    > svg
-    {
-    transform-origin: 0 100% ;
-    transform: scale(calc(var(--tilesource-width) * var(--scale))) ;
-    }
+        transform-origin:0 100%;
+        transform: translate(var(--bounds-bl-x, 0), var(--bounds-bl-y, 0)));
+        > *
+        {
+            position: absolute ;
+        }
+        > svg
+        {
+            transform-origin: 0 100% ;
+            transform: scale(calc(var(--tilesource-width) * var(--scale))) ;
+        }
     }
     &-infowindow
     {
         &--inner
         {
-    background: #fff ;
-    padding: .25em ;
-    border-radius: .25em ;
+            background: #fff ;
+            padding: .25em ;
+            border-radius: .25em ;
             > div > div a
             {
-    display: block ;
+                display: block ;
             }
         }
     }
