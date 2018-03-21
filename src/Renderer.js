@@ -66,12 +66,7 @@ export class Canvas2dTileRenderer extends EventTarget {
             html`
             <div class="mapapijs-container">
                 ${canvas}
-                <div style="
-                    transform-origin:0 100%;
-                    transform:
-                        translate(var(--bounds-bl-x), var(--bounds-bl-y)))
-                    ;
-                "></div>
+                <div class="mapapijs-widgets"></div>
             </div>`,
             node
         );
