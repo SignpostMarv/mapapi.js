@@ -293,7 +293,7 @@ export class Canvas2dTileRenderer extends EventTarget {
         const transformingDom = this.DOMNode.querySelector('div');
 
         this.widgets.forEach((widget) => {
-            if (bounds.containsCoordinates(widget.position)) {
+            if (widget.isWithinBounds(bounds)) {
                 widget.render(transformingDom);
             }
         });

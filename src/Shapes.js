@@ -245,6 +245,19 @@ export class Shape extends EventTarget {
 
         return widgetMap.get(this);
     }
+
+    isWithinBounds(bounds) {
+        if (!(bounds instanceof ReadOnlyBounds)) {
+            throw new TypeError(ClassMethodArgumentExpectedType(
+                this,
+                'isWithinBounds',
+                1,
+                ReadOnlyBounds
+            ));
+        }
+
+        return bounds.containsCoordinates(...this.Coordinates);
+    }
 }
 
 export class Line extends Shape {
@@ -316,8 +329,6 @@ export class Polygon extends Line {
 
     get widget() {
         if (!widgetMap.has(this)) {
-            const widget = new Widget((pos, offset) => {
-                const [posX, posY] = pos.toArray();
                 const {
                     bounds,
                     Coordinates,
@@ -325,6 +336,8 @@ export class Polygon extends Line {
                     style,
                     title,
                 } = this;
+            const widget = new Widget((pos, offset) => {
+                const [posX, posY] = pos.toArray();
                 const { fillStyle, strokeStyle, lineWidth } = style;
                 const [width, height] = bounds.size.toArray();
                 const pointerEvents = clickable ? '' : 'pointer-events:none;';
@@ -378,8 +391,7 @@ export class Polygon extends Line {
                 >${svg`
                     <polygon points="${points}" />
                 `}</svg>`;
-            });
-            widget.position = this.bounds.bottomLeft;
+            }, bounds.bottomLeft, [0, 0], this);
             widgetMap.set(this, widget);
         }
 

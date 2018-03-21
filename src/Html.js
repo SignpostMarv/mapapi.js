@@ -1,16 +1,23 @@
 import { html, render as htmlrender } from '../node_modules/lit-html/lit-html.js';
 import { ReadOnlyCoordinates, Coordinates } from './Coordinates.js';
+import { ReadOnlyBounds } from './Geometry.js';
+import { ClassMethodArgumentExpectedType } from './ErrorFormatting.js';
+import { Shape } from './Shapes.js';
 
 const domNodeMap = new WeakMap();
 const posMap = new WeakMap();
 const offsetMap = new WeakMap();
 const gettplMap = new WeakMap();
+const isWithinBoundsProxyMap = new WeakMap();
 
 export class Widget {
-    constructor(gettpl, pos = [0, 0], offset = [0, 0]) {
+    constructor(gettpl, pos = [0, 0], offset = [0, 0], isWithinBoundsProxy) {
         posMap.set(this, Coordinates.Fuzzy(pos));
         offsetMap.set(this, ReadOnlyCoordinates.Fuzzy(offset));
         gettplMap.set(this, gettpl);
+        if (isWithinBoundsProxy instanceof Shape) {
+            isWithinBoundsProxyMap.set(this, isWithinBoundsProxy);
+        }
         this.updateDomNode();
     }
 
@@ -36,6 +43,22 @@ export class Widget {
     updateDomNode() {
         const gettpl = gettplMap.get(this);
         domNodeMap.set(this, html`${gettpl(this.position, this.offset)}`);
+    }
+
+    isWithinBounds(bounds) {
+        if (isWithinBoundsProxyMap.has(this)) {
+            return isWithinBoundsProxyMap.get(this).isWithinBounds(bounds);
+        }
+        if (!(bounds instanceof ReadOnlyBounds)) {
+            throw new TypeError(ClassMethodArgumentExpectedType(
+                this,
+                'isWithinBounds',
+                1,
+                ReadOnlyBounds
+            ));
+        }
+
+        return bounds.containsCoordinates(this.position);
     }
 }
 
