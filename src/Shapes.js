@@ -329,13 +329,13 @@ export class Polygon extends Line {
 
     get widget() {
         if (!widgetMap.has(this)) {
-                const {
-                    bounds,
-                    Coordinates,
-                    clickable,
-                    style,
-                    title,
-                } = this;
+            const {
+                bounds,
+                Coordinates,
+                clickable,
+                style,
+                title,
+            } = this;
             const widget = new Widget((pos, offset) => {
                 const [posX, posY] = pos.toArray();
                 const { fillStyle, strokeStyle, lineWidth } = style;

@@ -86,14 +86,14 @@ export class ReadOnlyBounds extends EventTarget {
 
         return args.some(
             (pos, i) => {
-                    if (!(pos instanceof ReadOnlyCoordinates)) {
-                        throw new TypeError(ClassMethodArgumentExpectedClass(
-                            this,
-                            this.containsCoordinates,
-                            i,
-                            ReadOnlyCoordinates
-                        ));
-                    }
+                if (!(pos instanceof ReadOnlyCoordinates)) {
+                    throw new TypeError(ClassMethodArgumentExpectedClass(
+                        this,
+                        this.containsCoordinates,
+                        i,
+                        ReadOnlyCoordinates
+                    ));
+                }
 
                 const { x, y } = pos;
 
