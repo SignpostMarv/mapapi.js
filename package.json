@@ -7,7 +7,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "lint": "eslint ./src/ && eslint ./example-src/"
+    "build": "rollup -c && copyfiles -f \"./examples-src/**/*.html\" ./examples/",
+    "lint": "eslint ./src/ && eslint ./example-src/ && eslint rollup.config.js"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.2",
@@ -15,7 +16,8 @@
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.6.1"
+    "eslint-plugin-react": "^7.6.1",
+    "rollup": "^0.57.1"
   },
   "dependencies": {
     "lit-html": "^0.9.0",
