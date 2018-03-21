@@ -72,16 +72,20 @@ export class ReadOnlyBounds extends EventTarget {
     }
 
     /**
-    * @param ReadOnlyCoordinates... arguments
+    * @param ReadOnlyCoordinates ...args
     */
     containsCoordinates(...args) {
         if (args.length < 1) {
             return false;
         }
 
-        return args.reduce(
-            (out, pos, i) => {
-                if (out) {
+        const { bottomLeft, topRight } = this;
+        const { x: blX, y: blY } = bottomLeft;
+        const { x: trX, y: trY } = topRight;
+
+
+        return args.some(
+            (pos, i) => {
                     if (!(pos instanceof ReadOnlyCoordinates)) {
                         throw new TypeError(ClassMethodArgumentExpectedClass(
                             this,
@@ -91,19 +95,14 @@ export class ReadOnlyBounds extends EventTarget {
                         ));
                     }
 
-                    if (
-                        !(
-                            pos.x >= this.bottomLeft.x &&
-                            pos.x <= this.topRight.x &&
-                            pos.y >= this.bottomLeft.y &&
-                            pos.y <= this.topRight.y
-                        )
-                    ) {
-                        return false;
-                    }
-                }
+                const { x, y } = pos;
 
-                return true;
+                return (
+                    x >= blX &&
+                    x <= trX &&
+                    y >= blY &&
+                    y <= trY
+                );
             },
             true
         );
