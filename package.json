@@ -1,0 +1,16 @@
+{
+  "name": "mapapi.js",
+  "version": "2.0.0",
+  "description": "Originally created as a refactor of the slurl.com JS for Open Hack 2009",
+  "repository": "git@github.com:SignpostMarv/mapapi.js.git",
+  "author": "SignpostMarv <me@signpostmarv.name>",
+  "license": "MIT",
+  "dependencies": {
+    "gulp-typescript": "^5.0.1"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "typescript": "^3.5.3"
+  }
+}

@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "allowSyntheticDefaultImports": false,
+        "declaration": true,
+        "declarationMap": true,
+        "forceConsistentCasingInFileNames": true,
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "esnext",
+        ],
+        "module": "ESNext",
+        "newLine": "lf",
+        "noEmitOnError": true,
+        "noErrorTruncation": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "strict": true,
+        "target": "ES2015"
+    }
+}
