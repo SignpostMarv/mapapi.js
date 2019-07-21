@@ -1,5 +1,3 @@
-import Renderer from './Renderer';
-
 /**
 * @license License and Terms of Use
 *
@@ -133,52 +131,6 @@ export class GridPointError extends Error
     constructor(message:string, position:GridPoint)
     {
         super(message);
-        this.position = position;
-    }
-}
-
-export class GridPointChangeEvent extends Event
-{
-    readonly target:Renderer;
-    readonly from:GridPoint;
-    readonly to:GridPoint;
-
-    constructor(target:Renderer, from:GridPoint, to:GridPoint)
-    {
-        super('gridpointchange');
-
-        this.target = target;
-        this.from = from;
-        this.to = to;
-    }
-}
-
-export class GridPointDragEvent extends Event
-{
-    readonly target:Renderer;
-    readonly from:GridPoint;
-    readonly to:GridPoint;
-
-    constructor(target:Renderer, from:GridPoint, to:GridPoint)
-    {
-        super('drag');
-
-        this.target = target;
-        this.from = from;
-        this.to = to;
-    }
-}
-
-export class GridPointClickEvent extends Event
-{
-    readonly target:Renderer;
-    readonly position:GridPoint;
-
-    constructor(target:Renderer, position:GridPoint)
-    {
-        super('click');
-
-        this.target = target;
         this.position = position;
     }
 }

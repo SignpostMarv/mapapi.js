@@ -51,7 +51,7 @@ export interface GridConfigApiLocalResult extends GridConfigApiRegionResult
     readonly local_position:GridPoint;
 }
 
-export interface GridConfigLocalApi
+export interface GridConfigLocalApi extends GridConfigApi
 {
     pos2internal: (
         global_position:GridPoint
@@ -80,7 +80,7 @@ export interface GridConfigOptions
     readonly region2pos?:(
         name:string
     ) => Promise<GridConfigApiRegionResult>;
-    readonly polyregion:PolyRegion;
+    readonly polyregion?:PolyRegion;
 }
 
 export class GridConfig implements GridConfigApi
@@ -93,10 +93,7 @@ export class GridConfig implements GridConfigApi
     readonly maximum_zoom:number;
     readonly size:Size;
     readonly tile_sources:Array<TileSource>;
-    readonly API:{
-        pos2region?:pos2region_method;
-        region2pos?:region2pos_method;
-    };
+    readonly API:GridConfigApi;
 
     constructor(options:GridConfigOptions) {
         this.namespace = options.namespace;
@@ -113,14 +110,21 @@ export class GridConfig implements GridConfigApi
             )
         );
         this.tile_sources = options.tile_sources || [];
-        this.API = {};
+        this.API = <GridConfigApi> {
+            pos2region: (_position:GridPoint) => {
+                throw new Error('Not implemented!');
+            },
+            region2pos: (_name:string) => {
+                throw new Error('Not implemented!');
+            },
+        };
 
         if ('pos2region' in options) {
-            this.API.pos2region = options.pos2region;
+            this.API.pos2region = <pos2region_method> options.pos2region;
         }
 
         if ('region2pos' in options) {
-            this.API.region2pos = options.region2pos;
+            this.API.region2pos = <region2pos_method> options.region2pos;
         }
 
         if (
@@ -128,7 +132,7 @@ export class GridConfig implements GridConfigApi
             ! ('region2pos' in options) &&
             'polyregion' in options
         ) {
-            this.API = options.polyregion;
+            this.API = <GridConfigLocalApi> options.polyregion;
         }
     }
 
