@@ -22,9 +22,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-import { TileSource } from '../../../TileSource';
-import { GridPoint } from '../../../GridPoint';
-import { GridConfig, GridConfigApiRegionResult } from '../../../GridConfig';
+import { TileSource } from '../../../TileSource.js';
+import { GridPoint } from '../../../GridPoint.js';
+import { GridConfig, GridConfigApiRegionResult } from '../../../GridConfig.js';
 
 export class SecondLifeTileSource extends TileSource
 {

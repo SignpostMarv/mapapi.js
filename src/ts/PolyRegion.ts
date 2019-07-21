@@ -21,15 +21,15 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-import Shape from './Shape';
-import GridPoint, { GridPointError } from './GridPoint';
-import Bounds from './Bounds';
+import Shape from './Shape.js';
+import GridPoint, { GridPointError } from './GridPoint.js';
+import Bounds from './Bounds.js';
 import {
     GridConfigApiRegionResult,
     GridConfigLocalApi,
     GridConfigApiLocalResult,
     Internal2PosApiError
-} from './GridConfig';
+} from './GridConfig.js';
 
 declare type Regions = {[index:string]: Array<Shape>};
 

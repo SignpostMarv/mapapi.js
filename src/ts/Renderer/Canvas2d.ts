@@ -21,13 +21,13 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-import { Renderer, RendererOptions } from '../Renderer';
-import { TileSource } from '../TileSource';
-import { Bounds } from '../Bounds';
-import { Size } from '../Size';
-import { GridPoint } from '../GridPoint';
-import { TileRequestResult } from '../TileSource';
-import { PropertyChangeEvent } from '../Events';
+import { Renderer, RendererOptions } from '../Renderer.js';
+import { TileSource } from '../TileSource.js';
+import { Bounds } from '../Bounds.js';
+import { Size } from '../Size.js';
+import { GridPoint } from '../GridPoint.js';
+import { TileRequestResult } from '../TileSource.js';
+import { PropertyChangeEvent } from '../Events.js';
 
 const last_bounds = <WeakMap<Canvas2d, Bounds>> new WeakMap();
 const last_size = <WeakMap<Canvas2d, Size>> new WeakMap();

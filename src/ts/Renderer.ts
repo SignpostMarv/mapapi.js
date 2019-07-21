@@ -21,13 +21,13 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-import { ShapeManager } from './Shape';
-import { PropertyChangeEvent } from './Events';
-import { GridPoint } from './GridPoint';
-import { GridConfig } from './GridConfig';
-import { Bounds } from './Bounds';
-import { TileSource } from './TileSource';
-import { Size } from './Size';
+import { ShapeManager } from './Shape.js';
+import { PropertyChangeEvent } from './Events.js';
+import { GridPoint } from './GridPoint.js';
+import { GridConfig } from './GridConfig.js';
+import { Bounds } from './Bounds.js';
+import { TileSource } from './TileSource.js';
+import { Size } from './Size.js';
 
 export interface RendererOptions
 {

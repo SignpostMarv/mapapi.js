@@ -21,9 +21,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-import Bounds from './Bounds';
-import Shape from './Shape';
-import Renderer from './Renderer';
+import Bounds from './Bounds.js';
+import Shape from './Shape.js';
+import Renderer from './Renderer.js';
 
 export class PropertyChangeEvent extends Event
 {

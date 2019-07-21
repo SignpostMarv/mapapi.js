@@ -21,9 +21,14 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-import { GridPoint, CoordinatesList, CoordinatesPair, CoordinatesSingleton } from './GridPoint';
-import Bounds from './Bounds';
-import { PropertyChangeEvent } from './Events';
+import {
+    GridPoint,
+    CoordinatesList,
+    CoordinatesPair,
+    CoordinatesSingleton
+} from './GridPoint.js';
+import Bounds from './Bounds.js';
+import { PropertyChangeEvent } from './Events.js';
 
 export interface ShapeOptions
 {

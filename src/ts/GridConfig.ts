@@ -21,10 +21,10 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-import Size from './Size';
-import TileSource from './TileSource';
-import { GridPoint, GridPointError } from './GridPoint';
-import { PolyRegion } from './PolyRegion';
+import Size from './Size.js';
+import TileSource from './TileSource.js';
+import { GridPoint, GridPointError } from './GridPoint.js';
+import { PolyRegion } from './PolyRegion.js';
 
 export interface GridConfigApiRegionResult
 {
