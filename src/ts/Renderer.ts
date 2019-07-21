@@ -190,6 +190,11 @@ export abstract class Renderer extends EventTarget
         this.addEventListener('drag', dragpan as EventListener);
     }
 
+    get content() : HTMLElement
+    {
+        return this.content_node;
+    }
+
     get smooth_zoom() : boolean
     {
         return this.options.smooth_zoom;
@@ -208,7 +213,7 @@ export abstract class Renderer extends EventTarget
         if (was !== clamped)
         {
             this.options.minimum_zoom = clamped;
-            this.dispatchEvent(new PropertyChangeEvent('minimum_zoom', this));
+            this.dispatchEvent(new PropertyChangeEvent('minimum_zoom'));
         }
     }
 
@@ -225,7 +230,7 @@ export abstract class Renderer extends EventTarget
         if (was !== clamped)
         {
             this.options.maximum_zoom = clamped;
-            this.dispatchEvent(new PropertyChangeEvent('maximum_zoom', this));
+            this.dispatchEvent(new PropertyChangeEvent('maximum_zoom'));
         }
     }
 
@@ -248,8 +253,13 @@ export abstract class Renderer extends EventTarget
         this.options.zoom = clamped;
 
         if (was !== clamped) {
-            this.dispatchEvent(new PropertyChangeEvent('zoom', this));
+            this.dispatchEvent(new PropertyChangeEvent('zoom'));
         }
+    }
+
+    get focus() : GridPoint
+    {
+        return this.options.focus;
     }
 
     set focus(value:GridPoint)
@@ -257,7 +267,7 @@ export abstract class Renderer extends EventTarget
         if ( ! this.options.focus.equals(value))
         {
             this.options.focus = value;
-            this.dispatchEvent(new PropertyChangeEvent('focus', this));
+            this.dispatchEvent(new PropertyChangeEvent('focus'));
         }
     }
 

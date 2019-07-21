@@ -83,7 +83,7 @@ export abstract class Shape extends EventTarget
 
         if ( undefined === was || ! was.equals(position))
         {
-            this.dispatchEvent(new PropertyChangeEvent('position', this));
+            this.dispatchEvent(new PropertyChangeEvent('position'));
         }
     }
 
@@ -100,7 +100,7 @@ export abstract class Shape extends EventTarget
 
         if ( was !== this.clickable)
         {
-            this.dispatchEvent(new PropertyChangeEvent('clickable', this));
+            this.dispatchEvent(new PropertyChangeEvent('clickable'));
         }
     }
 
@@ -117,7 +117,7 @@ export abstract class Shape extends EventTarget
 
         if ( was !== this.strokeStyle)
         {
-            this.dispatchEvent(new PropertyChangeEvent('strokeStyle', this));
+            this.dispatchEvent(new PropertyChangeEvent('strokeStyle'));
         }
     }
 
@@ -134,7 +134,7 @@ export abstract class Shape extends EventTarget
 
         if ( was !== this.lineWidth)
         {
-            this.dispatchEvent(new PropertyChangeEvent('lineWidth', this));
+            this.dispatchEvent(new PropertyChangeEvent('lineWidth'));
         }
     }
 
@@ -218,7 +218,7 @@ export class Polygon extends Shape
 
         this.shape_options.coordinates.length = 0;
         this.shape_options.coordinates.push(...value);
-        this.dispatchEvent(new PropertyChangeEvent('coordinates', this));
+        this.dispatchEvent(new PropertyChangeEvent('coordinates'));
 
         if (
             was.sw.x !== this.bounds.sw.x ||
@@ -226,7 +226,7 @@ export class Polygon extends Shape
             was.ne.x !== this.bounds.ne.x ||
             was.ne.y !== this.bounds.ne.y
         ) {
-            this.dispatchEvent(new PropertyChangeEvent('bounds', this));
+            this.dispatchEvent(new PropertyChangeEvent('bounds'));
         }
     }
 
@@ -375,7 +375,7 @@ export class Circle extends Shape
 
         if ( ! was.equals(value))
         {
-            this.dispatchEvent(new PropertyChangeEvent('bounds', this));
+            this.dispatchEvent(new PropertyChangeEvent('bounds'));
         }
     }
 
@@ -392,8 +392,8 @@ export class Circle extends Shape
 
         if (was !== this.radius)
         {
-            this.dispatchEvent(new PropertyChangeEvent('radius', this));
-            this.dispatchEvent(new PropertyChangeEvent('bounds', this));
+            this.dispatchEvent(new PropertyChangeEvent('radius'));
+            this.dispatchEvent(new PropertyChangeEvent('bounds'));
         }
     }
 

@@ -41,10 +41,10 @@ export interface TileRequestResult
 {
     readonly position:GridPoint;
     readonly zoom:number;
-    readonly result:HTMLImageElement;
+    readonly result:HTMLImageElement|HTMLCanvasElement;
 }
 
-export class TileSource
+export abstract class TileSource
 {
     readonly options:TileSourceOptions;
     readonly grid_image_cache:{
@@ -113,10 +113,7 @@ export class TileSource
         return Math.max(0, Math.min(1, this.options.opacity));
     }
 
-    obtain_tile_url (_position:GridPoint, _zoom:number) : Promise<string>
-    {
-        return Promise.resolve('data:text/plain,');
-    }
+    abstract obtain_tile_url (_position:GridPoint, _zoom:number) : Promise<string>;
 
     request_tile (position:GridPoint, zoom:number) : Promise<TileRequestResult>
     {
@@ -153,12 +150,28 @@ export class TileSource
                 x_index
             ][
                 y_index
-            ] = new Promise(async (yup, nope) => {
+            ] = new Promise(async (yup) => {
                 const image = new Image();
                 const result_position = new GridPoint(x, y);
 
-                image.crossOrigin = 'anonymous';
                 image.decoding = 'async';
+
+                const yield_blank = () => {
+                    const image = document.createElement('canvas');
+                    const ctx = <CanvasRenderingContext2D> image.getContext(
+                        '2d'
+                    );
+                    image.width = this.size.width;
+                    image.height = this.size.height;
+                    ctx.fillStyle = this.background_colour;
+                    ctx.fillRect(0, 0, image.width, image.height);
+
+                    yup({
+                        position: result_position,
+                        zoom: zoom_floored,
+                        result: image,
+                    });
+                };
 
                 try {
                     image.src = await this.obtain_tile_url(
@@ -176,7 +189,7 @@ export class TileSource
                 } catch (error) {
                     console.error(error);
 
-                    nope(error);
+                    yield_blank();
                 }
             });
         }

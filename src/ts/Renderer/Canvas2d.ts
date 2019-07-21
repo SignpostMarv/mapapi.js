@@ -32,7 +32,7 @@ import { PropertyChangeEvent } from '../Events.js';
 const last_bounds = <WeakMap<Canvas2d, Bounds>> new WeakMap();
 const last_size = <WeakMap<Canvas2d, Size>> new WeakMap();
 
-class Canvas2d extends Renderer
+export class Canvas2d extends Renderer
 {
     protected content_node:HTMLCanvasElement;
     protected context:CanvasRenderingContext2D;
@@ -164,7 +164,9 @@ class Canvas2d extends Renderer
 
         if (fire_bounds_changed)
         {
-            this.dispatchEvent(new PropertyChangeEvent('bounds', this));
+            this.dispatchEvent(new PropertyChangeEvent('bounds'));
         }
     }
 }
+
+export default Canvas2d;

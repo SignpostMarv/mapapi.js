@@ -1,5 +1,5 @@
 /**
-* License and Terms of Use
+* @license License and Terms of Use
 *
 * Copyright (c) 2019 SignpostMarv
 *
@@ -21,15 +21,12 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-
-export class PropertyChangeEvent extends Event
+body
 {
-    readonly property:string;
+    min-height: 100% ;
+}
 
-    constructor(property:string)
-    {
-        super('changed');
-
-        this.property = property;
-    }
+body > .mapapi-renderer
+{
+    height: 100vh ;
 }

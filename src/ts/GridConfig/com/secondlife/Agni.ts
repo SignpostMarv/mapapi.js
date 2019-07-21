@@ -46,7 +46,7 @@ export class SecondLifeTileSource extends TileSource
     obtain_tile_url(position:GridPoint, zoom:number) : Promise<string>
     {
         const sl_zoom = Math.floor(zoom + 1);
-        const regions_per_tile_edge = (sl_zoom - 1) ** 2;
+        const regions_per_tile_edge = 2 ** (sl_zoom - 1);
         const {x:position_x, y:position_y} = position;
 
         const x = position_x - (position_x % regions_per_tile_edge);
@@ -58,10 +58,7 @@ export class SecondLifeTileSource extends TileSource
         }
 
         return Promise.resolve(
-            [ // 2 hosts so that we get faster performance on clients with lots of bandwidth but possible browser limits on number of open files
-                'http://map.secondlife.com.s3.amazonaws.com',
                 'http://map.secondlife.com'
-            ][Math.random() >= 5 ? 0 : 1] // Pick a server
             + ['/map', sl_zoom, x, y, 'objects.jpg'].join('-') //  Get image tiles from Amazon S3
         );
     }

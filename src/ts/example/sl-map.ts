@@ -1,5 +1,5 @@
 /**
-* License and Terms of Use
+* @license License and Terms of Use
 *
 * Copyright (c) 2019 SignpostMarv
 *
@@ -21,15 +21,13 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-
-export class PropertyChangeEvent extends Event
-{
-    readonly property:string;
-
-    constructor(property:string)
-    {
-        super('changed');
-
-        this.property = property;
-    }
-}
+import { SecondLifeGridConfig } from '../GridConfig/com/secondlife/Agni.js';
+import { Canvas2d } from '../Renderer/Canvas2d.js';
+import GridPoint from '../../js/GridPoint.js';
+export const grid_config = new SecondLifeGridConfig();
+export const instance = new Canvas2d({
+    grid_config: grid_config,
+    minimum_zoom: 0,
+    maximum_zoom: grid_config.maximum_zoom,
+    focus: new GridPoint(1000, 1000),
+});
